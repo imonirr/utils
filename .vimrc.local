@@ -1,0 +1,46 @@
+"disable indentation white spaces coloring
+let g:indent_guides_enable_on_vim_startup = 0
+
+"enable linting for using syntastic plugin
+let g:syntastic_check_on_open=1
+let g:syntastic_javascript_checkers = ['jshint']
+let g:syntastic_html_tidy_exec = 'tidy5'
+
+set clipboard=unnamedplus
+
+" use javascript-library-syntax
+let g:used_javascript_libs = 'jquery,angularjs'
+"colorscheme blueshift
+colorscheme distinguished
+
+
+map <slient ,c :NERDTreeClose<CR>
+" Copy Paste Between terminals"
+vmap <silent> ,y y:new<CR>:call setline(1,getregtype())<CR>o<Esc>P:wq! ~/reg.txt<CR>
+nmap <silent> ,y :new<CR>:call setline(1,getregtype())<CR>o<Esc>P:wq! ~/reg.txt<CR>
+map <silent> ,p :sview ~/reg.txt<CR>"zdddG:q!<CR>:call setreg('"', @", @z"'"')<CR>p
+map <silent> ,P :sview ~/reg.txt<CR>"zdddG:q!<CR>:call setreg('"', @", @z"'"')<CR>P
+
+
+
+" no backup, no swap"
+set nobackup
+set noswapfile
+
+
+" efficient shortcuts
+nnorema ; : 
+" clear highlighted search matches
+nmap <slient> ,/ :nohlsearch<CR>
+" for saving files which require root privileges"
+cmap w!! w !sudo tee % >/dev/null
+" show Syntastic Error Messages
+nnoremap ,j :Errors<CR>
+
+" insert current date time while saving"
+"autocmd bufnewfile *.js so /home/monir/.vim/copyright-header.txt
+"autocmd bufnewfile *.js exe "1," . 10 . "g/File Name :.*/s//File Name : " .expand("%")
+"autocmd bufnewfile *.js exe "1," . 10 . "g/Creation Date :.*/s//Creation Date : " .strftime("%d-%m-%Y")
+"autocmd Bufwritepre,filewritepre *.js execute "normal ma"
+"autocmd Bufwritepre,filewritepre *.js exe "1," . 10 . "g/Last Modified :.*/s/Last Modified :.*/Last Modified : " .strftime("%c")
+"autocmd bufwritepost,filewritepost *.js execute "normal `a""`"
