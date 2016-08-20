@@ -2,8 +2,18 @@
 let g:indent_guides_enable_on_vim_startup = 0
 
 "enable linting for using syntastic plugin
+let g:syntastic_mode_map = { 'mode': 'active',
+                            \ 'active_filetypes': ['javascript', 'html', 'css'],
+                            \ 'passive_filetypes': [] }
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list=1
+let g:syntastic_auto_loc_list=1
 let g:syntastic_check_on_open=1
-let g:syntastic_javascript_checkers = ['jshint']
+let g:syntastic_check_on_wq=0
+let g:syntastic_javascript_checkers = ['eslint']
 "let g:syntastic_javascript_jshint_args = '--config '. $HOME .'/.jshintrc'
 let g:syntastic_html_tidy_exec = 'tidy5'
 
@@ -16,7 +26,13 @@ let g:used_javascript_libs = 'jquery,angularjs'
 colorscheme distinguished
 
 
+" nerdcommenter
+let g:NERDSpaceDelims=1
+let g:NERDDefaultAlign = 'left'
+let g:NERDTrimTraillingWhitespace=1
 map <slient ,c :NERDTreeClose<CR>
+
+
 " Copy Paste Between terminals"
 vmap <silent> ,y y:new<CR>:call setline(1,getregtype())<CR>o<Esc>P:wq! ~/reg.txt<CR>
 nmap <silent> ,y :new<CR>:call setline(1,getregtype())<CR>o<Esc>P:wq! ~/reg.txt<CR>
