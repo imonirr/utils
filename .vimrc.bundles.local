@@ -1,3 +1,0 @@
-Bundle 'othree/javascript-libraries-syntax.vim'
-" better javascript syntax
-Plugin 'jelera/vim-javascript-syntax'
