@@ -16,6 +16,8 @@ let g:syntastic_check_on_wq=0
 let g:syntastic_javascript_checkers = ['eslint']
 let g:syntastic_javascript_eslint_args = '--config '. $HOME .'/.eslintrc.json'
 let g:syntastic_html_tidy_exec = 'tidy5'
+" for debugging
+"let g:syntastic_debug=3
 
 set clipboard=unnamedplus
 set fileencoding=utf-8
@@ -31,6 +33,7 @@ let g:NERDSpaceDelims=1
 let g:NERDDefaultAlign = 'left'
 let g:NERDTrimTraillingWhitespace=1
 map <slient ,c :NERDTreeClose<CR>
+" map <leader>p :NERDTreeCWD
 
 
 " Copy Paste Between terminals"
