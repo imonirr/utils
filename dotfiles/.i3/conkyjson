@@ -39,9 +39,13 @@ TEXT
 # ${if_updatenr 2}up: ${uptime}${endif}\
 #", "color":"\#DCDCCC"},
 
-{"full_text": "${downspeed}%"},
 
-[{"full_text": "RAM:", "separator": false, "separator_block_width":3},
+[
+
+{"full_text": "${downspeed enp2s0}", "min_width":"000%", "separator": false, "separator_block_width":3, "color":"\#c3bf9f$" },
+{"full_text": "${upspeed enp2s0}", "min_width":"000%", "separator": false, "separator_block_width":3, "color":"\#c3bf9f$" },
+
+{"full_text": "RAM:", "separator": false, "separator_block_width":3},
 {"full_text": "${memperc}%", "min_width":"000%", "separator": false, "separator_block_width":3, "color":"${if_match ${memperc} < 33}\#7f9f7f${else}${if_match ${memperc} > 66}\#dca3a3${else}\#c3bf9f${endif}${endif}"},
 
 {"full_text": "CPU:", "separator": false, "separator_block_width":3},
@@ -59,6 +63,5 @@ TEXT
 # {"full_text": "${exec awk '{print $3}' /proc/loadavg}", "color":"${if_match ${exec awk '{print $3}' /proc/loadavg} < 1.0}\#7f9f7f${else}${if_match ${exec awk '{print $3}' /proc/loadavg} > 3.0}\#dca3a3${else}\#c3bf9f${endif}${endif}"},
 #{"full_text": "net:", "separator": false, "separator_block_width":3},
 #{"full_text": "${wireless_essid wlp2s0}", "separator":false, "separator_block_width":3, "color":"\#dca3a3"},
-#{"full_text": "${addr wlp2s0}", "color":"\#83b3a3", "separator":false, "separator_block_width":1},
 #{"full_text": ":", "separator":false, "separator_block_width":1},
 #{"full_text": "${exec /home/paul/bin/external-ip}", "color":"\#7f9f7f"},
