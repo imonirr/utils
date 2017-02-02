@@ -61,6 +61,10 @@ source $ZSH/oh-my-zsh.sh
 
 # You may need to manually set your language environment
 export LANG=en_US.UTF-8
+export LANG_ALL=en_US.UTF-8
+export LC_CTYPE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
 
 # Preferred editor for local and remote sessions
 export EDITOR='vim'
@@ -80,6 +84,6 @@ export SSH_KEY_PATH="~/.ssh/id_ed25519"
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias wwf="~/Work/etutionbd-frontend"
-alias wwf="~/Work/etutionbd-backend"
+alias wwfb="~/Work/etutionbd-backend"
 alias dosto="~/Work/dostokhan"
 
