@@ -86,4 +86,5 @@ export SSH_KEY_PATH="~/.ssh/id_ed25519"
 alias wwf="~/Work/etutionbd-frontend"
 alias wwfb="~/Work/etutionbd-backend"
 alias dosto="~/Work/dostokhan"
+alias trash='mv -t /tmp'
 
