@@ -16,7 +16,7 @@
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
-font pango:DejaVu Sans Mono 8
+font pango:DejaVu Sans Mono 12
 
 # Before i3 v4.8, we used to recommend this one as the default:
 # font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
@@ -164,6 +164,11 @@ bar {
         statusline #ADD8E6
     }
     #status_command i3status
-    status_command $HOME/.i3/conky-i3bar
+    status_command $HOME/.config/i3/conky-i3bar
     position top
 }
+
+# screenshot shortcut
+bindsym Print exec scrot $HOME/Pictures/ScreenShots/`date +%Y-%m-%d_%H:%M:%S`.png
+bindsym Mod1+Print exec scrot -u $HOME/Pictures/ScreenShots/`date +%Y-%m-%d_%H:%M:%S`.png
+bindsym Mod1+Shift+Print exec scrot -s $HOME/Pictures/ScreenShots/`date +%Y-%m-%d_%H:%M:%S`.png
