@@ -1,0 +1,11 @@
+Host ringdev
+	HostName 38.127.68.61
+	Port 22
+	User root
+	IdentityFile ~/.ssh/id_rsa
+
+Host ringlive
+	HostName 38.108.92.115
+	Port 22
+	User samir
+	IdentityFile ~/.ssh/id_rsa

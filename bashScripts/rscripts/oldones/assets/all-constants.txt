@@ -1,0 +1,3060 @@
+CHAT_GENERAL_CONSTANTS 
+
+ MESSAGE_STATUS                  : { UNREAD : -1, DELETED : 0, SENT : 1, DELIVERED  : 2,  SEEN : 3, VIEWED : 4, PLAYED : 4 },
+            MESSAGE_TYPES                   : {
+                DELETE_MESSAGE              : 0,
+                BLANK_MESSAGE               : 1,
+                TEXT                        : 2,
+                EMOTICON_MESSAGE            : 3,
+                LOCATION_SHARE              : 4,
+                LINK_SHARE                  : 5,
+                STICKER                     : 6,
+                IMAGE                       : 7,
+                AUDIO                       : 8,
+                VIDEO                       : 9,
+                CAMERA_IMAGE                : 10,
+                TYPING                      : 101
+            },
+
+            USER_PRESENCE : {
+                OFFLINE : 1,
+                ONLINE : 2,
+                AWAY : 3
+            },
+
+            HISTORY_MAX_MESSAGE             :  20,
+
+
+            /* Internal */
+            TAB_SYNC_MAX_TIME               : 180 * 1000,
+            TAB_SYNC_ACTIONS                : { AUTH_REQUEST            : 0,
+                                                CHAT_REQUEST            : 1,
+                                                GENERAL_INFO_UPDATE     : 3,
+                                                CHAT_BOX_INFO_UPDATE    : 4,
+                                                SECRET_CHAT_TIMER       : 5,
+                                                CHAT_HISTORY_REFRESH    : 6,
+                                                CHAT_MSESSAGE_UPDATE    : 7
+                                              }
+
+
+        };
+
+        var CHAT_GLOBAL_VALUES = {
+            serverTimeDiff : 0,
+            offlineUpdateTime : 0
+        };
+
+        var CHAT_GENERAL_INFOS = {
+            messageUnreadCount : 0,
+            version : '1.2'
+        };
+
+        var CHAT_STATES = {
+            MESSAGE_SENDING: {
+
+                ONLINE_IP_PORT_REQUEST              : 0,
+                FIRST_ONLINE                        : 1,
+                PRESENCE_REFRESH                    : 2,
+                SECOND_ONLINE                       : 3,
+                ONLINE_IP_PORT_REFRESH              : 4,
+                THIRD_ONLINE                        : 5,
+                ONLINE_SUCCESS                      : 6,
+                ONLINE_FAILED                       : 7,
+
+
+                FIRST_OFFLINE                       : 101,
+                OFFLINE_IP_PORT_REFRESH             : 102,
+                SECOND_OFFLINE                      : 102,
+                OFFLINE_FAILED                      : 104,
+                OFFLINE_SUCCESS                     : 105,
+
+                SUCCESS                             : 201,
+                FAILED                              : 202
+
+            }
+        };
+
+        var CHAT_FLOWS = {
+            SEND_MESSAGE : [
+                CHAT_STATES.MESSAGE_SENDING.ONLINE_IP_PORT_REQUEST,
+                CHAT_STATES.MESSAGE_SENDING.FIRST_ONLINE,
+                CHAT_STATES.MESSAGE_SENDING.PRESENCE_REFRESH,
+                CHAT_STATES.MESSAGE_SENDING.ONLINE_IP_PORT_REFRESH,
+                CHAT_STATES.MESSAGE_SENDING.ONLINE_FAILED,
+
+                CHAT_STATES.MESSAGE_SENDING.FIRST_OFFLINE,
+                CHAT_STATES.MESSAGE_SENDING.OFFLINE_IP_PORT_REFRESH
+            ]
+        };
+
+        var CHAT_STATE_INFO ={};
+
+        CHAT_STATE_INFO[CHAT_STATES.MESSAGE_SENDING.ONLINE_IP_PORT_REQUEST] = {
+            NEXT : [CHAT_STATES.MESSAGE_SENDING.FIRST_OFFLINE]
+        };
+
+        CHAT_STATE_INFO[CHAT_STATES.MESSAGE_SENDING.FIRST_OFFLINE] = {
+            NEXT : [CHAT_STATES.MESSAGE_SENDING.ONLINE_SUCCESS, CHAT_STATES.MESSAGE_SENDING.PRESENCE_REFRESH]
+        };
+
+        CHAT_STATE_INFO[CHAT_STATES.MESSAGE_SENDING.PRESENCE_REFRESH] = {
+            NEXT : [CHAT_STATES.MESSAGE_SENDING.ONLINE_SUCCESS, CHAT_STATES.MESSAGE_SENDING.ONLINE_IP_PORT_REFRESH]
+        };
+
+        CHAT_STATE_INFO[CHAT_STATES.MESSAGE_SENDING.ONLINE_IP_PORT_REFRESH] = {
+            NEXT : [CHAT_STATES.MESSAGE_SENDING.ONLINE_SUCCESS, CHAT_STATES.MESSAGE_SENDING.ONLINE_FAILED]
+        };
+
+        CHAT_STATE_INFO[CHAT_STATES.MESSAGE_SENDING.ONLINE_FAILED] = {
+            NEXT : [CHAT_STATES.MESSAGE_SENDING.FIRST_OFFLINE]
+        };
+
+        CHAT_STATE_INFO[CHAT_STATES.MESSAGE_SENDING.OFFLINE_SUCCESS] = {
+            NEXT : [CHAT_STATES.MESSAGE_SENDING.SUCCESS]
+        };
+
+
+        CHAT_STATE_INFO[CHAT_STATES.MESSAGE_SENDING.FIRST_OFFLINE] = {
+            NEXT : [CHAT_STATES.MESSAGE_SENDING.OFFLINE_SUCCESS, CHAT_STATES.MESSAGE_SENDING.OFFLINE_IP_PORT_REFRESH]
+        };
+
+        CHAT_STATE_INFO[CHAT_STATES.MESSAGE_SENDING.OFFLINE_IP_PORT_REFRESH] = {
+            NEXT : [CHAT_STATES.MESSAGE_SENDING.OFFLINE_SUCCESS, CHAT_STATES.MESSAGE_SENDING.OFFLINE_FAILED]
+        };
+
+        CHAT_STATE_INFO[CHAT_STATES.MESSAGE_SENDING.OFFLINE_FAILED] = {
+            NEXT : [CHAT_STATES.MESSAGE_SENDING.FAILED]
+        };
+
+        CHAT_STATE_INFO[CHAT_STATES.MESSAGE_SENDING.OFFLINE_SUCCESS] = {
+            NEXT : [CHAT_STATES.MESSAGE_SENDING.SUCCESS]
+        };
+
+        var chatStates = Object.keys(CHAT_STATES.MESSAGE_SENDING);
+
+        for(var index = 0, length = chatStates.length; index < length; index++){
+            var aChatStateIndex = CHAT_STATES['MESSAGE_SENDING'][ chatStates[index] ];
+            try{
+                CHAT_STATE_INFO [ aChatStateIndex ]['NAME'] = chatStates[index];
+            }catch(e) {
+
+                CHAT_STATE_INFO [ aChatStateIndex ] = {};
+                CHAT_STATE_INFO [ aChatStateIndex ]['NAME'] = chatStates[index];
+            }
+        }
+
+        var CHAT_PACKET_TYPE = {//not in use right now but will be, but before that we need to change the values as they've changed
+
+            CHAT_REGISTER : 1,
+            CHAT_FRIEND_UNREGISTERED : 2,
+            CHAT_REGISTER_CONFIRMATION : 3,
+            CHAT_GROUP_UNREGISTER : 4,
+            //Friend to Friend Chat Constants
+            CHAT_FRIEND : 5,
+            CHAT_DELIVERED : 6,
+            CHAT_SEEN : 7,
+            CHAT_SENT : 8,
+            CHAT_TYPING : 9,
+            CHAT_IDEL : 10,
+
+            /** Chat Grouup **/
+            CHAT_GROUP_REGISTER : 12,
+            CHAT_GROUP_REG_CONFIRMATION : 13,
+            CHAT_GROUP : 14,
+            CHAT_GROUP_DELIVERED : 15,
+            CHAT_GROUP_SEEN : 16,
+            CHAT_GROUP_SENT : 17,
+            CHAT_GROUP_TYPING : 18,
+            CHAT_GROUP_IDEL : 19,
+
+            //Offline Message
+            CHAT_FRIEND_OFFLINE : 20,
+            CHAT_GROUP_OFFLINE : 21,
+            CHAT_GET_OFFLINE : 22,
+            CHAT_OFFLINE_CONFIRMATION : 23,
+
+            //Chat Delete Constants
+            FRIEND_CHAT_DELETE : 24,
+            FRIEND_CHAT_DELETE_CONFIRMATION : 25,
+            FRIEND_INFORMATION : 28,
+            FRIEND_INFORMATION_CONFIRMATION : 29,
+
+            GROUP_CHAT_DELETE : 26,
+            GROUP_CHAT_DELETE_CONFIRMATION : 27,
+
+            //File Stream
+            FILE_TOTAL_SEQUENCE : 30,
+            FILE_TOTAL_SEQUENCE_CONFIRMATION : 31,
+            FILE_STREAM_SEND : 32,
+            FILE_STREAM_SEND_CONFIRMATION : 33
+        };
+
+        var CHAT_PACKET_ATTRIBUTE = {
+            PACKET_TYPE: 1,
+            USER_ID: 2,
+            FRIEND_ID : 3,
+            PACKET_ID_LENGTH : 4,
+            PACKET_ID : 5,
+            PLATFORM : 6,
+            CHAT_BINDING_PORT : 7,
+            TAG_ID : 8,
+            ONLINE_STATUS : 9,
+            USER_MOOD : 10,
+            MESSAGE_TYPE : 11,
+            TIMEOUT : 12,
+            LATITUDE : 13,
+            LONGITUDE : 14,
+            MESSAGE_LENGTH : 15,
+            MESSAGE : 16,
+            MESSAGE_DATE : 17,
+            NO_OF_MESSAGE : 18,
+            FULL_NAME_LENGTH : 19,
+            FULL_NAME : 20,
+            NO_OF_PACKET : 21,
+            SEQUENCE_NO : 22,
+            NO_OF_MEMBERS : 23,
+            UPDATE_TIME : 24,
+            SERVER_DATE : 25,
+            IS_SECRET_VISIBLE: 26,
+            MESSAGE_STATUS: 27,
+            BLOCK_UNBLOCK_UPDATE_DATE: 28
+
+        };
+
+        var CHAT_PACKET_FORMAT = {
+            'REGISTER_PKT' : {
+                'PACKET_NAME': 'REGISTER_PKT',
+                'PACKET_TYPE': 1,
+                'FORMAT': [1,2,3,4,5,6]
+            },
+            'FRIEND_UNREGISTER_PKT' : {
+                'PACKET_NAME': 'FRIEND_UNREGISTER_PKT',
+                'PACKET_TYPE': 2,
+                'FORMAT': [1,2,3,4,5,9,10]//packetId and packetIdLength added(16feb2016)
+            },
+            'REGISTER_CONFIRM_PKT' : {
+                'PACKET_NAME': 'REGISTER_CONFIRM_PKT',
+                'PACKET_TYPE': 3,
+                'FORMAT': [1,3,4,5,7,25]
+            },
+            'CHAT_MSG' : {
+                'PACKET_NAME': 'CHAT_MSG',
+                'PACKET_TYPE': 6, // previous: 5
+                'FORMAT': [1, 2, 3, 4, 5, 11, 12, 15, 16, 17, 26]//13,14 lat lon is omitted; 26 issecretvisible added
+            },
+            'CHAT_MSG_OFFLINE' : {
+                'PACKET_NAME': 'CHAT_MSG_OFFLINE',
+                'PACKET_TYPE': 6, // previous: 5
+                'FORMAT': [1, 2, 3, 4, 5, 11, 12, 15, 16, 17, 26, 6]//13,14 lat lon is omitted; 26 issecretvisible added
+            },
+            'DELIVER_PKT' : {
+                'PACKET_NAME': 'DELIVER_PKT',
+                'PACKET_TYPE': 15, // previous: 6
+                'FORMAT': [1, 2, 3, 4, 5]
+            },
+            'DELIVER_PKT_OFFLINE' : {
+                'PACKET_NAME': 'DELIVER_PKT_OFFLINE',
+                'PACKET_TYPE': 15, // previous: 6
+                'FORMAT': [1, 2, 3, 4, 5, 6]
+            },
+            'SEEN_PKT' : {
+                'PACKET_NAME': 'SEEN_PKT',
+                'PACKET_TYPE': 17, // previous: 7
+                'FORMAT': [1, 2, 3, 4, 5, 18, 4, 5, 17, 27] // previous: [1.2.3.4.5]
+            },
+            'SEEN_PKT_CONFIRM' : {
+                'PACKET_NAME': 'SEEN_PKT_CONFIRM',
+                'PACKET_TYPE': 18, // previous: NaN
+                'FORMAT': [1, 2, 3, 4, 5]
+            },
+            'SENT_PKT' : {
+                'PACKET_NAME': 'SENT_PKT',
+                'PACKET_TYPE': 16, // previous: 8
+                'FORMAT': [1, 2, 3, 4, 5]
+            },
+            'SEEN_PKT_OFFLINE' : {
+                'PACKET_NAME': 'SEEN_PKT_OFFLINE',
+                'PACKET_TYPE': 17, // previous: 7
+                'FORMAT': [1, 2, 3, 4, 5, 18, 4, 5, 17, 27, 6] // previous: [1.2.3.4.5.6]
+            },
+            'TYPING_PKT' : {
+                'PACKET_NAME': 'TYPING_PKT',
+                'PACKET_TYPE': 5, // previous: 9
+                'FORMAT': [1, 2, 3, 6]
+            },
+            'IDLE_PKT' : {
+                'PACKET_NAME': 'IDLE_PKT',
+                'PACKET_TYPE': 4, // previous: 10
+                'FORMAT': [1, 2, 3, 6]
+            },
+            'DELETE_PKT' : {
+                'PACKET_NAME': 'DELETE_PKT',
+                'PACKET_TYPE': 19, // previous: 24
+                'FORMAT': [1, 2, 3, 4, 5, 18, 4, 5]
+            },
+            'DELETE_PKT_OFFLINE' : {
+                'PACKET_NAME': 'DELETE_PKT_OFFLINE',
+                'PACKET_TYPE': 19, // previous: 24
+                'FORMAT': [1, 2, 3, 4, 5, 18, 4, 5, 6]
+            },
+            'DELETE_CONFIRM_PKT' : {
+                'PACKET_NAME': 'DELETE_CONFIRM_PKT',
+                'PACKET_TYPE': 20, // previous: 25
+                'FORMAT': [1, 2, 3, 4, 5]
+            },
+            'DELETE_CONFIRM_PKT_OFFLINE' : {
+                'PACKET_NAME': 'DELETE_CONFIRM_PKT_OFFLINE',
+                'PACKET_TYPE': 20, // previous: 25
+                'FORMAT': [1, 2, 3, 4, 5, 6]
+            },
+
+            'OFFLINE_REGISTER_PKT' : {
+                'PACKET_NAME': 'OFFLINE_REGISTER_PKT',
+                'PACKET_TYPE': 93, // previous: 222
+                'FORMAT': [1, 2, 4, 5, 24, 28, 6]
+            },
+
+            // THIS PACKET USER WILL RECEIVE FROM SERVER AFTER SENDING OFFLINE REGISTER PACKET,
+            // THEN HE SHOULD STOP SENDING OFFLINE REGISTER PACKET
+            'OFFLINE_CONFIRM_PKT' : {
+                'PACKET_NAME': 'OFFLINE_CONFIRM_PKT',
+                'PACKET_TYPE': 94, // previous: 23
+                'FORMAT': [1, 4, 5, 17]
+            },
+            'FRIEND_OFFLINE_PKT' : {//friend unread message
+                'PACKET_NAME': 'FRIEND_OFFLINE_PKT',
+                'PACKET_TYPE': 95, // previous: 20
+                'FORMAT': [1, 4, 5, 18, 1, 2, 4, 5, 11, 12, 15, 16, 17, 26]//noofpacket, sequenceno omitted 21,22; lat lon omitted 13,14; issecretvisible added 26
+            },
+
+            // THESE PACKETS(58,59) USER WILL SEND AFTER GETTING OFFLINE MSG PACKETS SO THAT
+            // SEVER DOESN'T SEND OFFLINE MESSAGE AGAIN
+            'FRIEND_OFFLINE_CONFIRM_PKT' : {//FRIEND_UNREAD_MESSAGE_CONFIRMATION
+                'PACKET_NAME': 'FRIEND_OFFLINE_CONFIRM_PKT',
+                'PACKET_TYPE': 96,// previous: 58
+                'FORMAT': [1, 2, 4, 5, 18, 4, 5, 6] //Here noOfPackets is assumed as noOfMessages
+            }
+        };
+
+        var AUTH_SERVER_ACTIONS = {
+            START_F2F_CHAT          : 175,
+            RECEIVED_F2F_CHAT       : 375,
+            START_TAG_CHAT          : 134,
+            RECEIVED_TAG_CHAT       : 334,
+            ADD_TAG_CHAT_MEMBERS    : 135,
+            GET_OFFLINE_IP_PORT     : 83
+        };
+
+        chatApp.constant('CHAT_PACKET_TYPE',        CHAT_PACKET_TYPE );
+        chatApp.constant('CHAT_PACKET_ATTRIBUTE',   CHAT_PACKET_ATTRIBUTE);
+        chatApp.constant('CHAT_PACKET_FORMAT',      CHAT_PACKET_FORMAT);
+        chatApp.constant('CHAT_GENERAL_CONSTANTS',  CHAT_GENERAL_CONSTANTS );
+
+        chatApp.constant('CHAT_FLOWS',              CHAT_FLOWS );
+        chatApp.constant('CHAT_STATE_INFO',         CHAT_STATE_INFO );
+        chatApp.constant('CHAT_STATES',             CHAT_STATES );
+        chatApp.value('CHAT_GLOBAL_VALUES',         CHAT_GLOBAL_VALUES);
+        chatApp.value('CHAT_GENERAL_INFOS',         CHAT_GENERAL_INFOS);
+        chatApp.constant('AUTH_SERVER_ACTIONS',     AUTH_SERVER_ACTIONS );
+})();
+
+
+/*
+ * Md. Ibrahim Rashid
+ * © Ipvision
+ */
+
+(function() {
+    'use strict';
+
+        var tagChatApp = angular.module('ringid.tagchat');
+
+        var TAG_CHAT_GENERAL_CONSTANTS = {
+
+            //Debug
+            LOCAL_CHAT                      : false,
+            LOCAL_CHAT_REG_IP               : '192.168.1.125',
+            LOCAL_CHAT_REG_PORT             : 1500,
+            LOCAL_CHAT_OFFLINE_IP           : '192.168.1.125',
+            LOCAL_CHAT_OFFLINE_PORT         : 1200,
+
+            API_VERSION                     : 3,
+            API_VERSION_PORT_OFFSET         : 0,
+
+            PACKET_IP_SIZE                  :  4,
+            PACKET_PORT_SIZE                :  2,
+
+            PACKET_DYNAMIC_ATTRIBUTE        : -1,
+            PACKET_RAW_BYTE_ATTRIBUTE       : -2,
+
+
+            ONE_BYTE_SIZE                   :  1,
+            TWO_BYTE_SIZE                   :  2,
+            FOUR_BYTE_SIZE                  :  4,
+            EIGHT_BYTE_SIZE                 :  8,
+
+            TAG_ID_NO_OF_TIME_DIGIT         : 10,
+            TAG_ID_NO_OF_USER_ID_DIGIT      : 6,
+
+            PACKET_MAX_SIZE                 : 512,
+            AUTH_UID_LIST_LIMIT             : 15,
+
+
+            /*** Timing Variables ***/
+
+
+            ACTUAL_TAG_REGISTER_TIMEOUT     : 180000,
+            TAG_REGISTER_TIMEOUT            : 150000, // 180000 milliseconds actual value, giving some space
+            API_FETCH_RETRY_COUNT           : 5,
+            API_FETCH_RETRY_DELAY           : 3000 , // 3000 miliseconds
+            RETRY_COUNT                     : 5,
+            REQUEST_TIMEOUT                 : 3000 * 6,
+
+            BOX_WAITING_TIME                : 180, // seconds
+
+            UDP_SERVER_KEEP_ALIVE_INTERVAL  : 10000, // miliseconds
+
+            REQUEST_CACHE_VALIDITY          : 3000, // miliseconds
+            RESPONSE_CACHE_VALIDITY         : 3000, // miliseconds
+
+            /** MAPS **/
+
+            ATTRIBUTE_TYPE                  : { INTEGER : 1, STRING : 2, BYTE : 3 },
+
+            MEMBER_STATUS                   : { MEMBER : 1, ADMIN : 2,  OWNER   : 3, REMOVED : 4, LEAVE : 5 },
+            MEMBER_MOODS                    : { ONLINE : 1, AWAY  : 2,  OFFLINE : 3, DO_NOT_DISTURB : 4 },
+
+            REGISTRATION_TYPES              : { CREATE : 1, ONLY_REGISTER : 2, CHAT_INVITE : 3 },
+
+            MESSAGE_STATUS                  : { UNREAD : -1, DELETED : 0, SENT : 1, DELIVERED  : 2,  SEEN : 3, VIEWED : 4, PLAYED : 4 },
+            MESSAGE_TYPES                   : {
+                                                    DELETE_MESSAGE          : 0,
+                                                    BLANK_MESSAGE           : 1,
+                                                    PLAIN_MESSAGE           : 2,
+                                                    EMOTICON_MESSAGE        : 3,
+                                                    LOCATION_MESSAGE        : 4,
+                                                    LINK_MESSAGE            : 5,
+                                                    DOWNLOAD_STICKER_MESSAGE: 6,
+                                                    IMAGE_FILE_FROM_GALLERY : 7,
+                                                    AUDIO_FILE              : 8,
+                                                    VIDEO_FILE              : 9,
+                                                    IMAGE_FILE_FROM_CAMERA  : 10,
+                                                    FILE_STREAM             : 11,
+                                                    HISTORY_RE_FETCH        : 14,
+                                                    GROUP_ACTIVITY          : 20
+                                              },
+
+
+            STATUS_MESSAGE_TYPES            : { TAG_MEMBER_ADD : 1,
+                                                TAG_MEMBER_DELETE : 2,
+                                                TAG_MEMBER_LEAVE : 3,
+                                                TAG_MEMBER_STATUS_CHANGE_OWNER : 4,
+                                                TAG_MEMBER_STATUS_CHANGE_ADMIN : 5,
+                                                TAG_MEMBER_STATUS_CHANGE_MEMBER : 6,
+                                                TAG_NAME_CHANGE : 7,
+                                                TAG_PICTURE_CHANGE : 8,
+                                                TAG_INFO_UPDATED : 9,
+                                                TAG_ADMIN_ADD : 10  },
+
+            PAGE_DIRECTION                  : { UP : 1, DOWN : 2 },
+
+            ONLINE_STATUS                   : { OFFLINE : 1, ONLINE : 2, AWAY : 3},
+            ONLINE_MOOD                     : { ALIVE : 1, DONT_DISTURB : 2, BUSY : 3, INVISIBLE: 4},
+            SECRET_VISIBILITY               : { NON_VISIBLE : 0, VISIBLE : 1 },
+
+            TAG_ACTIVITY_TYPE               : { DELETED : 0, ADDED : 1, LEAVE : 2, TAG_RENAME: 3, MEMBER_TYPE_CHANGE : 4, TAG_URL_RENAME : 5, TAG_CREATED : 6}
+
+
+
+        };
+
+        /** Generate Reverse Maps **/
+        var itemKey, itemValue, itemPropKey, itemPropValue;
+        for(itemKey in TAG_CHAT_GENERAL_CONSTANTS){
+            itemValue = TAG_CHAT_GENERAL_CONSTANTS[itemKey]
+            if(angular.isObject(itemValue)){
+                TAG_CHAT_GENERAL_CONSTANTS[itemKey +'_VALUE'] = [];
+                for( itemPropKey in itemValue){
+                    itemPropValue = itemValue[itemPropKey];
+                    TAG_CHAT_GENERAL_CONSTANTS[itemKey +'_VALUE'][itemPropValue] = itemPropKey
+                }
+            }
+        }
+
+
+        var FRIEND_CHAT_PACKET_TYPE = {
+            
+            FRIEND_CHAT_REGISTER                                : 1,
+            FRIEND_CHAT_UNREGISTER                              : 2,
+            FRIEND_CHAT_REGISTER_CONFIRMATION                   : 3,
+            
+            FRIEND_CHAT_IDLE                                    : 4,
+            FRIEND_CHAT_TYPING                                  : 5,
+
+            FRIEND_CHAT_MSG                                     : 6,
+            FRIEND_CHAT_MSG_EDIT                                : 7,
+            FRIEND_CHAT_BROKEN_MSG                              : 8,
+            FRIEND_CHAT_BROKEN_MSG_EDIT                         : 9,
+            FRIEND_CHAT_MULTIPLE_MSG                            : 10,
+
+
+            FRIEND_CHAT_DELIVERED                               : 15,
+            FRIEND_CHAT_SENT                                    : 16,
+            FRIEND_CHAT_SEEN                                    : 17,
+            FRIEND_CHAT_SEEN_CONFIRMATION                       : 18,
+
+            FRIEND_CHAT_MULTIPLE_MSG_DELETE                     : 19,
+
+            FRIEND_CHAT_MSG_DELETE_CONFIRMATION                 : 20,
+
+            FRIEND_BROKEN                                       : 24,
+            FRIEND_BROKEN_CONFIRMATION                          : 25,
+
+            FRIEND_CHAT_BLOCK                                   : 27,
+            FRIEND_CHAT_UNBLOCK                                 : 28,
+            FRIEND_CHAT_BLOCK_UNBLOCK_CONFIRMATION              : 29
+
+
+        };
+
+        var TAG_CHAT_PACKET_TYPE = {
+
+            TAG_CHAT_TAG_REGISTER                               : 41,
+            TAG_CHAT_TAG_UNREGISTER                             : 42,
+            TAG_CHAT_TAG_REGISTER_CONFIRMATION                  : 43,
+
+            TAG_CHAT_TAG_INFORMATION                            : 46,
+            TAG_CHAT_TAG_INFORMATION_CONFIRMATION               : 47,
+
+            TAG_CHAT_TAG_MEMBER_ADD                             : 51,
+            TAG_CHAT_TAG_MEMBER_ADD_CONFIRMATION                : 52,
+
+            TAG_CHAT_MEMBER_REMOVE_LEAVE                        : 53,
+            TAG_CHAT_MEMBER_REMOVE_LEAVE_CONFIRMATION           : 54,
+
+            TAG_CHAT_TAG_MEMBER_TYPE_CHANGE                     : 55,
+            TAG_CHAT_TAG_MEMBER_TYPE_CHANGE_CONFIRMATION        : 56,
+
+
+            TAG_CHAT_IDLE                                       : 61,
+            TAG_CHAT_TYPING                                     : 62,
+
+            TAG_CHAT_MSG                                        : 63,
+            TAG_CHAT_MSG_EDIT                                   : 64,
+            TAG_CHAT_BROKEN_MSG                                 : 65,
+            TAG_CHAT_BROKEN_MSG_EDIT                            : 66,
+            TAG_CHAT_MULTIPLE_MSG                               : 67,
+
+
+            TAG_CHAT_DELIVERED                                  : 68,
+            TAG_CHAT_SENT                                       : 69,
+            TAG_CHAT_SEEN                                       : 70,
+            TAG_CHAT_SEEN_CONFIRMATION                          : 71,
+
+            TAG_CHAT_MULTIPLE_MSG_DELETE                        : 72,
+
+            TAG_CHAT_MSG_DELETE_CONFIRMATION                    : 73,
+
+
+            TAG_CHAT_GENERAL_BROKEN_PACKET                      : 74,
+            TAG_CHAT_GENERAL_BROKEN_PACKET_CONFIRMATION         : 75
+
+        };
+
+        var OFFLINE_PACKET_TYPE = {
+
+            OFFLINE_FRIEND_INFORMATION                                  : 91,
+            OFFLINE_FRIEND_INFORMATION_CONFIRMATION                     : 92,
+
+            OFFLINE_GET_REQUEST                                         : 93,
+            OFFLINE_GET_REQUEST_CONFIRMATION                            : 94,
+            OFFLINE_FRIEND_UNREAD_MESSAGE                               : 95,
+            OFFLINE_FRIEND_UNREAD_MESSAGE_CONFIRMATION                  : 96,
+            OFFLINE_FRIEND_HISTORY_MESSAGE_REQUEST                      : 97,
+            OFFLINE_FRIEND_HISTORY_MESSAGE                              : 98,
+            OFFLINE_FRIEND_HISTORY_MESSAGE_CONFIRMATION                 : 99,
+            OFFLINE_GET_FRIEND_MESSAGE_STATUS                           : 100,
+            OFFLINE_GET_FRIEND_MESSAGE_STATUS_CONFIRMATION              : 101,
+
+            OFFLINE_TAG_INFORMATION_ACTIVITY                            : 104,
+
+            OFFLINE_MY_TAG_LIST                                         : 105,
+
+            OFFLINE_TAG_UNREAD_MESSAGE                                  : 106,
+            OFFLINE_TAG_UNREAD_MESSAGE_CONFIRMATION                     : 107,
+
+            OFFLINE_TAG_CREATE_TAG                                      : 108,
+            OFFLINE_TAG_CREATE_TAG_CONFIRMATION                         : 109,
+
+            OFFLINE_TAG_HISTORY_MESSAGE_REQUEST                         : 110,
+            OFFLINE_TAG_HISTORY_MESSAGE                                 : 111,
+
+            OFFLINE_GET_TAG_INFORMATION_WITH_MEMBERS                    : 112,
+            OFFLINE_TAG_INFORMATION_WITH_MEMBERS                        : 113,
+
+            OFFLINE_TAG_CONFIRMATION                                    : 117,
+
+            OFFLINE_BROKEN_HISTORY_PACKET                               : 118,
+            OFFLINE_BROKEN_PACKET                                       : 119,
+            OFFLINE_BROKEN_PACKET_CONFIRMATION                          : 120
+        };
+
+
+        var TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP = {};
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [TAG_CHAT_PACKET_TYPE.TAG_CHAT_TAG_REGISTER]                           = TAG_CHAT_PACKET_TYPE.TAG_CHAT_TAG_REGISTER_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [TAG_CHAT_PACKET_TYPE.TAG_CHAT_TAG_INFORMATION]                        = TAG_CHAT_PACKET_TYPE.TAG_CHAT_TAG_INFORMATION_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [TAG_CHAT_PACKET_TYPE.TAG_CHAT_TAG_MEMBER_ADD]                         = TAG_CHAT_PACKET_TYPE.TAG_CHAT_TAG_MEMBER_ADD_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [TAG_CHAT_PACKET_TYPE.TAG_CHAT_MULTIPLE_MSG_DELETE]                    = TAG_CHAT_PACKET_TYPE.TAG_CHAT_MSG_DELETE_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [TAG_CHAT_PACKET_TYPE.TAG_CHAT_MEMBER_REMOVE_LEAVE]                    = TAG_CHAT_PACKET_TYPE.TAG_CHAT_MEMBER_REMOVE_LEAVE_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [TAG_CHAT_PACKET_TYPE.TAG_CHAT_TAG_MEMBER_TYPE_CHANGE]                 = TAG_CHAT_PACKET_TYPE.TAG_CHAT_TAG_MEMBER_TYPE_CHANGE_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [TAG_CHAT_PACKET_TYPE.TAG_CHAT_GENERAL_BROKEN_PACKET]                  = TAG_CHAT_PACKET_TYPE.TAG_CHAT_GENERAL_BROKEN_PACKET_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [TAG_CHAT_PACKET_TYPE.TAG_CHAT_MSG]                                    = TAG_CHAT_PACKET_TYPE.TAG_CHAT_SENT;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [TAG_CHAT_PACKET_TYPE.TAG_CHAT_MSG_EDIT]                               = TAG_CHAT_PACKET_TYPE.TAG_CHAT_SENT;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [TAG_CHAT_PACKET_TYPE.TAG_CHAT_BROKEN_MSG]                             = TAG_CHAT_PACKET_TYPE.TAG_CHAT_SENT;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [TAG_CHAT_PACKET_TYPE.TAG_CHAT_BROKEN_MSG_EDIT]                        = TAG_CHAT_PACKET_TYPE.TAG_CHAT_SENT;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [TAG_CHAT_PACKET_TYPE.TAG_CHAT_DELIVERED]                              = [TAG_CHAT_PACKET_TYPE.TAG_CHAT_SEEN, TAG_CHAT_PACKET_TYPE.TAG_CHAT_SEEN_CONFIRMATION];
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [TAG_CHAT_PACKET_TYPE.TAG_CHAT_SEEN]                                   = TAG_CHAT_PACKET_TYPE.TAG_CHAT_SEEN_CONFIRMATION;
+
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [OFFLINE_PACKET_TYPE.OFFLINE_TAG_CREATE_TAG]                           = OFFLINE_PACKET_TYPE.OFFLINE_TAG_CREATE_TAG_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [OFFLINE_PACKET_TYPE.OFFLINE_GET_REQUEST]                              = OFFLINE_PACKET_TYPE.OFFLINE_GET_REQUEST_CONFIRMATION;
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+
+            [OFFLINE_PACKET_TYPE.OFFLINE_TAG_UNREAD_MESSAGE]                       = OFFLINE_PACKET_TYPE.OFFLINE_TAG_UNREAD_MESSAGE_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [OFFLINE_PACKET_TYPE.OFFLINE_BROKEN_PACKET]                            = OFFLINE_PACKET_TYPE.OFFLINE_BROKEN_PACKET_CONFIRMATION;
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+
+            [OFFLINE_PACKET_TYPE.OFFLINE_BROKEN_HISTORY_PACKET]                    = OFFLINE_PACKET_TYPE.OFFLINE_BROKEN_PACKET_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [OFFLINE_PACKET_TYPE.OFFLINE_TAG_HISTORY_MESSAGE_REQUEST]              = OFFLINE_PACKET_TYPE.OFFLINE_TAG_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [OFFLINE_PACKET_TYPE.OFFLINE_GET_TAG_INFORMATION_WITH_MEMBERS]         = OFFLINE_PACKET_TYPE.OFFLINE_TAG_CONFIRMATION;
+
+        /******************************************** F2F CONFIRMATIONS ********************************/
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_REGISTER]                            = FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_REGISTER_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_MSG]                                 = [FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_SENT, FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_DELIVERED];
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_MSG_EDIT]                            = [FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_SENT, FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_DELIVERED];
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_BROKEN_MSG]                          = [FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_SENT, FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_DELIVERED];
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_BROKEN_MSG_EDIT]                     = [FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_SENT, FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_DELIVERED];
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_DELIVERED]                           = [ FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_SEEN, FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_SEEN_CONFIRMATION ];
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_SEEN]                                = FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_SEEN_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [FRIEND_CHAT_PACKET_TYPE.FRIEND_BROKEN]                                   = FRIEND_CHAT_PACKET_TYPE.FRIEND_BROKEN_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_BLOCK]                               = FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_BLOCK_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [OFFLINE_PACKET_TYPE.OFFLINE_FRIEND_INFORMATION]                          = OFFLINE_PACKET_TYPE.OFFLINE_FRIEND_INFORMATION_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [OFFLINE_PACKET_TYPE.OFFLINE_FRIEND_UNREAD_MESSAGE]                       = OFFLINE_PACKET_TYPE.OFFLINE_FRIEND_UNREAD_MESSAGE_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [OFFLINE_PACKET_TYPE.OFFLINE_FRIEND_HISTORY_MESSAGE_REQUEST]              = OFFLINE_PACKET_TYPE.OFFLINE_FRIEND_HISTORY_MESSAGE_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [OFFLINE_PACKET_TYPE.OFFLINE_FRIEND_HISTORY_MESSAGE]                      = OFFLINE_PACKET_TYPE.OFFLINE_FRIEND_HISTORY_MESSAGE_CONFIRMATION;
+
+        TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP
+            [OFFLINE_PACKET_TYPE.OFFLINE_GET_FRIEND_MESSAGE_STATUS]                   = OFFLINE_PACKET_TYPE.OFFLINE_GET_FRIEND_MESSAGE_STATUS_CONFIRMATION;
+
+
+    var TAG_CHAT_PACKET_ATTRIBUTE = {
+            PACKET_TYPE                                         : 1,
+            USER_ID                                             : 2,
+            FRIEND_ID                                           : 3,
+            PACKET_ID_LENGTH                                    : 4,
+            PACKET_ID                                           : 5,
+            PLATFORM                                            : 6,
+            CHAT_BINDING_PORT                                   : 7,
+            TAG_ID                                              : 8,
+            ONLINE_STATUS                                       : 9,
+            USER_MOOD                                           : 10,
+            MESSAGE_TYPE                                        : 11,
+            TIMEOUT                                             : 12,
+            LATITUDE                                            : 13,
+            LONGITUDE                                           : 14,
+            MESSAGE_LENGTH                                      : 15,
+            MESSAGE                                             : 16,
+            MESSAGE_DATE                                        : 17,
+            NO_OF_MESSAGE                                       : 18,
+            FULL_NAME_LENGTH                                    : 19,
+            FULL_NAME                                           : 20,
+            NO_OF_PACKET                                        : 21,
+            SEQUENCE_NO                                         : 22,
+            NO_OF_MEMBERS                                       : 23,
+            UPDATE_TIME                                         : 24,
+            SERVER_DATE                                         : 25,
+            LAST_ONLINE_TIME                                    : 26,
+            NO_OF_ITEMS                                         : 27,
+            BLOCK_UNBLOCK_DATE                                  : 28,
+            MESSAGE_STATUS                                      : 29,
+            IS_ADD_TO_DB                                        : 30,
+
+            TAG_NAME_LENGTH                                     : 31,
+            TAG_NAME                                            : 32,
+            TAG_PICTURE_URL_LENGTH                              : 33,
+            TAG_PICTURE_URL                                     : 34,
+            TAG_MEMBER_TYPE                                     : 35,
+            TAG_MEMBER_ADDED_BY                                 : 36,
+            TAG_NO_OF_MEMBERS                                   : 37,
+            TAG_NO_OF_BROKEN_PKT                                : 38,
+            TAG_INFORMATION_UPDATE_FLAG                         : 39,
+            TAG_INFORMATION_TAG_NO_OF_MEMBERS                   : 40,
+
+            REGISTRATION_TYPE                                   : 41,
+            PAGE_DIRECTION                                      : 42,
+            PAGE_LIMIT                                          : 43,
+            ACTIVITY_TYPE                                       : 45,
+            ACTIVITY_VALUE_LENGTH                               : 46,
+            ACTIVITY_VALUE                                      : 47,
+            CHANGED_BY_USER_ID                                  : 48,
+
+            FRIEND_APP_TYPE                                     : 60,
+            FRIEND_DEVICE_TOKEN_LENGTH                          : 61,
+            FRIEND_DEVICE_TOKEN                                 : 62,
+            IS_SECRET_VISIBLE                                   : 63,
+
+            APP_VERSION                                         : 64,
+
+            RAW_DATA_BYTE                                       : 80
+
+        };
+
+        ////////////////////////////////////// ATTRIBUTE DEFINATION START //////////////////////////////////////
+
+        var TAG_CHAT_PACKET_ATTRIBUTE_INFO = {};
+
+        //#1
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE] = {
+            NAME : 'PACKET_TYPE',
+            VAR_NAME : 'packetType',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE : 1
+        };
+
+        //#2
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.USER_ID] = {
+            NAME : 'USER_ID',
+            VAR_NAME : 'userId',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE : 8
+        };
+
+        //#3
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID] = {
+            NAME : 'FRIEND_ID',
+            VAR_NAME : 'friendId',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE : 8
+        };
+
+        //#4
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH] = {
+            NAME : 'PACKET_ID_LENGTH',
+            VAR_NAME : 'packetIdLength',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE : 1
+        };
+
+        //#5
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID] = {
+            NAME : 'PACKET_ID',
+            VAR_NAME : 'packetId',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.STRING,
+            SIZE : -1 //* DYNAMIC SIZE :: -1
+        };
+
+        //#6
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM] = {
+            NAME : 'PLATFORM',
+            VAR_NAME : 'platform',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  1
+        };
+
+        //#7
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.CHAT_BINDING_PORT] = {
+            NAME : 'CHAT_BINDING_PORT',
+            VAR_NAME : 'chatBindingPort',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  4
+        };
+
+        //#8
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID] = {
+            NAME : 'TAG_ID',
+            VAR_NAME : 'tagId',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  8
+        };
+
+        //#9
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.ONLINE_STATUS] = {
+            NAME : 'ONLINE_STATUS',
+            VAR_NAME : 'onlineStatus',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  1
+        };
+
+        //#10
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.USER_MOOD] = {
+            NAME : 'USER_MOOD',
+            VAR_NAME : 'userMood',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  1
+        };
+
+        //#11
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_TYPE] = {
+            NAME : 'MESSAGE_TYPE',
+            VAR_NAME : 'messageType',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  1
+        };
+
+        //#12
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.TIMEOUT] = {
+            NAME : 'TIMEOUT',
+            VAR_NAME : 'timeout',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  2
+        };
+
+        //#13
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.LATITUDE] = {
+            NAME : 'LATITUDE',
+            VAR_NAME : 'latitude',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  4
+        };
+
+        //#14
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.LONGITUDE] = {
+            NAME : 'LONGITUDE',
+            VAR_NAME : 'longitude',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  4
+        };
+
+        //#15
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_LENGTH] = {
+            NAME : 'MESSAGE_LENGTH',
+            VAR_NAME : 'messageLength',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  2
+        };
+
+        //#16
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE] = {
+            NAME : 'MESSAGE',
+            VAR_NAME : 'message',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.STRING,
+            SIZE :  -1
+        };
+
+        //#17
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_DATE] = {
+            NAME : 'MESSAGE_DATE',
+            VAR_NAME : 'messageDate',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  8
+        };
+
+        //#18
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_MESSAGE] = {
+            NAME : 'NO_OF_MESSAGE',
+            VAR_NAME : 'messagesLength',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            VAR_CONTAINER_NAME : 'messages',
+            SIZE :  1
+        };
+
+        //#19
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.FULL_NAME_LENGTH] = {
+            NAME : 'FULL_NAME_LENGTH',
+            VAR_NAME : 'fullNameLength',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  1
+        };
+
+        //#20
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.FULL_NAME] = {
+            NAME : 'FULL_NAME',
+            VAR_NAME : 'fullName',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.STRING,
+            SIZE :  -1
+        };
+
+        //#21
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_PACKET] = {
+            NAME : 'NO_OF_PACKET',
+            VAR_NAME : 'packetsLength',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            VAR_CONTAINER_NAME : 'packets',
+            SIZE :  1
+        };
+
+        //#22
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.SEQUENCE_NO] = {
+            NAME : 'SEQUENCE_NO',
+            VAR_NAME : 'sequenceNo',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  1
+        };
+
+        //#23
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_MEMBERS] = {
+            NAME : 'NO_OF_MEMBERS',
+            VAR_NAME : 'membersLength',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            VAR_CONTAINER_NAME : 'members',
+            SIZE :  2
+        };
+
+        //#24
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.UPDATE_TIME] = {
+            NAME : 'UPDATE_TIME',
+            VAR_NAME : 'updateTime',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  8
+        };
+
+        //#25
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.SERVER_DATE] = {
+            NAME : 'SERVER_DATE',
+            VAR_NAME : 'serverDate',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  8
+        };
+
+        //#26
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.LAST_ONLINE_TIME] = {
+            NAME : 'LAST_ONLINE_TIME',
+            VAR_NAME : 'lastOnlineTime',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  8
+        };
+
+        //#27
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_ITEMS] = {
+            NAME : 'NO_OF_ITEMS',
+            VAR_NAME : 'noOfItems',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            VAR_CONTAINER_NAME : 'items',
+            SIZE :  2
+        };
+
+        //#28
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.BLOCK_UNBLOCK_DATE] = {
+            NAME : 'BLOCK_UNBLOCK_DATE',
+            VAR_NAME : 'blockUnblockDate',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  8
+        };
+
+        //#29
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_STATUS] = {
+            NAME : 'MESSAGE_STATUS',
+            VAR_NAME : 'status',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  1
+        };
+
+        //#30
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.IS_ADD_TO_DB] = {
+            NAME : 'IS_ADD_TO_DB',
+            VAR_NAME : 'isAddToDb',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  1
+        };
+
+
+        //#31
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.TAG_NAME_LENGTH] = {
+            NAME : 'TAG_NAME_LENGTH',
+            VAR_NAME : 'tagNameLength',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  2
+        };
+
+        //#32
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.TAG_NAME] = {
+            NAME : 'TAG_NAME',
+            VAR_NAME : 'tagName',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.STRING,
+            SIZE :  -1
+        };
+
+        //#33
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.TAG_PICTURE_URL_LENGTH] = {
+            NAME : 'TAG_PICTURE_URL_LENGTH',
+            VAR_NAME : 'tagPictureUrlLength',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  1
+        };
+
+        //#34
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.TAG_PICTURE_URL] = {
+            NAME : 'TAG_PICTURE_URL',
+            VAR_NAME : 'tagPictureUrl',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.STRING,
+            SIZE :  -1
+        };
+
+        //#35
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.TAG_MEMBER_TYPE] = {
+            NAME : 'TAG_MEMBER_TYPE',
+            VAR_NAME : 'status',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  1
+        };
+
+        //#36
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.TAG_MEMBER_ADDED_BY] = {
+            NAME : 'TAG_MEMBER_ADDED_BY',
+            VAR_NAME : 'addedBy',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  8
+        };
+
+        //#37
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.TAG_NO_OF_MEMBERS] = {
+            NAME : 'TAG_NO_OF_MEMBERS',
+            VAR_NAME : 'tagMembersLength',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            VAR_CONTAINER_NAME : 'tagMembers',
+            SIZE :  2
+        };
+
+        //#38
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.TAG_NO_OF_BROKEN_PKT] = {
+            NAME : 'TAG_NO_OF_BROKEN_PKT',
+            VAR_NAME : 'brokenPacketsLength',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            VAR_CONTAINER_NAME : 'brokenPackets',
+            SIZE :  1
+        };
+
+        //#39
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.TAG_INFORMATION_UPDATE_FLAG] = {
+            NAME : 'TAG_INFORMATION_UPDATE_FLAG',
+            VAR_NAME : 'updateFlag',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  1
+        };
+
+        //#40
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.TAG_INFORMATION_TAG_NO_OF_MEMBERS] = {
+            NAME : 'TAG_INFORMATION_TAG_NO_OF_MEMBERS',
+            VAR_NAME : 'tagMembersCount',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  2
+        };
+
+        //41
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.REGISTRATION_TYPE] = {
+            NAME : 'REGISTRATION_TYPE',
+            VAR_NAME : 'registrationType',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  1
+        };
+
+        //42
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.PAGE_DIRECTION] = {
+            NAME : 'PAGE_DIRECTION',
+            VAR_NAME : 'pageDirection',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  1
+        };
+
+        //43
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.PAGE_LIMIT] = {
+            NAME : 'PAGE_LIMIT',
+            VAR_NAME : 'pageLimit',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  1
+        };
+
+        //#45
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.ACTIVITY_TYPE] = {
+            NAME : 'ACTIVITY_TYPE',
+            VAR_NAME : 'activityType',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            CONDITIONAL : true,
+            SIZE :  1
+        };
+
+
+        //#46
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.ACTIVITY_VALUE_LENGTH] = {
+            NAME : 'ACTIVITY_VALUE_LENGTH',
+            VAR_NAME : 'activityValueLength',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  2
+        };
+
+        //#47
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.ACTIVITY_VALUE] = {
+            NAME : 'ACTIVITY_VALUE',
+            VAR_NAME : 'activityValue',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.STRING,
+            SIZE :  -1
+        };
+
+        //#48
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.CHANGED_BY_USER_ID] = {
+            NAME : 'CHANGED_BY_USER_ID',
+            VAR_NAME : 'changedByUserId',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  8
+        };
+
+
+        //#60
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_APP_TYPE] = {
+            NAME : 'FRIEND_APP_TYPE',
+            VAR_NAME : 'friendAppType',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  1
+        };
+
+        //#61
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_DEVICE_TOKEN_LENGTH] = {
+            NAME : 'FRIEND_DEVICE_TOKEN_LENGTH',
+            VAR_NAME : 'friendDeviceTokenLength',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  2
+        };
+
+        //#62
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_DEVICE_TOKEN] = {
+            NAME : 'FRIEND_DEVICE_TOKEN',
+            VAR_NAME : 'friendDeviceToken',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.STRING,
+            SIZE :  -1
+        };
+
+        //#63
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.IS_SECRET_VISIBLE] = {
+            NAME : 'IS_SECRET_VISIBLE',
+            VAR_NAME : 'isSecretVisible',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  1
+        };
+
+
+        //#64
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.APP_VERSION] = {
+            NAME : 'APP_VERSION',
+            VAR_NAME : 'appVersion',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.INTEGER,
+            SIZE :  2
+        };
+
+
+    //#80
+        TAG_CHAT_PACKET_ATTRIBUTE_INFO[TAG_CHAT_PACKET_ATTRIBUTE.RAW_DATA_BYTE] = {
+            NAME : 'RAW_DATA_BYTE',
+            VAR_NAME : 'bytes',
+            VAR_TYPE :  TAG_CHAT_GENERAL_CONSTANTS.ATTRIBUTE_TYPE.BYTE,
+            SIZE :  -2
+        };
+
+
+
+        ////////////////////////////////////// ATTRIBUTE DEFINATION END //////////////////////////////////////
+
+        var TAG_CHAT_PACKET_INFO = {};
+
+        /******************************************* Friend Chat Packets *******************************************/
+
+        //#1
+        TAG_CHAT_PACKET_INFO[ FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_REGISTER ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM
+
+            ]
+            //1, 2, 3, 4, 5, 6
+        };
+
+
+        //#3
+        TAG_CHAT_PACKET_INFO[ FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_REGISTER_CONFIRMATION ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.CHAT_BINDING_PORT,
+                TAG_CHAT_PACKET_ATTRIBUTE.SERVER_DATE
+
+            ]
+            //1, 3, 4, 5, ...
+        };
+
+        //#6
+        TAG_CHAT_PACKET_INFO[ FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_MSG ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.TIMEOUT,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_DATE,
+                TAG_CHAT_PACKET_ATTRIBUTE.IS_SECRET_VISIBLE,
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM,
+
+
+            ]
+            //1, 2, 3, 4, 5, ...
+        };
+
+        //#7
+        TAG_CHAT_PACKET_INFO[ FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_MSG_EDIT ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.TIMEOUT,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_DATE,
+                TAG_CHAT_PACKET_ATTRIBUTE.IS_SECRET_VISIBLE,
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM
+
+            ]
+            //1, 2, 3, 4, 5, ...
+        };
+
+        //#8
+        TAG_CHAT_PACKET_INFO[ FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_BROKEN_MSG ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_PACKET,
+                TAG_CHAT_PACKET_ATTRIBUTE.SEQUENCE_NO,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.TIMEOUT,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_DATE,
+                TAG_CHAT_PACKET_ATTRIBUTE.IS_SECRET_VISIBLE,
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM,
+
+            ]
+            //1, 2, 3, 4, 5, ...
+        };
+
+        //#9
+        TAG_CHAT_PACKET_INFO[ FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_BROKEN_MSG_EDIT ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_PACKET,
+                TAG_CHAT_PACKET_ATTRIBUTE.SEQUENCE_NO,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.TIMEOUT,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_DATE,
+                TAG_CHAT_PACKET_ATTRIBUTE.IS_SECRET_VISIBLE,
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM,
+
+            ]
+            //1, 2, 3, 4, 5, ...
+
+        };
+
+        //#10
+        TAG_CHAT_PACKET_INFO[ FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_MULTIPLE_MSG ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_MESSAGE,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_TYPE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.TIMEOUT,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_DATE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.IS_SECRET_VISIBLE
+                ]
+
+            ]
+            //1, 2, 3, 4, 5, ...
+
+        };
+
+        //#15
+        TAG_CHAT_PACKET_INFO[ FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_DELIVERED ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM
+            ]
+            //1, 2, 3, 4, 5
+        };
+
+        //#16
+        TAG_CHAT_PACKET_INFO[ FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_SENT ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+            ]
+            //1, 2, 3, 4, 5
+        };
+
+
+        //#17
+        TAG_CHAT_PACKET_INFO[ FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_SEEN ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_MESSAGE,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_DATE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_STATUS
+                ],
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM
+            ]
+            //1, 2, 8, 4, 5, 6
+        };
+
+        //#18
+        TAG_CHAT_PACKET_INFO[ FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_SEEN_CONFIRMATION ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+            ]
+            //1, 2, 3, 4, 5
+        };
+
+        //#24
+        TAG_CHAT_PACKET_INFO[ FRIEND_CHAT_PACKET_TYPE.FRIEND_BROKEN] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_PACKET,
+                TAG_CHAT_PACKET_ATTRIBUTE.SEQUENCE_NO,
+                TAG_CHAT_PACKET_ATTRIBUTE.RAW_DATA_BYTE
+
+
+            ]
+            //1, 2, 3, 4, 5, 21, 22, 80
+        };
+
+        //#25
+        TAG_CHAT_PACKET_INFO[ FRIEND_CHAT_PACKET_TYPE.FRIEND_BROKEN_CONFIRMATION] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.SEQUENCE_NO
+            ]
+            //1 2, 3, 4, 5, 22
+        };
+
+        //#27
+        TAG_CHAT_PACKET_INFO[ FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_BLOCK] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.BLOCK_UNBLOCK_DATE,
+                TAG_CHAT_PACKET_ATTRIBUTE.IS_ADD_TO_DB
+
+
+            ]
+            //1, 2, 3, 4, 5, 28, 30
+        };
+
+        //#28
+        TAG_CHAT_PACKET_INFO[ FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_UNBLOCK] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.BLOCK_UNBLOCK_DATE
+            ]
+            //1, 2, 3, 4, 5, 28
+        };
+
+
+        //#29
+        TAG_CHAT_PACKET_INFO[ FRIEND_CHAT_PACKET_TYPE.FRIEND_CHAT_BLOCK_UNBLOCK_CONFIRMATION] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+            ]
+            //1 2, 3, 4, 5
+        };
+
+        /******************************************* Friend Chat Packets *******************************************/
+
+        //#41
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_TAG_REGISTER ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM
+            ]
+            //1, 2, 8, 4, 5, 6
+        };
+
+        //#42
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_TAG_UNREGISTER] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.ONLINE_STATUS,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_MOOD
+
+            ]
+            //1, 2, 8, 9, 10
+        };
+
+
+        //#43
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_TAG_REGISTER_CONFIRMATION ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.CHAT_BINDING_PORT,
+                TAG_CHAT_PACKET_ATTRIBUTE.SERVER_DATE
+            ]
+            //1, 8, 4, 5, 7, 25
+        };
+
+        //#46
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_TAG_INFORMATION ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.ACTIVITY_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_NAME_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_NAME,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_PICTURE_URL_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_PICTURE_URL
+
+
+            ]
+            //1, 2, 8, 4, 5, 45, [31, 32], [33, 34]
+        };
+
+        //#47
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_TAG_INFORMATION_CONFIRMATION ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+
+            ]
+            //1, 2, 8, 4, 5
+        };
+
+        //#51
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_TAG_MEMBER_ADD ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_NO_OF_MEMBERS,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.FULL_NAME_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.FULL_NAME,
+                    TAG_CHAT_PACKET_ATTRIBUTE.TAG_MEMBER_TYPE
+                ]
+
+            ]
+            //1, 2, 8, 4, 5, 37, 2, 19, 20, 35
+        };
+
+        //#52
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_TAG_MEMBER_ADD_CONFIRMATION ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+
+            ]
+            //1, 2, 8, 4, 5
+        };
+
+        //#53
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_MEMBER_REMOVE_LEAVE ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_NO_OF_MEMBERS,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.USER_ID
+                ]
+            ]
+            //1, 2, 8, 4, 5, 37, 2
+        };
+
+        //#54
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_MEMBER_REMOVE_LEAVE_CONFIRMATION ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+            ]
+            //1, 2, 8, 4, 5
+        };
+
+        //#55
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_TAG_MEMBER_TYPE_CHANGE ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_NO_OF_MEMBERS,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.TAG_MEMBER_TYPE
+                ]
+
+            ]
+            //1, 2, 8, 4, 5, 37, 2, 35
+        };
+
+        //#56
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_TAG_MEMBER_TYPE_CHANGE_CONFIRMATION] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+
+            ]
+            //1, 2, 8, 4, 5
+        };
+
+
+
+        //#61
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_IDLE ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM
+            ]
+            //1, 2, 8, 6
+        };
+
+        //#62
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_TYPING ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM
+
+            ]
+            //1, 2, 8, 6
+            /* No Need for PacketId because no confirmation packet is sent */
+
+        };
+
+        //#63
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_MSG ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_DATE
+
+            ]
+            //1, 2, 8, 4, 5, 11, 13, 14, 15, 16, 17
+        };
+
+        //#64
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_MSG_EDIT ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_DATE
+
+            ]
+            //1, 2, 8, 4, 5, 19, 20, 11, 13, 14, 15, 16, 17
+        };
+
+
+        //#65
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_BROKEN_MSG ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_PACKET,
+                TAG_CHAT_PACKET_ATTRIBUTE.SEQUENCE_NO,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_DATE
+
+            ]
+            //1, 2, 8, 4, 5, 21, 22, 19, 20, 11, 15, 16, 17
+        };
+
+        //#66
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_BROKEN_MSG_EDIT ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_PACKET,
+                TAG_CHAT_PACKET_ATTRIBUTE.SEQUENCE_NO,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_DATE
+
+            ]
+            //1, 2, 8, 4, 5, 21, 22, 19, 20, 11, 15, 16, 17
+        };
+
+        //#67
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_MULTIPLE_MSG ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_MESSAGE,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE,
+                TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_DATE
+
+            ]
+            //1, 2, 8, 4, 5, 18, 1, 4, 5, 11, 15, 16, 17
+        };
+
+
+
+         //#68
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_DELIVERED ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+            ]
+            //1, 2, 3, 8, 4, 5
+        };
+
+        //#69
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_SENT ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+            ]
+            //1, 8, 4, 5
+        };
+
+        //#70
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_SEEN ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+            ]
+            //1, 2, 3, 8, 4, 5
+        };
+
+        //#71
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_SEEN_CONFIRMATION ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+            ]
+            //1, 8, 4, 5
+        };
+
+
+        //#72
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_MULTIPLE_MSG_DELETE ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_PACKET,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+                ]
+
+            ]
+            //1, 2, 8, 4, 5, 38, 4, 5
+        };
+
+
+
+        //#73
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_MSG_DELETE_CONFIRMATION ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+            ]
+            //1, 2, 3, 8, 4, 5
+        };
+
+
+
+        //#74
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_GENERAL_BROKEN_PACKET] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_PACKET,
+                TAG_CHAT_PACKET_ATTRIBUTE.SEQUENCE_NO,
+                TAG_CHAT_PACKET_ATTRIBUTE.RAW_DATA_BYTE
+
+
+            ]
+            //1, 8, 4, 5, 21, 22, 80
+        };
+
+
+        //#75
+        TAG_CHAT_PACKET_INFO[ TAG_CHAT_PACKET_TYPE.TAG_CHAT_GENERAL_BROKEN_PACKET_CONFIRMATION] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.SEQUENCE_NO
+            ]
+            //1 2, 8, 4, 5, 22
+        };
+
+
+        //#91
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_FRIEND_INFORMATION] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FULL_NAME_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.FULL_NAME,
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM,
+                TAG_CHAT_PACKET_ATTRIBUTE.ONLINE_STATUS,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_APP_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_DEVICE_TOKEN_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_DEVICE_TOKEN,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_MOOD
+            ]
+            //1 2, 3, 4, 5, ...
+        };
+
+        //#92
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_FRIEND_INFORMATION_CONFIRMATION] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM
+            ]
+            //1 3, 4, 5
+        };
+
+
+        //#93
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_GET_REQUEST] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.UPDATE_TIME,
+                TAG_CHAT_PACKET_ATTRIBUTE.BLOCK_UNBLOCK_DATE,
+                TAG_CHAT_PACKET_ATTRIBUTE.APP_VERSION,
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM
+            ]
+            //1 2, 8, 4, 5, 28, 22,
+        };
+
+
+        //#94
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_GET_REQUEST_CONFIRMATION] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.SERVER_DATE
+            ]
+            //1, 4, 5, 25
+        };
+
+
+        //#95
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_FRIEND_UNREAD_MESSAGE] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_MESSAGE,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_TYPE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.TIMEOUT,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_DATE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.IS_SECRET_VISIBLE
+                ]
+
+            ]
+            //1 2, 4, 5, 18, [1, 2, 4, 5, ...]
+        };
+
+
+
+        //#96
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_FRIEND_UNREAD_MESSAGE_CONFIRMATION] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_PACKET,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+                ]
+
+
+            ]
+            //1 2, 4, 5, 21,[ 4, 5]
+        };
+
+        //#97
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_FRIEND_HISTORY_MESSAGE_REQUEST] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PAGE_DIRECTION,
+                TAG_CHAT_PACKET_ATTRIBUTE.PAGE_LIMIT,
+                //TAG_CHAT_PACKET_ATTRIBUTE.APP_VERSION,
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM
+            ]
+            //1 2, 3, 4, 5, 6
+        };
+
+        //#98
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_FRIEND_HISTORY_MESSAGE] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_MESSAGE,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_TYPE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.TIMEOUT,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_DATE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.IS_SECRET_VISIBLE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_STATUS
+
+                ]
+            ]
+            //1 2, 8, 4, 5, 18, [1, 2, 4, 5,...]
+        };
+
+        //#99
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_FRIEND_HISTORY_MESSAGE_CONFIRMATION] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+
+            ]
+            //1 2, 4, 5
+        };
+
+
+        //#100
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_GET_FRIEND_MESSAGE_STATUS] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_PACKET,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+                ],
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM
+
+
+            ]
+            //1 2, 4, 5,...
+        };
+
+        //#101
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_GET_FRIEND_MESSAGE_STATUS_CONFIRMATION] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.FRIEND_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_PACKET,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+                ]
+
+            ]
+            //1 2, 4, 5,...
+        };
+
+
+
+        // #104
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_TAG_INFORMATION_ACTIVITY ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_ITEMS,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.ACTIVITY_TYPE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.ACTIVITY_VALUE_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.ACTIVITY_VALUE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.TAG_MEMBER_TYPE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.CHANGED_BY_USER_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.UPDATE_TIME
+                ]
+
+            ]
+            //1, 8, 4, 5, 44, 45, 2, 46, 47, 48, 24
+        };
+
+        //#105
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_MY_TAG_LIST ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_ITEMS,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.TAG_NAME_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.TAG_NAME,
+                    TAG_CHAT_PACKET_ATTRIBUTE.TAG_PICTURE_URL_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.TAG_PICTURE_URL,
+                    TAG_CHAT_PACKET_ATTRIBUTE.TAG_MEMBER_ADDED_BY,
+                    TAG_CHAT_PACKET_ATTRIBUTE.TAG_INFORMATION_TAG_NO_OF_MEMBERS
+                ]
+
+            ]
+            //1, 4, 5, 27, 8, 31, 32, 33, 34, 35, 40
+        };
+
+
+
+        //#106
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_TAG_UNREAD_MESSAGE] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_MESSAGE,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_TYPE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_DATE
+
+                ]
+
+            ]
+            //1 2, 8, 4, 5, 18, [1, 2, 4, 5, 15, 16, 17]
+        };
+
+
+        //#107
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_TAG_UNREAD_MESSAGE_CONFIRMATION] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_PACKET,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+                ]
+
+
+            ]
+            //1 2, 4, 5, 21,[ 4, 5]
+        };
+
+        //#108
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_TAG_CREATE_TAG ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_NAME_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_NAME,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_PICTURE_URL_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_PICTURE_URL,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_NO_OF_MEMBERS,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.FULL_NAME_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.FULL_NAME,
+                    TAG_CHAT_PACKET_ATTRIBUTE.TAG_MEMBER_TYPE
+                ],
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM
+            ]
+            //1, 2, 8, 4, 5, 31, 32, 33, 34, 37, 2, 19, 20, 35, 6
+        };
+
+        //#109
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_TAG_CREATE_TAG_CONFIRMATION ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+            ]
+            //1, 8, 4, 5
+        };
+
+
+        //#110
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_TAG_HISTORY_MESSAGE_REQUEST] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PAGE_DIRECTION,
+                TAG_CHAT_PACKET_ATTRIBUTE.PAGE_LIMIT,
+                TAG_CHAT_PACKET_ATTRIBUTE.APP_VERSION,
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM
+
+            ]
+            //1 2, 8, 4, 5, 42, 43, 6
+        };
+
+
+        //#111
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_TAG_HISTORY_MESSAGE] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_MESSAGE,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_TYPE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.MESSAGE_DATE
+
+                ]
+
+
+            ]
+            //1 2, 8, 4, 5, 18, [1, 2, 4, 5, 15, 16, 17]
+        };
+
+        //#112
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_GET_TAG_INFORMATION_WITH_MEMBERS ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM
+            ]
+            //1, 2, 8, 4, 5, 6
+        };
+
+        //#113
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_TAG_INFORMATION_WITH_MEMBERS ] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_NAME_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_NAME,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_PICTURE_URL_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_PICTURE_URL,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_NO_OF_MEMBERS,
+                [
+                    TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                    TAG_CHAT_PACKET_ATTRIBUTE.FULL_NAME_LENGTH,
+                    TAG_CHAT_PACKET_ATTRIBUTE.FULL_NAME,
+                    TAG_CHAT_PACKET_ATTRIBUTE.TAG_MEMBER_TYPE,
+                    TAG_CHAT_PACKET_ATTRIBUTE.TAG_MEMBER_ADDED_BY
+                ]
+            ]
+            //1, 2, 8, 4, 5, 31, 32, 33, 34, 37, 2, 19, 20, 35
+        };
+
+
+        //#117
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_TAG_CONFIRMATION] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.TAG_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID
+
+            ]
+            //1 2, 4, 5, 21
+        };
+
+
+
+        //#118
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_BROKEN_HISTORY_PACKET] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_PACKET,
+                TAG_CHAT_PACKET_ATTRIBUTE.SEQUENCE_NO,
+                TAG_CHAT_PACKET_ATTRIBUTE.RAW_DATA_BYTE
+
+
+            ]
+            //1, 2, 4, 5, 21, 22, 80
+        };
+
+        //#119
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_BROKEN_PACKET] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.NO_OF_PACKET,
+                TAG_CHAT_PACKET_ATTRIBUTE.SEQUENCE_NO,
+                TAG_CHAT_PACKET_ATTRIBUTE.RAW_DATA_BYTE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PLATFORM
+
+
+
+            ]
+            //1, 4, 5, 21, 22, 80, 6, 2
+        };
+
+
+        //#120
+        TAG_CHAT_PACKET_INFO[ OFFLINE_PACKET_TYPE.OFFLINE_BROKEN_PACKET_CONFIRMATION] =
+        {
+
+            FORMAT:[
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_TYPE,
+                TAG_CHAT_PACKET_ATTRIBUTE.USER_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID_LENGTH,
+                TAG_CHAT_PACKET_ATTRIBUTE.PACKET_ID,
+                TAG_CHAT_PACKET_ATTRIBUTE.SEQUENCE_NO
+            ]
+            //1 2, 4, 5, 22
+    };
+
+
+        var ALL_PACKET_TYPES = angular.extend({}, TAG_CHAT_PACKET_TYPE, FRIEND_CHAT_PACKET_TYPE, OFFLINE_PACKET_TYPE);
+        var ALL_PACKET_TYPES_KEYS = Object.keys(ALL_PACKET_TYPES);
+        for(var index = 0, length = ALL_PACKET_TYPES_KEYS.length; index < length; index++){
+            try{
+                TAG_CHAT_PACKET_INFO[ALL_PACKET_TYPES[ ALL_PACKET_TYPES_KEYS[index] ]]['PACKET_NAME'] = ALL_PACKET_TYPES_KEYS[index];
+            }catch(e){
+                TAG_CHAT_PACKET_INFO[ALL_PACKET_TYPES[ ALL_PACKET_TYPES_KEYS[index] ]] = { 'PACKET_NAME' :  ALL_PACKET_TYPES_KEYS[index] };
+            }
+
+        }
+
+
+
+
+
+        tagChatApp.constant('TAG_CHAT_PACKET_TYPE', TAG_CHAT_PACKET_TYPE);
+
+        tagChatApp.constant('FRIEND_CHAT_PACKET_TYPE', FRIEND_CHAT_PACKET_TYPE);
+
+        tagChatApp.constant('OFFLINE_PACKET_TYPE', OFFLINE_PACKET_TYPE);
+
+        tagChatApp.constant('FRIEND_CHAT_PACKET_TYPE', FRIEND_CHAT_PACKET_TYPE);
+
+        tagChatApp.constant('TAG_CHAT_PACKET_ATTRIBUTE', TAG_CHAT_PACKET_ATTRIBUTE);
+
+        tagChatApp.constant('TAG_CHAT_PACKET_ATTRIBUTE_INFO', TAG_CHAT_PACKET_ATTRIBUTE_INFO);
+
+        tagChatApp.constant('TAG_CHAT_PACKET_INFO', TAG_CHAT_PACKET_INFO);
+
+        tagChatApp.constant('TAG_CHAT_GENERAL_CONSTANTS', TAG_CHAT_GENERAL_CONSTANTS );
+
+        tagChatApp.constant('TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP', TAG_CHAT_PACKET_TYPE_CONFIRMATION_MAP );
+
+
+
+})();
+
+
+
+/*
+ * © Ipvision
+ */
+
+(function() {
+    'use strict';
+
+
+    angular
+        .module('ringid.config')
+        .constant('OPERATION_TYPES',{
+            'SYSTEM': {
+                REQUEST_TYPE: {
+                    'KEEP_ALIVE' : 1,
+                    'CONFIRMATION' : 2,
+                    'AUTHENTICATION': 3,
+                    'UPDATE': 4,
+                    'REQUEST': 5,
+                    'CALL' : 6,
+                    'CHAT': 7
+                },
+                /** News feed list actn start */
+                TYPE_SINGLE_STATUS_NOTIFICATION_OR_SHARE_DETAILS: 114,
+                TYPE_NEWS_FEED : 88,
+                TYPE_MY_NEWS_FEED : 94,
+                TYPE_FRIEND_NEWSFEED : 110,
+                TYPE_GROUP_NEWS_FEED : 198,
+
+                TYPE_COMMENTS_FOR_STATUS : 84,
+
+
+                ACTION_SHARE_STATUS : 191,
+                ACTION_GET_FULL_COMMENT: 137,
+
+                TYPE_ADD_MULTI_IMAGE :117,
+                TYPE_ADD_STATUS : 177,
+
+                // todo : replace old use of feed types variable into following #feedtype
+                NEWS_FEED_TYPE_IMAGE : 1,
+                NEWS_FEED_TYPE_STATUS : 2,
+                NEWS_FEED_TYPE_MULTIPLE_IMAGE : 3,
+                NEWS_FEED_TYPE_ALBUM : 4,
+                NEWS_FEED_TYPE_AUDIO : 5,
+                NEWS_FEED_TYPE_VIDEO : 6,
+
+                //#endfeedtype
+                //
+                //todo : remove after assuring no use #feedtypeold
+                TYPE_SINGLE_IMAGE_STATUS : 1,
+                TYPE_TEXT_STATUS : 2,
+                TYPE_MULTI_IMAGE_STATUS : 3,
+
+
+                TYPE_DELETE_STATUS : 179,
+                TYPE_EDIT_STATUS : 178,
+                TYPE_LIKE_STATUS : 184,
+                TYPE_UNLIKE_STATUS : 186,
+
+                TYPE_ADD_STATUS_COMMENT : 181,
+                TYPE_LIKE_COMMENT : 123,
+                TYPE_UNLIKE_COMMENT : 125,
+                TYPE_DELETE_STATUS_COMMENT : 183,
+                TYPE_EDIT_STATUS_COMMENT : 189,
+
+                TYPE_LIKES_FOR_STATUS : 92,
+                TYPE_LIST_LIKES_OF_COMMENT : 116,
+                TYPE_TAG_USER_LIST : 274,
+                TYPE_WHO_SHARES_LIST : 249,
+
+                TYPE_UPDATE_ADD_STATUS : 377,
+                TYPE_UPDATE_EDIT_STATUS : 378,
+                ACTION_UPDATE_SHARE_STATUS : 391,
+                TYPE_UPDATE_LIKE_STATUS : 384,
+                TYPE_UPDATE_UNLIKE_STATUS : 386,
+                TYPE_UPDATE_DELETE_STATUS : 379,
+                TYPE_UPDATE_ADD_STATUS_COMMENT : 381,
+                TYPE_UPDATE_LIKE_COMMENT : 323,
+                TYPE_UPDATE_UNLIKE_COMMENT : 325,
+                TYPE_UPDATE_DELETE_STATUS_COMMENT : 383,
+                TYPE_UPDATE_EDIT_STATUS_COMMENT : 389,
+
+                ALBUM: {
+                    TYPE_UPLOAD_ALBUM_IMAGE: 85,
+                    TYPE_UPDATE_UPLOAD_ALBUM_IMAGE: 90,
+                    TYPE_DELETE_ALBUM_IMAGE: 176,
+                    TYPE_UPDATE_DELETE_ALBUM_IMAGE: 376,
+                },
+                /** News feed list actn end */
+                AUTH: {
+                    TYPE_INVALID_LOGIN_SESSION : 19,
+                    TYPE_SIGN_IN : 20, // login
+                    TYPE_SIGN_OUT : 22, // logout
+                    TYPE_SIGN_UP : 21, // register
+                    TYPE_SESSION_VALIDATION : 76,
+                    TYPE_MULTIPLE_SESSION : 75,
+
+                    SIGNUP_SEND_CODE_EMAIL: 220,
+                    SIGNUP_SEND_CODE_PHONE: 100,
+                    SIGNUP_REGISTER: 126,
+
+                    PASSWORD_RECOVER_SEND_CODE: 217,
+                    PASSWORD_RECOVER_VERIFY_CODE: 218,
+                    PASSWORD_RECOVER: 219,
+
+                },
+                 FRIENDS : {
+                    TYPE_CONTACT_UTIDS: 29, // contact utids
+                    TYPE_CONTACT_LIST: 23, // get contact list details with utids
+                    //TYPE_PEOPLE_YOU_MAY_KNOW: 106,  // deprecated action number,use 31 istead
+                    TYPE_PEOPLE_YOU_MAY_KNOW: 31,  // people you may know list
+                    TYPE_PEOPLE_YOU_MAY_KNOW_DETAILS: 32,  // people you may know list
+                    TYPE_FRIEND_CONTACT_LIST: 107, // friend's contact list
+                    TYPE_CONTACT_SEARCH: 34, // search contact
+                    ACTION_FRIEND_SEARCH: 35, // friend search
+
+                    TYPE_ADD_FRIEND : 127, //"add_friend"
+                    TYPE_UPDATE_ADD_FRIEND : 327, //"add_friend"
+                    TYPE_DELETE_FRIEND : 128, // "delete_friend"
+                    TYPE_UPDATE_DELETE_FRIEND : 328, // "delete_friend"
+                    TYPE_ACCEPT_FRIEND : 129, //"accept_friend"
+                    TYPE_UPDATE_ACCEPT_FRIEND : 329, //"accept_friend"
+                    TYPE_ACTION_BLOCK_UNBLOCK_FRIEND : 243,
+                    TYPE_ACTION_CHANGE_FRIEND_ACCESS : 244
+                },
+                NOTIFICATION: {
+                    TYPE_MY_NOTIFICATIONS: 111, // notification list
+
+                    //todo add replace it in notification factory file
+                    TYPE_SINGLE_NOTIFICATION : 113,
+
+
+                    CLEAR_NOTIFICATION_COUNTER : 195,
+
+                    MSG_TYPE_UPDATE_PROFILE_IMAGE: 1,// Example: FrinedName(fndN) updated his profile photo.
+                    MSG_TYPE_UPDATE_COVER_IMAGE: 2,// Example: FrinedName(fndN) updated his cover photo.
+                    MSG_TYPE_ADD_FRIEND: 3,// Example: FrinedName(fndN) wants to be friends with you.
+                    MSG_TYPE_ACCEPT_FRIEND: 4,// Example: FrinedName(fndN) has accepted your friend request.
+                    MSG_TYPE_ADD_GROUP_MEMBER: 5,// Example: FrinedName(fndN) added you in groupName(Using groupId need to find groupName).
+                    MSG_TYPE_ADD_STATUS_COMMENT: 6,// Example: FriendName(fndN) commented on your status. or Example: FriendName(fndN) & previousFriendName Commented on your status.
+                    MSG_TYPE_LIKE_STATUS: 7,// Example: FriendName(fndN) liked your status. or Example: FriendName(fndN) & previousFriendName liked your status.
+                    MSG_TYPE_LIKE_COMMENT: 8,
+                    MSG_TYPE_ADD_COMMENT_ON_COMMENT: 9,
+                    MSG_TYPE_SHARE_STATUS: 10,
+                    MSG_TYPE_LIKE_IMAGE: 11,
+                    MSG_TYPE_IMAGE_COMMENT: 12,
+                    MSG_TYPE_LIKE_IMAGE_COMMENT: 13,
+
+                    MSG_TYPE_LIKE_AUDIO_MEDIA : 17,
+                    MSG_TYPE_AUDIO_MEDIA_COMMENT : 18,
+                    MSG_TYPE_LIKE_AUDIO_MEDIA_COMMENT : 19,
+                    MSG_TYPE_AUDIO_MEDIA_VIEW : 20,
+                    MSG_TYPE_LIKE_VIDEO_MEDIA : 21,
+                    MSG_TYPE_VIDEO_MEDIA_COMMENT : 22,
+                    MSG_TYPE_LIKE_VIDEO_MEDIA_COMMENT : 23,
+                    MSG_TYPE_VIDEO_MEDIA_VIEW : 24,
+                    MSG_TYPE_YOU_HAVE_BEEN_TAGGED: 25,
+
+
+                    // below should be obsolete
+                    MSG_TYPE_UPGRADE_FRIEND_ACCESS: 14,
+                    MSG_TYPE_ACCEPT_FRIEND_ACCESS: 15,
+                    MSG_TYPE_DOWNGRADE_FRIEND_ACCESS: 16,
+
+
+
+                },
+                CIRCLE : {
+                    TYPE_CREATE_GROUP: 50,
+                    TYPE_GROUP_DETAILS : 52,
+                    TYPE_LEAVE_GROUP: 53,
+                    TYPE_GROUP_LIST: 70,
+                    TYPE_GROUP_MEMBERS_LIST: 99,
+                    TYPE_DELETE_GROUP: 152,// "delete_group";
+                    TYPE_REMOVE_GROUP_MEMBER: 154,  //"remove_group_member";
+                    TYPE_ADD_GROUP_MEMBER: 156,// "add_group_member";
+                    TYPE_EDIT_GROUP_MEMBER: 158,//  "edit_group_member"; make member/admin
+
+                    TYPE_UPDATE_ADD_GROUP: 352,// "delete_group";
+
+                    TYPE_UPDATE_DELETE_GROUP: 352,// "delete_group";
+                    TYPE_UPDATE_REMOVE_GROUP_MEMBER: 354,  //"remove_group_member";
+                    TYPE_UPDATE_ADD_GROUP_MEMBER: 356,// "add_group_member";
+                    TYPE_UPDATE_EDIT_GROUP_MEMBER: 358, //  "edit_group_member";
+
+                    TYPE_UPDATE_ADD_TO_GROUP_BY_FRIEND: 51//  "friend created group with me.";
+                },
+
+                CHAT : {
+                    FRIEND_CHAT_REQUEST : 175,
+                    FRIEND_CHAT_UPDATE : 375
+                },
+
+                TAG_CHAT : {
+                    TAG_CHAT_REQUEST_START : 134,
+                    TAG_CHAT_UPDATE_START : 334,
+
+                    TAG_CHAT_REQUEST_ADD_MEMBER : 135,
+                    TAG_CHAT_UPDATE_ADD_MEMBER : 335
+                },
+                MEDIA: {
+                    ACTION_ADD_MEDIA_CONTENT : 258,
+                    ACTION_UPDATE_MEDIA_CONTENT : 259,
+                    ACTION_DELETE_MEDIA_CONTENT : 260,
+                    ACTION_MEDIA_ALBUM_CONTENT_LIST : 261,
+                    ACTION_MEDIA_CONTENT_DETAILS : 262,
+
+                    ACTION_ADD_MEDIA_ALBUM : 253,
+                    ACTION_UPDATE_MEDIA_ALBUM : 254,
+                    ACTION_DELETE_MEDIA_ALBUM : 255,
+                    ACTION_MEDIA_ALBUM_LIST : 256,
+                    ACTION_MEDIA_ALBUM_DETAILS : 257,
+                    ACTION_MEDIA_SEARCH_RESULT : 277,
+                    ACTION_SPECIFIC_MEDIA_RESULT:278,
+                    ACTION_GET_TAGGED_MEDIA_SONGS:279,
+                    ACTION_GET_HASHTAG_SUGGESTION:280,
+                    ACTION_GET_TRENDING_KEYWORDS:281,
+
+                    ACTION_INCREASE_MEDIA_CONTENT_VIEW_COUNT: 272,
+                    ACTION_ADD_COMMENT_ON_MEDIA: 265,
+                    ACTION_LIKE_UNLIKE_MEDIA: 264,
+                    ACTION_EDIT_COMMENT_ON_MEDIA: 266,
+                    ACTION_MEDIA_COMMENT_LIST: 270,
+                    ACTION_MEDIA_LIKE_LIST: 269,
+                    ACTION_DELETE_COMMENT_ON_MEDIA: 267,
+                    ACTION_LIKE_UNLIKE_MEDIA_COMMENT: 268,
+                    ACTION_MEDIACOMMENT_LIKE_LIST: 271,
+
+                    ACTION_UPDATE_LIKE_UNLIKE_MEDIA: 464, //need work
+                    ACTION_UPDATE_ADD_MEDIA_COMMENT : 465,
+                    ACTION_UPDATE_EDIT_MEDIA_COMMENT : 466,
+                    ACTION_UPDATE_DELETE_MEDIA_COMMENT : 467,
+                    ACTION_UPDATE_LIKE_UNLIKE_MEDIA_COMMENT : 468,
+                    ACTION_UPDATE_INCREASE_MEDIA_CONTENT_VIEW_COUNT: 472 // need work
+                    //find out the action number for delete media comment
+                },
+                IMAGE : {
+                    PROFILE_IMAGE_ALBUM_ID: 'profileimages',
+                    COVER_IMAGE_ALBUM_ID: 'coverimages',
+                    FEED_IMAGE_ALBUM_ID: 'default',
+                    TYPE_FRIEND_ALBUM_IMAGES: 109,
+                    FETCH_ALBUM_LIST: 96,
+                    FETCH_FRIEND_ALBUM_LIST: 108,
+                    TYPE_ALBUM_IMAGES: 97,
+                    TYPE_COMMENTS_FOR_IMAGE: 89,
+                    TYPE_LIKES_FOR_IMAGE : 93,
+                    TYPE_IMAGE_COMMENT_LIKES : 196,
+                    TYPE_LIKE_IMAGE: 185,
+                    TYPE_UNLIKE_IMAGE: 187,
+                    TYPE_IMAGE_DETAILS: 121,
+                    TYPE_EDIT_IMAGE_COMMENT : 194,
+                    TYPE_ADD_IMAGE_COMMENT: 180,
+                    TYPE_LIKE_UNLIKE_IMAGE_COMMENT : 197,
+                    TYPE_DELETE_IMAGE_COMMENT: 182,
+                    DELETE_IMAGE: 246,
+
+                    TYPE_UPDATE_ADD_IMAGE_COMMENT: 380,
+                    TYPE_UPDATE_EDIT_IMAGE_COMMENT : 394,
+                    TYPE_UPDATE_DELETE_IMAGE_COMMENT: 382,
+                    TYPE_UPDATE_LIKE_IMAGE: 385, // no use may be
+                    TYPE_UPDATE_UNLIKE_IMAGE: 387, // no use may be
+                    TYPE_UPDATE_LIKE_UNLIKE_IMAGE_COMMENT : 397
+                },
+                PROFILE: {
+                    //TYPE_USER_DETAILS: 95,
+                    TYPE_CHANGE_COVER_PIC: 103,
+                    TYPE_CHANGE_PROFILE_PIC: 63,
+                    TYPE_REMOVE_PROFILE_IMAGE: 43,
+                    TYPE_REMOVE_COVER_IMAGE: 104,
+                    TYPE_ACTION_USER_MOOD:193, // current user mood change
+                    TYPE_ACTION_USER_MOOD_PRESENCE:199, // user mood and presence
+
+                    FETCH_FRIEND_MUTUAL_FRIEND_LIST: 118,
+
+                    CHANGE_PASSWORD:130,
+
+                    ACTION_USERS_PRESENCE_DETAILS : 136, // check presence
+                    ACTION_USERS_PRESENCE_DETAILS_DATA : 336, // get presence data
+
+                    TYPE_ACTION_CURRENT_USER_BASICINFO: 21,
+                    TYPE_ACTION_OTHER_USER_BASICINFO: 95,
+                    PHN_MAIL_VERIFICATION_CHECK:28,
+                    //PHN_MAIL_VERIFICATION_CHECK_FRIEND:95,
+                    TYPE_ACTION_GET_USER_DETAILS: 204,
+                    TYPE_ACTION_LIST_WORK_AND_EDUCATIONS: 230,
+                    TYPE_ACTION_MODIFY_USER_PROFILE: 25,
+                    TYPE_ACTION_MODIFY_PRIVACY_SETTINGS: 74,
+                    //ACTION_UPDATE_LOGIN_SETTINGS: 216,
+                    TYPE_CHANGE_PRIVACY: 216,
+                    TYPE_CHANGE_FRIEND_PRIVACY: 82,
+                    SEND_VERIFICATION_CODE_TO_MAIL:221,
+                    SEND_VERIFICATION_CODE_TO_PHONE:212,
+                    TYPE_ACTION_ADD_EDUCATION: 231,
+                    TYPE_ACTION_UPDATE_EDUCATION: 232,
+                    TYPE_ACTION_REMOVE_EDUCATION: 233,
+                    TYPE_ACTION_GET_WORK: 234,
+                    TYPE_ACTION_GET_EDUCATION: 235,
+                    TYPE_ACTION_GET_SKILL: 236,
+                    TYPE_ACTION_ADD_SKILL: 237,
+                    TYPE_ACTION_UPDATE_SKILL:238,
+                    TYPE_ACTION_REMOVE_SKILL:239,
+                    TYPE_ACTION_ADD_WORK:227,
+                    TYPE_ACTION_UPDATE_WORK:228,
+                    TYPE_ACTION_REMOVE_WORK:229,
+
+                    ADD_SOCIAL_NETWORK: 276
+                },
+                FETCH_EMOTION_LIST : 273
+            },
+            STICKER: {
+                GET_MY_STICKER: 206,
+                ADD_REMOVE_STICKER: 207,
+                ADD_JT_VALUE : 1,
+                REMOVE_JT_VALUE : 3
+            },
+        });
+
+})();
+
+
+/*
+ * © Ipvision
+ */
+
+(function() {
+    'use strict';
+
+
+    angular
+        .module('ringid.config')
+        .constant('REASON_CODES',{
+            NONE :  0,
+            PERMISSION_DENIED :     1,
+            PASSCODE_SENT_INTERVAL :    2,
+            DONT_DISTURB_MODE :     3,
+            ALREADY_SHARED :    4,
+            NOT_TAG_MEMBER :    5,
+            TAG_DOES_NOT_EXIST :    6,
+            SMS_SENDING_FAILED :    7,
+            EMAIL_SENDING_FAILED :  8,
+            FRIEND_OFFLINE :    9,
+            NOT_FRIEND :    10,
+            USERID_FRIENDID_SAME :  11,
+            ALREADY_FRIEND_REQUESTED :  12,
+            EXCEPTION_OCCURED :     13,
+            DATABASE_ROLL_BACKED :  14,
+            CANT_SHARE_OWN_FEED :   15,
+            FRIEND_DID_NOT_FOUND :  16,
+            SMS_SEND_RETRY_LIMIT_OVER :     17,
+            NO_MORE_FEED :  18,
+            NOT_FOUND :     404
+        })
+
+        }).constant('APP_CONSTANTS',{
+            NOT_FRIEND: 0,
+            FRIEND : 1,
+            INCOMING_FRIEND : 2 ,
+            OUTGOING_FRIEND : 3,
+
+            TYPE_SEARCH_BY_ALL : 0,
+            TYPE_SEARCH_BY_NAME : 1,
+            TYPE_SEARCH_BY_PHONE : 2,
+            TYPE_SEARCH_BY_EMAIL : 3,
+            TYPE_SEARCH_BY_RINGID : 4,
+            TYPE_SEARCH_BY_LOCATION : 5,
+
+            IMAGE_UPLOAD_LIMIT: 40,
+            VIDEO_UPLOAD_LIMIT: 5,
+            AUDIO_UPLOAD_LIMIT: 5,
+
+            COVER_PIC_UPLOAD_MAXIMUM_WIDTH: 1480, //ALL PLATFORM COMPATIBALE
+            COVER_PIC_UPLOAD_MAXIMUM_HEIGHT: 2048, //ALL PLATFORM COMPATIBALE
+            COVER_PIC_UPLOAD_MINIMUM_WIDTH: 740, //ALL PLATFORM COMPATIBALE
+            COVER_PIC_UPLOAD_MINIMUM_HEIGHT: 280, //ALL PLATFORM COMPATIBALE
+            PROFILE_PIC_UPLOAD_MINIMUM_WIDTH: 100, //ALL PLATFORM COMPATIBALE
+            PROFILE_PIC_UPLOAD_MINIMUM_HEIGHT: 100, //ALL PLATFORM COMPATIBALE
+
+            COVER_PIC_CROP_WIDTH: 1480,
+            COVER_PIC_CROP_HEIGHT: 547,
+            PROFILE_PIC_CROP_WIDTH: 200,
+
+            IMAGE_UPLOAD_MIN_WIDTH: 10,
+            IMAGE_UPLOAD_MIN_HEIGHT: 10,
+
+            MEDIA_UPLOAD_SIZE_LIMIT: 524288000,
+
+
+            FEED_LIMIT : 6,
+
+
+            LEFT_BAR_WIDTH : 200,
+            RIGHT_BAR_WIDTH : 200,
+            CELL_MARGIN : 10,
+
+            //Third Party
+
+            //GOOGLE_MAP_KEY : 'AIzaSyDwFgSnjLgWcHLEXS5E1dC8GgWLtxsH0zM'
+            GOOGLE_MAP_KEY : 'AIzaSyCHl88HAklaOu6Q0TSfX5N5eA0vjdlBNuE',
+
+            // mdaT
+            NEWS_FEED_MEDIA_TYPE_AUDIO : 1,
+            NEWS_FEED_MEDIA_TYPE_VIDEO: 2
+        })
+        .constant('PrivacySet',{
+            PVC1 :{
+                icon : 'post-ico only-i',
+                text : 'Only me',
+                value : 1
+            },
+            PVC2 : {
+                icon : 'post-ico fri-i',
+                text : 'Friends',
+                value : 2
+              },
+            PVC3 : {
+                icon : 'post-ico pub-i',
+                text : 'Public',
+                value : 3
+              }
+        })
+        .constant('CLIENT_DATA_SIZE',460)
+        .constant('AUTH_SERVER_CONFIG', {
+            REQUEST_DELAY : 200
+        })
+        //
+        .value("DATE_FORMAT","MMM d, y h:mm a");
+})();
+
+
+/*
+ * © Ipvision
+ */
+
+(function() {
+    'use strict';
+
+        var ATTRIBUTE_CODES = {
+                AUTHIP: 1001,
+                AUTHPORT: 1002,
+                AUTH_E_USERNAME : 1003,
+                AUTH_E_PASSWORD : 1004,
+                AUTH_E_SALT : 1005,
+                ACTION: 1,
+                SERVER_PACKET_ID: 2,
+                SESSION_ID: 3,
+                TOTAL_PACKET: 4,
+                PACKET_NUMBER: 5,
+                UNIQUE_KEY: 6,
+                USER_ID: 7,
+                FRIEND_ID: 8,
+                DEVICE: 9,
+                CLIENT_PACKET_ID: 10,
+                CALL_ID: 11,
+                FRIEND_IDENTITY: 12,
+                CALL_TIME: 13,
+                PRESENCE: 14,
+                IS_DEVIDED_PACKET: 15,
+                USER_IDENTITY: 16,
+                USER_NAME: 17,
+                TOTAL_RECORDS: 18,
+                USER_TABLE_IDS: 19,
+                SUCCESS: 20,
+                MESSAGE: 21,
+                REASON_CODE: 22,
+                STATUS: 23,
+                DELETED: 24,
+                WEB_UNIQUE_KEY: 28,
+                WEB_TAB_ID: 29,
+                DATA: 127,
+
+                /* Contact list constants */
+                CONTACT: 101,
+                CONTACT_TYPE: 102,
+                NEW_CONTACT_TYPE: 103,
+                FRIENDSHIP_STATUS: 104,
+                BLOCK_VALUE: 105,
+                CHANGE_REQUESTER: 106,
+                CONTACT_UPDATE_TIME: 107,
+                MUTUAL_FRIEND_COUNT : 108,
+                CALL_ACCESS: 110,
+                CHAT_ACCESS: 111,
+                FEED_ACCESS: 112,
+                ANONYMOUS_CALL: 9,
+                /* USER DETAILS */
+                PASSWORD: 128,
+                RESET_PASSWORD: 129,
+                EMAIL: 130,
+                DEVICE_UNIQUE_ID: 131,
+                DEVICE_TOKEN: 132,
+                MOBILE_PHONE: 133,
+                BIRTH_DATE: 134,
+                MARRIAGE_DAY: 135,
+                GENDER: 136,
+                COUNTRY_ID: 137,
+                CURRENT_CITY: 138,
+                HOME_CITY: 139,
+                LANGUAGE_ID: 140,
+                REGISTRATION_DATE: 141,
+                DIALING_CODE: 142,
+                IS_MY_NUMBER_VERIFIED: 143,
+                IS_EMAIL_VERIFIED: 145,
+                MY_NUMBER_VERIFICATION_CODE: 146,
+                MYNUMBER_VERIFICATION_CODE_SENT_TIME: 147,
+                EMAIL_VERIFICATION_CODE: 148,
+                RECOVERY_VERIFICATION_CODE: 149,
+                RECOVERY_VERIFICATION_CODE_SENT_TIME: 150,
+                PROFILE_IMAGE: 151,
+                PROFILE_IMAGE_ID: 152,
+                COVER_IMAGE: 153,
+                COVER_IMAGE_ID: 154,
+                COVER_IMAGE_X: 155,
+                COVER_IMAGE_Y: 156,
+                ABOUT_ME: 157,
+                TOTAL_FRIENDS: 158,
+                RING_EMAIL: 159,
+                UPDATE_TIME: 160,
+                NOTIFICATION_VALIDITY: 161,
+                WEB_LOGIN_ENABLED: 162,
+                PC_LOGIN_ENABLED: 163,
+                COMMON_FRIEND_SUGGESTION: 164,
+                PHONE_NUMBER_SUGGESTION: 165,
+                CONTACT_LIST_SUGGESTION: 166,
+                ADDED_TIME: 168
+        };
+
+    angular
+        .module('ringid.config')
+        .constant('ATTRIBUTE_CODES', ATTRIBUTE_CODES);
+})();
+

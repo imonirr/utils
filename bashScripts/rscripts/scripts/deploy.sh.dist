@@ -1,0 +1,115 @@
+#! /bin/bash
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+PURPLE='\033[0;35m'
+NC='\033[0m' # No Color]'
+
+defaultBranch="develop"
+defaultTask="dev"
+
+# Go to Project root
+cd $(dirname $0)/..
+projectRoot=$(pwd)
+
+# project public src directories and server destination directories
+excludeFile="${projectRoot}/scripts/exclude-files.txt"
+devDest="ringdev:/var/www/dev.ringid.com"
+stageDest="ringdev:/var/www/pro.ringid.com"
+liveDest="ringlive:~/ringidweb/public"
+
+deploy() {
+    echo -e "${PURPLE}Destination${NC} ${GREEN}$destination${NC}:" 
+
+    grunt ${gruntTask} && \
+    #synch repo from local to remote
+    echo -e "\n${PURPLE}Synch${NC} : ${GREEN} $src ${NC} to ${RED} $destination ${NC}"  && \
+    rsync -avzP --no-g --no-o --delete --exclude-from $excludeFile $src $destination  
+}
+
+resetBranch() {
+    # #1 checkout specified branch
+    echo -e "\n${PURPLE}Checkout${NC} Branch ${GREEN} $1 ${NC}" 
+    # git fetch 
+    git checkout -f ${1}
+
+    # #2 discard any local changes to the branch
+    echo -e "\n${PURPLE}Reset${NC} Branch ${GREEN} $1 ${NC} to HEAD Discard local changes"
+    # git reset --hard origin/${1}
+    git clean -d -f
+
+    # #3 Take latest pull
+    echo -e "\n${PURPLE}Pulling${NC} Latest Changes for Branch ${GREEN} $1 ${NC}" 
+    git pull origin ${1}
+}
+
+echo " " | tee -a $LOGFILE
+echo "`date +%H:%M:%S` : ###############Starting Work########" 
+
+echo -e "Project Path: ${GREEN}$projectRoot${NC}"
+
+#1 check which branch
+echo -e "${RED}Caution!!${NC} ${GREEN}All your Local not Commited changes will be removed${NC}" 
+echo -e "${PURPLE}Which${NC} branch? Press ${RED}Enter${NC} to select Default:${GREEN}develop${NC}:" 
+read branchName
+
+if [[ -z $branchName ]]; 
+then
+    branchName=$defaultBranch
+fi
+
+echo -e "${PURPLE}Selected${NC} ${GREEN}$branchName${NC}:" 
+
+
+echo -e "\n${RED}Caution!!${NC} Make sure you have ssh config in ${GREEN}~/ssh/config${NC} file"
+echo -e "Copy from ${PURPLE}$parent_path/sshconfig${NC} file"
+echo -e "Follow ${GREEN}https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2${NC}"
+
+
+echo -e "\n${PURPLE}Which${NC} Grunt Task${GREEN}(dev/stage/live)${NC}? Press ${RED}Enter${NC} to select Default:${GREEN}dev${NC}:" 
+read gruntTask
+
+if [[ -z $gruntTask ]]; 
+then
+    gruntTask=$defaultTask
+fi
+echo -e "${PURPLE}Selected${NC} ${GREEN}$gruntTask${NC}:" 
+
+case "$gruntTask" in
+    "dev")
+        src="${projectRoot}/public/ringid.com/"
+        destination=$devDest
+
+        resetBranch $branchName
+
+        deploy
+        ;;
+    "stage" )
+        src="${projectRoot}/public/ringid.com/"
+        destination=$stageDest
+
+        resetBranch $branchName
+        resetBranch 'stage'
+        git merge -Xtheirs --no-ff $branchName
+        git push origin stage
+
+        deploy
+        ;;
+    "live" )
+        src="${projectRoot}/public/"
+        destination=$liveDest
+
+        resetBranch 'stage'
+        resetBranch 'master'
+        git merge -Xtheirs --no-ff stage
+        git push origin master
+
+        deploy
+        ;;
+    *)
+        echo -e "${RED}No Mathing Task Found${NC}"
+        ;;
+esac
+
+git checkout .
+# end logging
+echo "`date +%H:%M:%S` : ^^^^^^^^^^^^^End Work^^^^^^^^^^^^^^^" 
