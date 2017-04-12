@@ -1,0 +1,21 @@
+{
+    "extends": "airbnb-base",
+    "env": {
+        "browser": true,
+        "es6": true
+    },
+    "rules": {
+        "indent": ["error", 2],
+        "no-console": "off",
+    }, 
+    "globals": {
+        "angular": true,
+
+        /* testing related globals */
+        "describe": true,
+        "beforeEach": true,
+        "inject": true,
+        "expect": true,
+        "it": true
+    }
+}
