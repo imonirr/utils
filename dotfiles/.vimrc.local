@@ -53,6 +53,7 @@ let g:NERDSpaceDelims=1
 let g:NERDDefaultAlign = 'left'
 let g:NERDTrimTraillingWhitespace=1
 map <slient ,c :NERDTreeClose<CR>
+" map <leader>p :NERDTreeCWD
 
 
 " Copy Paste Between terminals"
