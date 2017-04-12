@@ -20,6 +20,8 @@ let g:syntastic_html_tidy_exec = 'tidy5'
 " let g:syntastic_debug=3
 "
 " js-beautify
+let g:editorconfig_Beautifier = '~/.editorconfig'
+
 autocmd FileType javascript noremap <buffer>  <c-f> :call JsBeautify()<cr>
 autocmd FileType javascript vnoremap <buffer>  <c-f> :call RangeJsBeautify()<cr>
 " for json
@@ -45,7 +47,7 @@ colorscheme distinguished
 
 " for html files, 2 spaces
 autocmd Filetype html setlocal sts=2 sw=2 et
-" sw=2 sts=2 et
+autocmd Filetype javascript setlocal sts=2 sw=2 et
 
 
 " nerdcommenter
