@@ -11,7 +11,7 @@ set statusline+=%*
 
 let g:syntastic_always_populate_loc_list=1
 let g:syntastic_auto_loc_list=1
-let g:syntastic_check_on_open=1
+let g:syntastic_check_on_open=0
 let g:syntastic_check_on_wq=0
 let g:syntastic_javascript_checkers = ['eslint']
 let g:syntastic_javascript_eslint_args = '--config '. $HOME .'/.eslintrc'
@@ -21,6 +21,14 @@ let g:syntastic_html_tidy_exec = 'tidy5'
 "
 " js-beautify
 let g:editorconfig_Beautifier = '~/.editorconfig'
+
+"vim-javascript plugin options
+let g:javascript_conceal_null                 = "ø"
+let g:javascript_conceal_this                 = "@"
+let g:javascript_conceal_return               = "⇚"
+let g:javascript_conceal_undefined            = "¿"
+let g:javascript_conceal_NaN                  = "ℕ"
+
 
 autocmd FileType javascript noremap <buffer>  <c-f> :call JsBeautify()<cr>
 autocmd FileType javascript vnoremap <buffer>  <c-f> :call RangeJsBeautify()<cr>
@@ -41,13 +49,13 @@ set clipboard=unnamedplus
 set fileencoding=utf-8
 
 " use javascript-library-syntax
-let g:used_javascript_libs = 'jquery,angularjs'
+let g:used_javascript_libs = 'jquery,angularjs,react,redux'
 "colorscheme blueshift
 colorscheme distinguished
 
 " for html files, 2 spaces
-autocmd Filetype html setlocal sts=2 sw=2 et
-autocmd Filetype javascript setlocal sts=2 sw=2 et
+autocmd Filetype html setlocal softtabstop=2 shiftwidth=2 tabstop=2 et noautoindent
+autocmd Filetype javascript setlocal softtabstop=2 shiftwidth=2 tabstop=2 et noautoindent
 
 
 " nerdcommenter
