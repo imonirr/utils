@@ -1,1 +1,2 @@
 Bundle 'maksimr/vim-jsbeautify'
+Plugin 'mxw/vim-jsx'
