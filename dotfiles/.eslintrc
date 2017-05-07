@@ -1,5 +1,5 @@
 {
-    "extends": "airbnb-base",
+    "extends": "airbnb",
     "env": {
         "browser": true,
         "es6": true
@@ -7,8 +7,27 @@
     "rules": {
         "indent": ["error", 2, {"SwitchCase": 1}],
         "no-console": "off",
+        "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+        "react/forbid-prop-types": ['error', { "forbid": ['any'] }],1
+        'jsx-a11y/no-static-element-interactions': [
+          'warn',
+          {
+            handlers: [
+              'onClick',
+              'onMouseDown',
+              'onMouseUp',
+              'onKeyPress',
+              'onKeyDown',
+              'onKeyUp',
+              'onMouseOver',
+            ],
+          },
+        ],
     }, 
     "globals": {
+        "localStorage": true,
+        "window": true,
+        "document": true,
         "angular": true,
 
         /* testing related globals */
