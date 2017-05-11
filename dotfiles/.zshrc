@@ -83,10 +83,10 @@ export SSH_KEY_PATH="~/.ssh/id_ed25519"
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-alias wwf="~/Work/etutionbd-frontend"
+alias etbd="~/Work/etutionbd-project"
+alias etbdf="~/Work/etutionbd-frontend"
+alias etbdb="~/Work/etutionbd-backend"
 alias etlmsf="~/Work/etlms-frontend"
-alias porai="~/Work/porai.com"
-alias wwfb="~/Work/etutionbd-backend"
 alias dosto="~/Work/dostokhan"
 alias trash='mv -t /tmp'
 
