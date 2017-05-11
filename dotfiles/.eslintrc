@@ -8,7 +8,7 @@
         "indent": ["error", 2, {"SwitchCase": 1}],
         "no-console": "off",
         "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
-        "react/forbid-prop-types": ['error', { "forbid": ['any'] }],1
+        "react/forbid-prop-types": ['error', { "forbid": ['any'] }],
         'jsx-a11y/no-static-element-interactions': [
           'warn',
           {
@@ -29,6 +29,7 @@
         "window": true,
         "document": true,
         "angular": true,
+        "JitsiMeetJS": true,
 
         /* testing related globals */
         "describe": true,
