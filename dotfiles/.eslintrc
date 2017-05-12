@@ -30,6 +30,7 @@
         "document": true,
         "angular": true,
         "JitsiMeetJS": true,
+        "$pres": true,
 
         /* testing related globals */
         "describe": true,
