@@ -90,3 +90,4 @@ alias etlmsf="~/Work/etlms-frontend"
 alias dosto="~/Work/dostokhan"
 alias trash='mv -t /tmp'
 
+alias pf='cd ~/Documents/MacMonir/Work/NOOBS/'
