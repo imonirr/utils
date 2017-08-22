@@ -163,9 +163,9 @@ bar {
     colors {
         statusline #ADD8E6
     }
-    #status_command i3status
-    status_command $HOME/.config/i3/conky-i3bar
-    position top
+    status_command i3status -c $HOME/.i3/i3status.conf
+    # status_command $HOME/.i3/conky-i3bar
+    position bottom
 }
 
 # screenshot shortcut
