@@ -14,3 +14,6 @@ ln -s $HOME/Work/dostokhan/utils/dotfiles/.editorconfig $HOME/.editorconfig
 
 echo 'Eslint'
 ln -s $HOME/Work/dostokhan/utils/dotfiles/.eslintrc $HOME/.eslintrc
+
+echo 'iconfig'
+ln -s $HOME/Work/dostokhan/utils/dotfiles/.i3 $HOME/.i3
