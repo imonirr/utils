@@ -89,5 +89,7 @@ alias etbdb="~/Work/etutionbd-backend"
 alias etlmsf="~/Work/etlms-frontend"
 alias dosto="~/Work/dostokhan"
 alias trash='mv -t /tmp'
+alias skl="~/Work/shikhai.live"
+alias skp="~Work/shikhai.project"
 
 alias pf='cd ~/Documents/MacMonir/Work/NOOBS/'
