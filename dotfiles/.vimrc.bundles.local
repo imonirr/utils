@@ -1,2 +1,4 @@
 Bundle 'maksimr/vim-jsbeautify'
 Plugin 'mxw/vim-jsx'
+Plugin 'othree/yajs.vim'
+Plugin 'othree/javascript-libraries-syntax.vim'
