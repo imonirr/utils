@@ -51,7 +51,7 @@ TEXT
 {"full_text": "CPU:", "separator": false, "separator_block_width":3},
 {"full_text": "${cpu}%", "min_width":"000%", "separator": false, "separator_block_width":3, "color":"${if_match ${cpu} < 33}\#7f9f7f${else}${if_match ${cpu} > 66}\#dca3a3${else}\#c3bf9f${endif}${endif}"},
 
-{"full_text": "${time %m.%d.%Y}", "separator": false, "separator_block_width":3, "color":"\#ffcfaf"},
+{"full_text": "${time %b%e,%Y(%a)}", "separator": false, "separator_block_width":3, "color":"\#ffcfaf"},
 {"full_text": "${time %I:%M %P}"}
 ],
 
