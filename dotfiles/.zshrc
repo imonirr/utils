@@ -2,7 +2,7 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-  export ZSH=$HOME/.oh-my-zsh
+export ZSH=$HOME/.oh-my-zsh
 
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
@@ -51,7 +51,7 @@ HIST_STAMPS="mm/dd/yyyy"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+plugins=(git, node)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -83,10 +83,6 @@ export SSH_KEY_PATH="~/.ssh/id_ed25519"
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-alias etbd="~/Work/etutionbd-project"
-alias etbdf="~/Work/etutionbd-frontend"
-alias etbdb="~/Work/etutionbd-backend"
-alias etlmsf="~/Work/etlms-frontend"
 alias dosto="~/Work/dostokhan"
 alias trash='mv -t /tmp'
 alias skl="~/Work/shikhai.live"
