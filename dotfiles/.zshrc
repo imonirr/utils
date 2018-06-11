@@ -75,6 +75,12 @@ export ARCHFLAGS="-arch x86_64"
 # ssh
 export SSH_KEY_PATH="~/.ssh/id_ed25519"
 
+# react-native android development
+export ANDROID_HOME=$HOME/Android/Sdk
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+# android virtual device
+export ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
@@ -85,7 +91,7 @@ export SSH_KEY_PATH="~/.ssh/id_ed25519"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias dosto="~/Work/dostokhan"
 alias trash='mv -t /tmp'
-alias skl="~/Work/shikhai.live"
-alias skp="~/Work/shikhai.project"
+alias skl="~/Work/shikhai/shikhai.live"
+alias skp="~/Work/shikhai/shikhai.project"
 
 alias pf='cd ~/Documents/MacMonir/Work/NOOBS/'

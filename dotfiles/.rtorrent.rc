@@ -11,7 +11,7 @@
 #max_peers_seed = 50
 
 # Maximum number of simultanious uploads per torrent.
-#max_uploads = 15
+#max_uploads = 1
 
 # Global upload and download rate in KiB. "0" for unlimited.
 #download_rate = 0
