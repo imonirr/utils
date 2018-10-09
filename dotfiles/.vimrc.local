@@ -57,6 +57,8 @@ autocmd FileType css noremap <buffer> <c-f> :call CSSBeautify()<cr>
 autocmd FileType css vnoremap <buffer> <c-f> :call RangeCSSBeautify()<cr>
 
 set fileencoding=utf-8
+set encoding=utf-8
+
 
 " use javascript-library-syntax
 let g:used_javascript_libs = 'jquery,angularjs,react,redux'
@@ -91,7 +93,7 @@ map <leader>p :NERDTreeCWD
 
 " no backup, no swap"
 set nobackup
-set backupdir=~/.vimtemp
+" set backupdir=~/.vimtemp
 set noswapfile
 
 
