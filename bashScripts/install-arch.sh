@@ -19,7 +19,7 @@
   `/dev/sda3`
 ### create `/home` partition.
   `/dev/sda4`
-### format /root,/home swap and efi partitions
+  ### format efi(550M), swap(ramsize) /root(30G), /home(rest)  partitions
   `mkfs.ext4 /dev/sda3`
   `mkfs.ext4 /dev/sda4`
   `mkswap /dev/sda2`
@@ -62,6 +62,9 @@
   `127.0.0.1 localhost`
   `::1		localhost`
   `127.0.1.1 myhostname.localdomain myhostname`
+### dns config in `/etc/resolv.conf`
+  `nameserver 8.8.8.8`
+  `nameserver 8.8.4.4`
 ### set root password
   `passwd`
 ### create system user
@@ -77,7 +80,7 @@
 
 ## login and configure admin user 
 ### install required softwares
-  `sudo gvim pacman -Sy i3-wm dmenu i3status conky xorg xorg-xinit xorg-server openssh ttf-ms-fonts alsa-utils htop git docker zsh pcmanfm firefox flashplugin pepper-flash vlc dropbox keepassx2`
+  `sudo gvim pacman -Sy i3-wm dmenu i3status conky xorg xorg-xinit xorg-server openssh ttf-ms-fonts alsa-utils htop git docker docker-compose zsh pcmanfm firefox flashplugin pepper-flash vlc dropbox keepassx2`
   `yaourt -Sy nvm consolas-font ttf-ms-fonts google-chrome opera-developer`
 ### configure i3
   `exec i3` # in ~/.xinitrc
@@ -86,9 +89,6 @@
 ### configure git
   `git config --global user.email "imonir.com@gmail.com"`
   `git config --global user.name "Moniruzzaman Monir"`
-### dns config in `/etc/resolv.conf`
-  `nameserver 8.8.8.8`
-  `nameserver 8.8.4.4`
 
 ### add ssh key to github.com
 ### clone utils repo 
