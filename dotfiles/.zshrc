@@ -98,3 +98,8 @@ alias skl="~/Work/shikhai/shikhai.live"
 alias skp="~/Work/shikhai/shikhai.project"
 
 alias pf='cd ~/Documents/MacMonir/Work/NOOBS/'
+
+# Set up Node Version Manager
+export NVM_DIR="$HOME/.nvm"                            # You can change this if you want.
+export NVM_SOURCE="/usr/share/nvm"                     # The AUR package installs it to here.
+[ -s "$NVM_SOURCE/nvm.sh" ] && . "$NVM_SOURCE/nvm.sh"  # Load NVM
