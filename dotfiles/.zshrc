@@ -93,11 +93,10 @@ export ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias dosto="~/Work/dostokhan"
+alias imonir="~/Work/imonir"
 alias trash='mv -t /tmp'
 alias skl="~/Work/shikhai/shikhai.live"
 alias skp="~/Work/shikhai/shikhai.project"
-
-alias pf='cd ~/Documents/MacMonir/Work/NOOBS/'
 
 # Set up Node Version Manager
 export NVM_DIR="$HOME/.nvm"                            # You can change this if you want.
