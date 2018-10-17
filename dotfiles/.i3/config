@@ -169,6 +169,7 @@ bar {
 }
 
 # screenshot shortcut
+bindsym Mod4+p exec scrot -s $HOME/Pictures/ScreenShots/`date +%Y-%m-%d_%H:%M:%S`.png
 bindsym Print exec scrot $HOME/Pictures/ScreenShots/`date +%Y-%m-%d_%H:%M:%S`.png
 bindsym Mod1+Print exec scrot -u $HOME/Pictures/ScreenShots/`date +%Y-%m-%d_%H:%M:%S`.png
 bindsym Mod1+Shift+Print exec scrot -s $HOME/Pictures/ScreenShots/`date +%Y-%m-%d_%H:%M:%S`.png
