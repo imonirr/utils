@@ -2,7 +2,7 @@
 
 echo 'Deleting old files'
 rm $HOME/.zshrc $HOME/.vimrc.local $HOME/.vimrc.before.local $HOME/.vimrc.bundles.local $HOME/.editorconfig $HOME/.eslintrc
-rm $HOME/.config/i3
+rm -r $HOME/.config/i3
 
 echo 'Zshrc Config'
 ln -s $HOME/Work/dostokhan/utils/dotfiles/.zshrc $HOME/.zshrc
