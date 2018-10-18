@@ -6,6 +6,7 @@ rm $HOME/.config/i3
 
 echo 'Zshrc Config'
 ln -s $HOME/Work/dostokhan/utils/dotfiles/.zshrc $HOME/.zshrc
+ln -s $HOME/Work/dostokhan/utils/dotfiles/.zprofile $HOME/.zprofile
 
 echo 'vim Configs'
 ln -s $HOME/Work/dostokhan/utils/dotfiles/.vimrc.local $HOME/.vimrc.local
