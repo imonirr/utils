@@ -1,7 +1,9 @@
 UnBundle 'kchmck/vim-coffee-script'
 
-" for plugin javascript-libraries-syntax
-let g:used_javascript_libs = 'react'
+set nofoldenable
+set nospell
+"colorscheme blueshift
+colorscheme solarized
 
 "
 "disable indentation white spaces coloring
@@ -9,8 +11,9 @@ let g:indent_guides_enable_on_vim_startup = 0
 
 "enable linting for using syntastic plugin
 let g:syntastic_mode_map = { 'mode': 'active',
-                            \ 'active_filetypes': ['javascript', 'html', 'css'],
-                            \ 'passive_filetypes': [] }
+                            \ 'active_filetypes': ['javascript'],
+                            \ 'passive_filetypes': ['php', 'html', 'css'] }
+
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
@@ -24,6 +27,7 @@ let g:syntastic_javascript_checkers = ['eslint_d']
 " let g:syntastic_javascript_eslint_exec = 'eslint_d'
 " let g:syntastic_javascript_eslint_args = '--config '. $HOME .'/.eslintrc'
 let g:syntastic_html_tidy_exec = 'tidy5'
+
 
 "use project eslint
 if executable('node_modules/.bin/standard')
@@ -68,8 +72,6 @@ set encoding=utf-8
 
 " use javascript-library-syntax
 let g:used_javascript_libs = 'jquery,angularjs,react,redux'
-"colorscheme blueshift
-colorscheme solarized
 
 " for html files, 2 spaces
 " autocmd Filetype html setlocal softtabstop=2 shiftwidth=2 tabstop=2 et noautoindent

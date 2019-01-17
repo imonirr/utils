@@ -198,4 +198,3 @@ exec google-chrome-stable
 
 assign [class="Terminator"] 1
 assign [class="Chrome"] 2
-assign [class="Firefox"] 3

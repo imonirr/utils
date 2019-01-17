@@ -32,3 +32,14 @@ indent_size = 2
 max_char = 78
 brace_style = expand
 
+
+
+[**.php]
+indent_style = space
+indent_size = 4
+max_char = 78
+
+[**.python]
+indent_style = space
+indent_size = 4
+max_char = 78
