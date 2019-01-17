@@ -11,8 +11,8 @@ let g:indent_guides_enable_on_vim_startup = 0
 
 "enable linting for using syntastic plugin
 let g:syntastic_mode_map = { 'mode': 'active',
-                            \ 'active_filetypes': ['javascript'],
-                            \ 'passive_filetypes': ['php', 'html', 'css'] }
+                            \ 'active_filetypes': ['javascript', 'php'],
+                            \ 'passive_filetypes': ['html', 'css'] }
 
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
@@ -24,6 +24,10 @@ let g:syntastic_check_on_open=0
 let g:syntastic_check_on_wq=0
 let g:syntastic_check_on_w=1
 let g:syntastic_javascript_checkers = ['eslint_d']
+
+let g:syntastic_php_checkers=['php', 'phpcs']
+let g:syntastic_php_phpcs_args='--standard=PSR2 -n'
+
 " let g:syntastic_javascript_eslint_exec = 'eslint_d'
 " let g:syntastic_javascript_eslint_args = '--config '. $HOME .'/.eslintrc'
 let g:syntastic_html_tidy_exec = 'tidy5'
@@ -33,13 +37,18 @@ let g:syntastic_html_tidy_exec = 'tidy5'
 if executable('node_modules/.bin/standard')
   let b:syntastic_javascript_standard_exec = 'node_modules/.bin/standard'
 endif
-
 " go to next,previous eslint error
 nnoremap ,> :lNext<CR>
 nnoremap ,< :lPrevious<CR>
 " debug syntastic 
 " let g:syntastic_debug=3
-"
+
+" show Syntastic Error Messages
+nnoremap ,j :Errors<CR>
+nnoremap ,rr :w !ruby -c<CR>
+
+
+
 " js-beautify
 let g:editorconfig_Beautifier = '~/.editorconfig'
 
@@ -82,6 +91,8 @@ set expandtab                   " Tabs are spaces, not tabs
 set tabstop=2                   " An indentation every two columns
 set softtabstop=2               " Let backspace delete indent
 
+autocmd Filetype php setlocal shiftwidth=2 tabstop=2 softtabstop=2 expandtab
+
 
 " nerdcommenter
 let g:NERDSpaceDelims=1
@@ -111,9 +122,6 @@ nnorema ; :
 nmap <slient> ,/ :nohlsearch<CR>
 " for saving files which require root privileges"
 cmap w!! w !sudo tee % >/dev/null
-" show Syntastic Error Messages
-nnoremap ,j :Errors<CR>
-nnoremap ,rr :w !ruby -c<CR>
 
 " insert current date time while saving"
 "autocmd bufnewfile *.js so /home/monir/.vim/copyright-header.txt
