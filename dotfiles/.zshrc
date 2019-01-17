@@ -65,8 +65,8 @@ source $ZSH/oh-my-zsh.sh
 # export LC_CTYPE=en_US.UTF-8
 # export LC_ALL=en_US.UTF-8
 
-export LANG=en_US.iso88591
-export LC_MESSAGES="C"
+# export LANG=en_US.iso88591
+# export LC_MESSAGES="C"
 
 
 # Preferred editor for local and remote sessions
@@ -79,11 +79,11 @@ export ARCHFLAGS="-arch x86_64"
 export SSH_KEY_PATH="~/.ssh/id_ed25519"
 
 # react-native android development
-export ANDROID_HOME=$HOME/Android/Sdk
-export PATH=$PATH:$ANDROID_HOME/tools
-export PATH=$PATH:$ANDROID_HOME/platform-tools
-# android virtual device
-export ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
+# export ANDROID_HOME=$HOME/Android/Sdk
+# export PATH=$PATH:$ANDROID_HOME/tools
+# export PATH=$PATH:$ANDROID_HOME/platform-tools
+# # android virtual device
+# export ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
@@ -95,9 +95,9 @@ export ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
 alias dosto="~/Work/dostokhan"
 alias imonir="~/Work/imonir"
 alias trash='mv -t /tmp'
-alias skl="~/Work/shikhai/shikhai.live"
-alias skp="~/Work/shikhai/shikhai.project"
 
+alias dup='docker-compose up'
+alias dbuild='docker-compose build'
 # Set up Node Version Manager
 export NVM_DIR="$HOME/.nvm"                            # You can change this if you want.
 export NVM_SOURCE="/usr/share/nvm"                     # The AUR package installs it to here.
