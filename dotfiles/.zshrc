@@ -78,6 +78,9 @@ export ARCHFLAGS="-arch x86_64"
 # ssh
 export SSH_KEY_PATH="~/.ssh/id_ed25519"
 
+export PATH="${PATH}:$HOME/.local/bin"
+
+
 # react-native android development
 # export ANDROID_HOME=$HOME/Android/Sdk
 # export PATH=$PATH:$ANDROID_HOME/tools
