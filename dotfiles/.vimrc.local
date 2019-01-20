@@ -25,8 +25,9 @@ let g:syntastic_check_on_wq=0
 let g:syntastic_check_on_w=1
 let g:syntastic_javascript_checkers = ['eslint_d']
 
-let g:syntastic_php_checkers=['php', 'phpcs']
-let g:syntastic_php_phpcs_args='--standard=PSR2 -n'
+let g:syntastic_php_checkers=['php', 'phpcs', 'phpmd']
+let g:syntastic_php_phpcs_args='--standard=psr2'
+let g:syntastic_php_phpmd_post_args = 'cleancode,codesize,controversial,design,unusedcode'
 
 
 let g:syntastic_python_checkers=['flake8']
