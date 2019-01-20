@@ -44,7 +44,7 @@ endif
 " go to next,previous eslint error
 nnoremap ,> :lNext<CR>
 nnoremap ,< :lPrevious<CR>
-" debug syntastic 
+" debug syntastic
 " let g:syntastic_debug=3
 
 " show Syntastic Error Messages
@@ -90,12 +90,11 @@ let g:used_javascript_libs = 'jquery,angularjs,react,redux'
 " autocmd Filetype html setlocal softtabstop=2 shiftwidth=2 tabstop=2 et noautoindent
 " autocmd Filetype javascript setlocal softtabstop=2 shiftwidth=2 tabstop=2 et noautoindent
 
-set shiftwidth=2               " Use indents of 2 spaces
-set expandtab                   " Tabs are spaces, not tabs
-set tabstop=2                   " An indentation every two columns
-set softtabstop=2               " Let backspace delete indent
+" set shiftwidth=2               " Use indents of 2 spaces
+" set expandtab                   " Tabs are spaces, not tabs
+" set tabstop=2                   " An indentation every two columns
+" set softtabstop=2               " Let backspace delete indent
 
-autocmd Filetype php setlocal shiftwidth=2 tabstop=2 softtabstop=2 expandtab
 
 
 " nerdcommenter
@@ -121,7 +120,7 @@ set noswapfile
 
 
 " efficient shortcuts
-nnorema ; : 
+nnorema ; :
 " clear highlighted search matches
 nmap <slient> ,/ :nohlsearch<CR>
 " for saving files which require root privileges"
