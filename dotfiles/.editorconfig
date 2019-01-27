@@ -3,11 +3,13 @@ root = true
 
 [*]
 charset = utf-8
-#Force Unix-style newlines with a newline 
+#Force Unix-style newlines with a newline
 # ending every file and trim trailing whitespace
 end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
 
 [**.js]
 indent_style = space
@@ -39,7 +41,7 @@ indent_style = space
 indent_size = 4
 max_char = 78
 
-[**.python]
+[**.py]
 indent_style = space
 indent_size = 4
 max_char = 78
