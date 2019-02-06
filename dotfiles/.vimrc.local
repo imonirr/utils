@@ -11,8 +11,8 @@ let g:indent_guides_enable_on_vim_startup = 0
 
 "enable linting for using syntastic plugin
 let g:syntastic_mode_map = { 'mode': 'active',
-                            \ 'active_filetypes': ['javascript', 'php', 'python'],
-                            \ 'passive_filetypes': ['html', 'css'] }
+                            \ 'active_filetypes': ['javascript', 'python'],
+                            \ 'passive_filetypes': ['html', 'css', 'php'] }
 
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
@@ -50,6 +50,7 @@ nnoremap ,< :lPrevious<CR>
 
 " show Syntastic Error Messages
 nnoremap ,j :Errors<CR>
+nnoremap ,sc :SyntasticCheck<CR>
 nnoremap ,rr :w !ruby -c<CR>
 
 
@@ -138,3 +139,11 @@ cmap w!! w !sudo tee % >/dev/null
 "
 " view pdf in vim
 :command! -complete=file -nargs=1 Rpdf :r !pdftotext -nopgbrk <q-args> -
+
+" view github wiki markdown pages using ruby gollum server
+" set filetype=markdown
+" :nnoremap <f8> :wa \| !gollum > /dev/null 2>&1 &<CR>
+" :nnoremap <f9> :!kill $( pgrep -f gollum )<CR>
+
+
+
