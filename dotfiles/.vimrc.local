@@ -5,7 +5,7 @@ set nospell
 "colorscheme blueshift
 colorscheme solarized
 
-"
+
 "disable indentation white spaces coloring
 let g:indent_guides_enable_on_vim_startup = 0
 
