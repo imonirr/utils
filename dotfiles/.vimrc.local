@@ -8,6 +8,52 @@ colorscheme solarized
 "disable indentation white spaces coloring
 let g:indent_guides_enable_on_vim_startup = 0
 
+
+""""""""""""""""""""""""""""""""""""""""""
+"""""""" ALE LINTER CONFIGURATION """"""""
+""""""""""""""""""""""""""""""""""""""""""
+
+let g:ale_javascript_eslint_executable = '[ -f $(npm bin)/eslint ] && $(npm bin)/eslint || eslint'
+let g:ale_javascript_eslint_options = '--config $(git rev-parse --show-toplevel)/.eslintrc.js'
+
+
+
+" Fix files with prettier, and then ESLint.
+let b:ale_fixers = ['prettier', 'eslint']
+" Equivalent to the above.
+let b:ale_fixers = {'javascript': ['prettier', 'eslint']}
+
+let g:ale_sign_error = '❌'
+let g:ale_sign_warning = '⚠️'
+let g:ale_fix_on_save = 1
+let g:airline#extensions#ale#enabled = 1
+
+let g:ale_set_loclist = 1
+let g:ale_list_window_size = 5
+let g:ale_open_list = 1
+
+
+
+function! LinterStatus() abort
+    let l:counts = ale#statusline#Count(bufnr(''))
+    let l:all_errors = l:counts.error + l:counts.style_error
+    let l:all_non_errors = l:counts.total - l:all_errors
+    return l:counts.total == 0 ? 'OK' : printf(
+        \   '%d⨉ %d⚠ ',
+        \   all_non_errors,
+        \   all_errors
+        \)
+endfunction
+set statusline+=%=
+set statusline+=\ %{LinterStatus()}
+
+""""""""""""""""""""""""""""""""""""""""""
+"""""""" ALE LINTER CONFIGURATION END """"""""
+""""""""""""""""""""""""""""""""""""""""""
+
+
+
+
 "enable linting for using syntastic plugin
 let g:syntastic_mode_map = { 'mode': 'active',
                             \ 'active_filetypes': ['javascript', 'python'],
@@ -22,25 +68,26 @@ let g:syntastic_auto_loc_list=1
 let g:syntastic_check_on_open=0
 let g:syntastic_check_on_wq=0
 let g:syntastic_check_on_w=1
-let g:syntastic_javascript_checkers = ['eslint_d']
+let g:syntastic_javascript_checkers = ['eslint']
 
-let g:syntastic_php_checkers=['php', 'phpcs', 'phpmd']
-let g:syntastic_php_phpcs_args='--standard=psr2'
-let g:syntastic_php_phpmd_post_args = 'cleancode,codesize,controversial,design,unusedcode'
+" let s:eslint_path = system('PATH=$(npm bin):$PATH && which eslint')
+" let b:syntastic_javascript_eslint_exec = substitute(s:eslint_path, '^\n*\s*\(.\{-}\)\n*\s*$', '\1', '')
+
+" let s:project_root_dir =
+let g:syntastic_javascript_eslint_exe = '[ -f $(npm bin)/eslint ] && $(npm bin)/eslint || eslint'
+" let g:syntastic_javascript_eslint_exec = 'eslint_d'
+let g:syntastic_javascript_eslint_args = '--config $(git rev-parse --show-toplevel)/.eslintrc.js'
 
 
 let g:syntastic_python_checkers=['flake8']
 let g:syntastic_python_python_exec = '/usr/bin/python3.6'
-
-" let g:syntastic_javascript_eslint_exec = 'eslint_d'
-" let g:syntastic_javascript_eslint_args = '--config '. $HOME .'/.eslintrc'
 let g:syntastic_html_tidy_exec = 'tidy5'
 
 
 "use project eslint
-if executable('node_modules/.bin/standard')
-  let b:syntastic_javascript_standard_exec = 'node_modules/.bin/standard'
-endif
+" if executable('node_modules/.bin/standard')
+"   let b:syntastic_javascript_standard_exec = 'node_modules/.bin/standard'
+" endif
 " go to next,previous eslint error
 nnoremap ,> :lNext<CR>
 nnoremap ,< :lPrevious<CR>
