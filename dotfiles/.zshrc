@@ -44,6 +44,23 @@ ZSH_THEME="bira"
 # The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
 HIST_STAMPS="mm/dd/yyyy"
 
+export HISTFILE=~/.zsh_history
+export HISTFILESIZE=999999999
+export HISTSIZE=999999999
+# # Immediate append Setting the inc_append_history option ensures that commands
+# are added to the history immediately (otherwise, this would happen only when
+# the shell exits, and you could lose history upon unexpected/unclean
+# termination of the shell).
+setopt INC_APPEND_HISTORY
+export HISTTIMEFORMAT="[%F %T] "
+# Handling duplicate commands (While searching with Ctrl+R)
+setopt HIST_FIND_NO_DUPS
+
+#  not writing duplicates to the history file
+setopt HIST_IGNORE_ALL_DUPS
+
+
+
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
@@ -51,7 +68,7 @@ HIST_STAMPS="mm/dd/yyyy"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git node)
+plugins=(git node terraform)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -80,8 +97,10 @@ export SSH_KEY_PATH="~/.ssh/id_ed25519"
 
 export PATH="${PATH}:$HOME/.local/bin"
 
+export hostname=$HOST
 
 # react-native android development
+export ANDROID_SDK=$HOME/Android/Sdk
 # export ANDROID_HOME=$HOME/Android/Sdk
 # export PATH=$PATH:$ANDROID_HOME/tools
 # export PATH=$PATH:$ANDROID_HOME/platform-tools
@@ -95,13 +114,95 @@ export PATH="${PATH}:$HOME/.local/bin"
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-alias dosto="~/Work/dostokhan"
-alias imonir="~/Work/imonir"
 alias trash='mv -t /tmp'
+alias glg="git log --color --all --date-order --decorate --dirstat=lines,cumulative --stat | sed 's/\([0-9] file[s]\? .*)$\)/\1\n_______\n-------/g' | \less -R"
 
 alias dup='docker-compose up'
+alias ddown='docker-compose down'
 alias dbuild='docker-compose build'
 # Set up Node Version Manager
-export NVM_DIR="$HOME/.nvm"                            # You can change this if you want.
-export NVM_SOURCE="/usr/share/nvm"                     # The AUR package installs it to here.
-[ -s "$NVM_SOURCE/nvm.sh" ] && . "$NVM_SOURCE/nvm.sh"  # Load NVM
+# export NVM_DIR="$HOME/.nvm"                            # You can change this if you want.
+# export NVM_SOURCE="/usr/share/nvm"                     # The AUR package installs it to here.
+# [ -s "$NVM_SOURCE/nvm.sh" ] && . "$NVM_SOURCE/nvm.sh"  # Load NVM
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+
+export PATH="${PATH}:/opt"
+export PATH="${PATH}:/home/monir/.dropbox-dist"
+
+# ibus avro
+export GTK_IM_MODULE=ibus
+export XMODIFIERS=@im=ibus
+export QT_IM_MODULE=ibus
+# Install Ruby Gems to ~/gems
+export GEM_HOME="$HOME/gems"
+export PATH="$HOME/gems/bin:$PATH"
+
+# Open file with program
+alias -s md=vim
+alias -s json=vim
+alias -s {css,ts,html}=vim
+alias -s {mp4}=vlc
+
+# open ~/.zshrc in using the default editor specified in $EDITOR
+alias ec="$EDITOR $HOME/.zshrc"
+# source ~/.zshrc
+alias sc="source $HOME/.zshrc"
+
+
+# change brightness
+alias lowlight="echo 40 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
+# alias lowlight="echo 30000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
+# alias midlight="echo 70000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
+alias midlight="echo 100 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
+# alias highlight="echo 120000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
+alias highlight="echo 200 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
+# check battery percentage
+alias battery="upower -i `upower -e | grep 'BAT'` | grep percentage"
+alias vpn="sudo openvpn ~/Downloads/cefalo-central.ovpn"
+
+
+# rsync copy with progress
+alias copy="rsync -ah --progress"
+
+
+# functions
+portcheck() {
+    sudo nc localhost $1 < /dev/null; echo $?
+}
+
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /usr/bin/terraform terraform
+
+# autocompletion for kubectl
+# source <(kubectl completion zsh)
+
+# project dirs
+alias hom="cd ~/work/hom-frontend/packages/hom-frontend/"
+
+
+# You can add the current Terraform workspace in your prompt by adding $(tf_prompt_info) to your PROMPT or RPROMPT variable.
+RPROMPT='$(tf_prompt_info)'
+
+# deno
+export DENO_INSTALL="/home/$USER/.deno"
+export PATH="$DENO_INSTALL/bin:$PATH"
+
+
+## HOUSEOFMATH
+# postmark
+export POSTMARK_ACCOUNT_TOKEN=2d3d26fd-8577-4fa1-a0f0-28fe07aa32f1
+
+## python pyenv
+# export PYENV_ROOT="$HOME/.pyenv"
+# command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+# eval "$(pyenv init -)"
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+
+alias python=python3
+
+alias peanut='nmcli d wifi connect "Mr. Peanutbutter"'

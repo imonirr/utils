@@ -1,0 +1,29 @@
+[global_config]
+  focus = mouse
+  borderless = True
+  inactive_color_offset = 1.0
+  suppress_multiple_term_dialog = True
+  title_use_system_font = False
+  title_font = CamingoCode 12
+[keybindings]
+[profiles]
+  [[default]]
+    background_color = "#002b36"
+    cursor_color = "#aaaaaa"
+    font = Monospace 14
+    foreground_color = "#839496"
+    show_titlebar = False
+    scroll_on_output = True
+    scrollback_infinite = True
+    login_shell = True
+    use_system_font = False
+[layouts]
+  [[default]]
+    [[[child1]]]
+      parent = window0
+      profile = default
+      type = Terminal
+    [[[window0]]]
+      parent = ""
+      type = Window
+[plugins]

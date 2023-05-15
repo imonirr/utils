@@ -1,195 +1,146 @@
-UnBundle 'kchmck/vim-coffee-script'
-
-set nofoldenable
-set nospell
-"colorscheme blueshift
-colorscheme solarized
-
+" spf13 overrides, unused from programming group
+" UnBundle 'scrooloose/syntastic'
 "disable indentation white spaces coloring
 let g:indent_guides_enable_on_vim_startup = 0
 
+" turn hybrid line numbers on
+set number relativenumber
 
-""""""""""""""""""""""""""""""""""""""""""
-"""""""" ALE LINTER CONFIGURATION """"""""
-""""""""""""""""""""""""""""""""""""""""""
-
-let g:ale_javascript_eslint_executable = '[ -f $(npm bin)/eslint ] && $(npm bin)/eslint || eslint'
-let g:ale_javascript_eslint_options = '--config $(git rev-parse --show-toplevel)/.eslintrc.js'
-
-
-
-" Fix files with prettier, and then ESLint.
-let b:ale_fixers = ['prettier', 'eslint']
-" Equivalent to the above.
-let b:ale_fixers = {'javascript': ['prettier', 'eslint']}
-
-let g:ale_sign_error = '❌'
-let g:ale_sign_warning = '⚠️'
-let g:ale_fix_on_save = 1
-let g:airline#extensions#ale#enabled = 1
-
-let g:ale_set_loclist = 1
-let g:ale_list_window_size = 5
-let g:ale_open_list = 1
-
-
-
-function! LinterStatus() abort
-    let l:counts = ale#statusline#Count(bufnr(''))
-    let l:all_errors = l:counts.error + l:counts.style_error
-    let l:all_non_errors = l:counts.total - l:all_errors
-    return l:counts.total == 0 ? 'OK' : printf(
-        \   '%d⨉ %d⚠ ',
-        \   all_non_errors,
-        \   all_errors
-        \)
-endfunction
-set statusline+=%=
-set statusline+=\ %{LinterStatus()}
-
-""""""""""""""""""""""""""""""""""""""""""
-"""""""" ALE LINTER CONFIGURATION END """"""""
-""""""""""""""""""""""""""""""""""""""""""
-
-
-
-
-"enable linting for using syntastic plugin
-let g:syntastic_mode_map = { 'mode': 'active',
-                            \ 'active_filetypes': ['javascript', 'python'],
-                            \ 'passive_filetypes': ['html', 'css', 'php'] }
-
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-
-let g:syntastic_always_populate_loc_list=1
-let g:syntastic_auto_loc_list=1
-let g:syntastic_check_on_open=0
-let g:syntastic_check_on_wq=0
-let g:syntastic_check_on_w=1
-let g:syntastic_javascript_checkers = ['eslint']
-
-" let s:eslint_path = system('PATH=$(npm bin):$PATH && which eslint')
-" let b:syntastic_javascript_eslint_exec = substitute(s:eslint_path, '^\n*\s*\(.\{-}\)\n*\s*$', '\1', '')
-
-" let s:project_root_dir =
-let g:syntastic_javascript_eslint_exe = '[ -f $(npm bin)/eslint ] && $(npm bin)/eslint || eslint'
-" let g:syntastic_javascript_eslint_exec = 'eslint_d'
-let g:syntastic_javascript_eslint_args = '--config $(git rev-parse --show-toplevel)/.eslintrc.js'
-
-
-let g:syntastic_python_checkers=['flake8']
-let g:syntastic_python_python_exec = '/usr/bin/python3.6'
-let g:syntastic_html_tidy_exec = 'tidy5'
-
-
-"use project eslint
-" if executable('node_modules/.bin/standard')
-"   let b:syntastic_javascript_standard_exec = 'node_modules/.bin/standard'
-" endif
-" go to next,previous eslint error
-nnoremap ,> :lNext<CR>
-nnoremap ,< :lPrevious<CR>
-" debug syntastic
-" let g:syntastic_debug=3
-
-" show Syntastic Error Messages
-nnoremap ,j :Errors<CR>
-nnoremap ,sc :SyntasticCheck<CR>
-nnoremap ,rr :w !ruby -c<CR>
-
-
-
-" js-beautify
-let g:editorconfig_Beautifier = '~/.editorconfig'
-
-"vim-javascript plugin options
-let g:javascript_conceal_null                 = "ø"
-let g:javascript_conceal_this                 = "@"
-let g:javascript_conceal_return               = "⇚"
-let g:javascript_conceal_undefined            = "¿"
-let g:javascript_conceal_NaN                  = "ℕ"
-
-
-autocmd FileType javascript noremap <buffer>  <c-f> :call JsBeautify()<cr>
-autocmd FileType javascript vnoremap <buffer>  <c-f> :call RangeJsBeautify()<cr>
-" for json
-autocmd FileType json noremap <buffer> <c-f> :call JsonBeautify()<cr>
-autocmd FileType json vnoremap <buffer> <c-f> :call RangeJsonBeautify()<cr>
-" for jsx
-autocmd FileType jsx noremap <buffer> <c-f> :call JsxBeautify()<cr>
-autocmd FileType jsx vnoremap <buffer> <c-f> :call RangeJsxBeautify()<cr>
-" for html
-autocmd FileType html noremap <buffer> <c-f> :call HtmlBeautify()<cr>
-autocmd FileType html vnoremap <buffer> <c-f> :call RangeHtmlBeautify()<cr>
-" for css or scss
-autocmd FileType css noremap <buffer> <c-f> :call CSSBeautify()<cr>
-autocmd FileType css vnoremap <buffer> <c-f> :call RangeCSSBeautify()<cr>
+" wrap long lines
+set wrap linebreak nolist
 
 set fileencoding=utf-8
 set encoding=utf-8
-
-
-" use javascript-library-syntax
-let g:used_javascript_libs = 'jquery,angularjs,react,redux'
-
-" for html files, 2 spaces
-" autocmd Filetype html setlocal softtabstop=2 shiftwidth=2 tabstop=2 et noautoindent
-" autocmd Filetype javascript setlocal softtabstop=2 shiftwidth=2 tabstop=2 et noautoindent
-
-" set shiftwidth=2               " Use indents of 2 spaces
-" set expandtab                   " Tabs are spaces, not tabs
-" set tabstop=2                   " An indentation every two columns
-" set softtabstop=2               " Let backspace delete indent
-
-
-
-" nerdcommenter
-let g:NERDSpaceDelims=1
-let g:NERDDefaultAlign = 'left'
-let g:NERDTrimTraillingWhitespace=1
-map <slient ,c :NERDTreeClose<CR>
-map <leader>p :NERDTreeCWD
-
-
-" Copy Paste Between terminals"
-" vmap <silent> ,y y:new<CR>:call setline(1,getregtype())<CR>o<Esc>P:wq! ~/reg.txt<CR>
-" nmap <silent> ,y :new<CR>:call setline(1,getregtype())<CR>o<Esc>P:wq! ~/reg.txt<CR>
-" map <silent> ,p :sview ~/reg.txt<CR>"zdddG:q!<CR>:call setreg('"', @", @z"'"')<CR>p
-" map <silent> ,P :sview ~/reg.txt<CR>"zdddG:q!<CR>:call setreg('"', @", @z"'"')<CR>P
-
-
-
-" no backup, no swap"
+set nofoldenable
+set nospell
+colorscheme gruvbox
+" colorscheme solarized
 set nobackup
-" set backupdir=~/.vimtemp
 set noswapfile
 
 
-" efficient shortcuts
+" ##############################
+" ### git conflict: conflict marker ######################
+" ##############################
+" if &diff
+"     colorscheme mycolorscheme
+" endif
+" disable the default highlight group
+let g:conflict_marker_highlight_group = ''
+
+" Include text after begin and end markers
+let g:conflict_marker_begin = '^<<<<<<< .*$'
+let g:conflict_marker_end   = '^>>>>>>> .*$'
+
+highlight ConflictMarkerBegin guibg=#2f7366
+highlight ConflictMarkerOurs guibg=#2e5049
+highlight ConflictMarkerTheirs guibg=#344f69
+highlight ConflictMarkerEnd guibg=#2f628e
+highlight ConflictMarkerCommonAncestorsHunk guibg=#754a81
+
+
+
+" ##############################
+" ### SHORTCUTS ######################
+" ##############################
 nnorema ; :
 " clear highlighted search matches
 nmap <slient> ,/ :nohlsearch<CR>
 " for saving files which require root privileges"
 cmap w!! w !sudo tee % >/dev/null
 
-" insert current date time while saving"
-"autocmd bufnewfile *.js so /home/monir/.vim/copyright-header.txt
-"autocmd bufnewfile *.js exe "1," . 10 . "g/File Name :.*/s//File Name : " .expand("%")
-"autocmd bufnewfile *.js exe "1," . 10 . "g/Creation Date :.*/s//Creation Date : " .strftime("%d-%m-%Y")
-"autocmd Bufwritepre,filewritepre *.js execute "normal ma"
-"autocmd Bufwritepre,filewritepre *.js exe "1," . 10 . "g/Last Modified :.*/s/Last Modified :.*/Last Modified : " .strftime("%c")
-"autocmd bufwritepost,filewritepost *.js execute "normal `a""`"
+
+" ###################
+" ### NerdCommenter #
+" ###################
+let g:NERDTreeDirArrows = 1
+let g:NERDTreeDirArrowExpandable = '▸'
+let g:NERDTreeDirArrowCollapsible = '▾'
+let g:NERDSpaceDelims=1
+let g:NERDDefaultAlign = 'left'
+let g:NERDTrimTraillingWhitespace=1
+map <slient ,c :NERDTreeClose<CR>
+map <leader>p :NERDTreeCWD<CR>
+
+
+" ##############################
+" ### COC ######################
+" ##############################
 "
-"
-" view pdf in vim
-:command! -complete=file -nargs=1 Rpdf :r !pdftotext -nopgbrk <q-args> -
+" show definition
+nnoremap <silent> K :call CocAction('doHover')<CR>
+" show diagnostic
+nnoremap <silent> <space>d :<C-u>CocList diagnostics<cr>
+" navigate to errors
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+" code action
+nmap <leader>do <Plug>(coc-codeaction)
+" rename symbol
+nmap <leader>rn <Plug>(coc-rename)
+" Give more space for displaying messages.
+set cmdheight=2
+" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
+" delays and poor user experience.
+set updatetime=500
+" Don't pass messages to |ins-completion-menu|.
+set shortmess+=c
 
-" view github wiki markdown pages using ruby gollum server
-" set filetype=markdown
-" :nnoremap <f8> :wa \| !gollum > /dev/null 2>&1 &<CR>
-" :nnoremap <f9> :!kill $( pgrep -f gollum )<CR>
+" GoTo code navigation.
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+
+" vim-terraform config
+autocmd BufEnter *.tf* colorscheme icansee
+" auto format with terraform fmt on save
+let g:terraform_fmt_on_save=1
+" intent with 2 space
+let g:terraform_align=1
 
 
 
+" automatically show either the diagnostic if it exists, otherwise the documentation
+" function! ShowDocIfNoDiagnostic(timer_id)
+"   if (coc#util#has_float() == 0)
+"     silent call CocActionAsync('doHover')
+"   endif
+" endfunction
+
+" function! s:show_hover_doc()
+"   call timer_start(500, 'ShowDocIfNoDiagnostic')
+" endfunction
+
+" autocmd CursorHoldI * :call <SID>show_hover_doc()
+" autocmd CursorHold * :call <SID>show_hover_doc()
+
+
+" Sessionman
+set viminfo='100,<500,s10,h,!
+let sessionman_save_on_exit = 1
+
+" function! ReadSession()
+" SessionOpenLast
+" endfunction
+" " if no file args then open the last session
+" autocmd VimEnter * if argc() == 0 | call ReadSession() | endif
+
+" use 4 space tabs in python
+aug python
+    " ftype/python.vim overwrites this
+    au FileType python setlocal ts=4 sts=4 sw=4 expandtab
+aug end
+
+
+
+" Vimwiki
+let g:vimwiki_global_ext = 0
+let wiki_1 = {}
+let wiki_1.path = '~/work/vimwiki/'
+let wiki_1.syntax = 'markdown'
+let wiki_1.ext = '.md'
+
+let g:vimwiki_list = [wiki_1]
+let g:vimwiki_ext2syntax = {'.md': 'markdown', '.markdown': 'markdown', '.mdown': 'markdown'}

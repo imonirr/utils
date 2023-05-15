@@ -1,9 +1,20 @@
-Bundle 'maksimr/vim-jsbeautify'
-Plugin 'mxw/vim-jsx'
-Plugin 'othree/yajs.vim'
-Plugin 'othree/javascript-libraries-syntax.vim'
-Plugin 'nicwest/QQ.vim'
-Plugin 'yuttie/comfortable-motion.vim'
+" 1. Typescript react graphql projects
+Plugin 'pangloss/vim-javascript'
+Plugin 'peitalin/vim-jsx-typescript'
+Plugin 'styled-components/vim-styled-components'
+
+Plugin 'HerringtonDarkholme/yats.vim'
+
+Plugin 'jparise/vim-graphql'
+
+Plugin 'neoclide/coc.nvim', {'branch': 'release'}
+
+" colorscheme
+Plugin 'morhetz/gruvbox'
+
 Plugin 'editorconfig/editorconfig-vim'
-UnBundle 'scrooloose/syntastic'
-Plugin 'dense-analysis/ale'
+
+" terraform
+Plugin 'hashivim/vim-terraform'
+
+Plugin 'vimwiki/vimwiki'

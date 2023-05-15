@@ -1,0 +1,12 @@
+[dotfiles]
+repository = ~/Dotfiles
+packages = ['config']
+ignore = [
+    '.git',
+    '.gitignore',
+    '*.swp']
+externals = {
+    '.bzr.log':     '/dev/null',
+    '.uml':         '/tmp'}
+
+
