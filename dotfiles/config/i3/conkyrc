@@ -37,7 +37,7 @@ conky.text = [[
 [
 
   {
-    "full_text": "${downspeed wlp4s0}",
+    "full_text": "${downspeed wlo1}",
     "min_width":"000% ",
     "separator": false,
     "separator_block_width":3,
@@ -45,7 +45,7 @@ conky.text = [[
   },
 
   {
-    "full_text": "${upspeed wlp4s0}",
+    "full_text": "${upspeed wlo1}",
     "min_width":"000%",
     "separator": true,
     "separator_block_width":20,
@@ -53,7 +53,7 @@ conky.text = [[
   },
 
   {
-    "full_text": "${wireless_essid wlp4s0}",
+    "full_text": "${wireless_essid wlo1}",
     "separator": true,
     "separator_block_width":20,
     "color":"\#dca3a3"
@@ -89,14 +89,6 @@ conky.text = [[
     "min_width":"000%",
     "color":"${if_match ${cpu} < 33}\#7f9f7f${else}${if_match ${cpu} > 66}\#dca3a3${else}\#c3bf9f${endif}${endif}"
   },
-
-  {
-    "full_text": "Oslo ${tztime Europe/Oslo %H:%M}",
-    "separator_block_width": 10,
-    "separator": true,
-    "color":"\#BA0C2F"
-  },
-
   {
     "full_text": "${time %b%e,%Y(%a)}",
     "separator": false,
@@ -121,7 +113,7 @@ conky.text = [[
 ]];
 
 -- enp3s0
--- wlp4s0
+-- wlo1
 
 --  {
 --    "full_text": "${battery_percent BAT1}%",
@@ -140,7 +132,7 @@ conky.text = [[
 --#${if_up wls2} wls2: ${addr wls2} | ${endif}\
 --#${if_up ens3f1} ens3f1: ${addr ens3f1} | ${endif}\
 --## for debian users
---#${if_up wlp4s0} wlp4s0: ${addr wlp4s0} | ${endif}\
+--#${if_up wlo1} wlo1: ${addr wlo1} | ${endif}\
 --#${if_up eth0} eth0: ${addr eth0} | ${endif}\
 --#${if_up usb0} usb0: ${addr usb0} | ${endif}\
 --"full_text": "${TZ=":Europe/Oslo" date +%R}",

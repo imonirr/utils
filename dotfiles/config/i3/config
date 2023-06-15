@@ -198,6 +198,8 @@ exec terminator
 # exec firefox
 exec google-chrome-stable
 
+exec --no-startup-id exec ~/.dropbox-dist/dropboxd
+
 assign [class="Terminator"] 1
 assign [class="google-chrome-stable"] 2
 

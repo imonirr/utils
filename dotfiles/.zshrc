@@ -121,11 +121,7 @@ alias dup='docker-compose up'
 alias ddown='docker-compose down'
 alias dbuild='docker-compose build'
 # Set up Node Version Manager
-# export NVM_DIR="$HOME/.nvm"                            # You can change this if you want.
-# export NVM_SOURCE="/usr/share/nvm"                     # The AUR package installs it to here.
-# [ -s "$NVM_SOURCE/nvm.sh" ] && . "$NVM_SOURCE/nvm.sh"  # Load NVM
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+
 
 export PATH="${PATH}:/opt"
 export PATH="${PATH}:/home/monir/.dropbox-dist"
@@ -151,16 +147,15 @@ alias sc="source $HOME/.zshrc"
 
 
 # change brightness
-alias lowlight="echo 40 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
-# alias lowlight="echo 30000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
-# alias midlight="echo 70000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
-alias midlight="echo 100 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
-# alias highlight="echo 120000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
-alias highlight="echo 200 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
+alias lowlight="echo 30000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
+alias midlight="echo 70000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
+alias highlight="echo 120000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
+# alias lowlight="echo 40 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
+# alias midlight="echo 100 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
+# alias highlight="echo 200 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
+
 # check battery percentage
 alias battery="upower -i `upower -e | grep 'BAT'` | grep percentage"
-alias vpn="sudo openvpn ~/Downloads/cefalo-central.ovpn"
-
 
 # rsync copy with progress
 alias copy="rsync -ah --progress"
@@ -189,20 +184,26 @@ export DENO_INSTALL="/home/$USER/.deno"
 export PATH="$DENO_INSTALL/bin:$PATH"
 
 
-## HOUSEOFMATH
-# postmark
-export POSTMARK_ACCOUNT_TOKEN=2d3d26fd-8577-4fa1-a0f0-28fe07aa32f1
-
 ## python pyenv
 # export PYENV_ROOT="$HOME/.pyenv"
 # command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 # eval "$(pyenv init -)"
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-
 
 alias python=python3
 
 alias peanut='nmcli d wifi connect "Mr. Peanutbutter"'
+
+####################
+## Package managers
+#####################
+
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
