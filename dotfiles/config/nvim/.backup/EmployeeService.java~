@@ -1,0 +1,54 @@
+
+
+package com.example.demo.employee;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ * EmployeeService
+ */
+@Service
+public class EmployeeService {
+    pivate final EmployeeRepository employeeRepository;
+
+
+    @Autowired
+    public EmployeeService(EmployeeRepository employeeRepository) {
+     this.employeeRepository = employeeRepository;
+ }
+
+    public List<Employee> getEmployee() {
+        return employeeRepository.findAll();
+    }
+
+    public Employee createEmployee(Employee employee) {
+        return employeeRepository.save(employee);
+    }
+
+    public Employee updateEmployee(Long id, Employee employee) {
+        Optional<Employee> optionalEmployee = employeeRepository.findById(id);
+        if (optionalEmployee.isPresent()) {
+            employee.setId(id);
+            return employeeRepository.save(employee);
+        } else {
+            throw new IllegalStateException("Unkown employee");
+        }
+    }
+
+    public void deleteEmployee(Long id) {
+        Optional<Employee> optionalEmployee = employeeRepository.findById(id);
+        if (optionalEmployee.isPresent()) {
+            employeeRepository.deleteById(id);
+        } else {
+            throw new IllegalStateException("Unkown employee");
+        }
+    }
+}
+
+
+
+

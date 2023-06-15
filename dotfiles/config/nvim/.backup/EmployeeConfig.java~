@@ -1,0 +1,25 @@
+package com.example.demo.employee;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * EmployeeConfig
+ */
+@Configuration
+public class EmployeeConfig {
+
+    @Bean
+    CommandLineRunner employeeCommandLineRunner(final EmployeeRepository employeeRepository) {
+        return args -> {
+            Employee monir = new Employee(
+                1L,
+                "Monir",
+            "monir@gmail.com",
+            "324332");
+
+            employeeRepository.save(monir);
+        };
+    }
+}

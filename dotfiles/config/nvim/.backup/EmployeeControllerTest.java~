@@ -1,0 +1,11 @@
+public package com.example.demo.employee;
+
+import org.springframework.boot.test.mock.mockito.MockBean;
+
+class EmployeeControllerTest {
+
+    @MockBean
+    private EmployeeService employeeService;
+
+    Employee employee = new Employee(3L, "emp_name", "emp_email@gmail.com", "2343232");
+}

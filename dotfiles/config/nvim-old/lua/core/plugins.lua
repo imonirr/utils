@@ -55,12 +55,12 @@ function M.setup()
       end
     }
 
-    use {
-      'rmagatti/auto-session',
-      config = function()
-        require('core.config.autosession').setup()
-      end
-    }
+    -- use {
+    --   'rmagatti/auto-session',
+    --   config = function()
+    --     require('core.config.autosession').setup()
+    --   end
+    -- }
 
     use {
       'rmagatti/session-lens',
@@ -134,7 +134,7 @@ function M.setup()
     }
 
 
-    use { 
+    use {
       "github/copilot.vim",
       config = function()
         require('core.config.copilot').setup()
@@ -144,8 +144,8 @@ function M.setup()
 
     -- java
     -- https://alpha2phi.medium.com/neovim-for-beginners-java-6a86cf1a91a5
-    use { 
-      "mfussenegger/nvim-jdtls", 
+    use {
+      "mfussenegger/nvim-jdtls",
       config = function()
         -- https://github.com/fitrh/init.nvim/blob/main/lua/plugin/jdtls/config.lua
         require("core.config.jdtls").attach()

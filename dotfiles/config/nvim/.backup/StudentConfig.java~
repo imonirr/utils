@@ -1,0 +1,36 @@
+
+package com.example.demo.student;
+
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.List;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * StudentConfig
+ */
+@Configuration
+public class StudentConfig {
+
+    @Bean
+    CommandLineRunner commandLineRunner(final StudentRepository studentRepository) {
+        return args -> {
+            Student marium = new Student(
+                    "Marium",
+                    "marium@imonir.com",
+                    LocalDate.of(1999, Month.AUGUST, 24)
+                    );
+            Student alex = new Student(
+                    "Alex", "alex@gmail.com",
+                    LocalDate.of(1992, Month.AUGUST, 24)
+                    );
+
+            studentRepository.saveAll(
+                    List.of(marium, alex));
+        };
+    }
+
+}
