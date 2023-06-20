@@ -3,6 +3,7 @@
 echo 'Deleting old files'
 rm $HOME/.zshrc $HOME/.zprofile $HOME/.vimrc.local $HOME/.vimrc.before.local $HOME/.vimrc.bundles.local $HOME/.editorconfig $HOME/.eslintrc
 rm -r $HOME/.config/i3
+rm -r $HOME/.config/nvim
 
 echo 'Zshrc Config'
 ln -s $HOME/work/utils/dotfiles/.zshrc $HOME/.zshrc
@@ -21,4 +22,4 @@ echo 'i3config'
 ln -s $HOME/work/utils/dotfiles/config/i3 $HOME/.config/i3
 
 echo 'neovim'
-ln -s $HOME/work/utils/dotfiles/config/neovim $HOME/.config/neovim
+ln -s $HOME/work/utils/dotfiles/config/nvim $HOME/.config/nvim
