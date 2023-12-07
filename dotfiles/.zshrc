@@ -154,8 +154,8 @@ alias highlight="echo 120000 | sudo tee /sys/class/backlight/intel_backlight/bri
 # alias midlight="echo 100 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
 # alias highlight="echo 200 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
 
-# check battery percentage
-alias battery="upower -i `upower -e | grep 'BAT'` | grep percentage"
+# check battery percentage LINUX
+# alias battery="upower -i `upower -e | grep 'BAT'` | grep percentage"
 
 # rsync copy with progress
 alias copy="rsync -ah --progress"
@@ -172,38 +172,90 @@ complete -o nospace -C /usr/bin/terraform terraform
 # autocompletion for kubectl
 # source <(kubectl completion zsh)
 
-# project dirs
-alias hom="cd ~/work/hom-frontend/packages/hom-frontend/"
-
 
 # You can add the current Terraform workspace in your prompt by adding $(tf_prompt_info) to your PROMPT or RPROMPT variable.
-RPROMPT='$(tf_prompt_info)'
+# RPROMPT='$(tf_prompt_info)'
 
 # deno
-export DENO_INSTALL="/home/$USER/.deno"
-export PATH="$DENO_INSTALL/bin:$PATH"
+# export DENO_INSTALL="/home/$USER/.deno"
+# export PATH="$DENO_INSTALL/bin:$PATH"
 
 
 ## python pyenv
 # export PYENV_ROOT="$HOME/.pyenv"
 # command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+# eval "$(pyenv init --path)"
 # eval "$(pyenv init -)"
 
+# # Load pyenv-virtualenv automatically by adding
+# eval "$(pyenv virtualenv-init -)"
 
-alias python=python3
+# alias python=python3
+# export PATH="${PATH}:$HOME/Library/Python/3.9/bin"
+
+# For compilers to find sqlite you may need to set:
+export LDFLAGS="-L/opt/homebrew/opt/sqlite/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/sqlite/include"
+# For pkg-config to find sqlite you may need to set:
+export PKG_CONFIG_PATH="/opt/homebrew/opt/sqlite/lib/pkgconfig"
+
+# For compilers to find zlib you may need to set:
+export LDFLAGS="-L/opt/homebrew/opt/zlib/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/zlib/include"
+# For pkg-config to find zlib you may need to set:
+export PKG_CONFIG_PATH="/opt/homebrew/opt/zlib/lib/pkgconfig"
+
 
 alias peanut='nmcli d wifi connect "Mr. Peanutbutter"'
+
+# https://apple.stackexchange.com/questions/20547/how-do-i-find-my-ip-address-from-the-command-line
+alias localip='dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com'
+
 
 ####################
 ## Package managers
 #####################
 
 
+# linux
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# osx
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/Users/moniruzzamanmonir/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/Users/moniruzzamanmonir/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "/Users/moniruzzamanmonir/anaconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/Users/moniruzzamanmonir/anaconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
+export PATH="$HOME/.deno/bin:$PATH"
+
+# bun completions
+[ -s "/Users/moniruzzamanmonir/.bun/_bun" ] && source "/Users/moniruzzamanmonir/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# autocompletion from thefuck
+eval $(thefuck --alias)
+export PATH="$HOME/.deno/bin:$PATH"
