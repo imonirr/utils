@@ -146,20 +146,6 @@ alias ec="$EDITOR $HOME/.zshrc"
 alias sc="source $HOME/.zshrc"
 
 
-# change brightness
-alias lowlight="echo 30000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
-alias midlight="echo 70000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
-alias highlight="echo 120000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
-# alias lowlight="echo 40 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
-# alias midlight="echo 100 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
-# alias highlight="echo 200 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
-
-# check battery percentage LINUX
-# alias battery="upower -i `upower -e | grep 'BAT'` | grep percentage"
-
-# rsync copy with progress
-alias copy="rsync -ah --progress"
-
 
 # functions
 portcheck() {
@@ -212,50 +198,67 @@ alias peanut='nmcli d wifi connect "Mr. Peanutbutter"'
 alias localip='dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com'
 
 
-####################
-## Package managers
-#####################
+
+# What OS are we running?
+if command apt > /dev/null; then
+    echo 'Debian!'
+
+    # change brightness
+    alias lowlight="echo 30000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
+    alias midlight="echo 70000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
+    alias highlight="echo 120000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
+    # alias lowlight="echo 40 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
+    # alias midlight="echo 100 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
+    # alias highlight="echo 200 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
+
+    # check battery percentage LINUX
+    alias battery="upower -i `upower -e | grep 'BAT'` | grep percentage"
+
+    # rsync copy with progress
+    alias copy="rsync -ah --progress"
 
 
-# linux
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-# osx
-export NVM_DIR="$HOME/.nvm"
-  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
-  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+elif [[ `uname` == "Darwin" ]]; then
+    echo 'OSX!'
+
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+    [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+
+    #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+    export SDKMAN_DIR="$HOME/.sdkman"
+    [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+    export PATH="$HOME/.deno/bin:$PATH"
+
+    # bun completions
+    [ -s "/Users/moniruzzamanmonir/.bun/_bun" ] && source "/Users/moniruzzamanmonir/.bun/_bun"
+
+    # bun
+    export BUN_INSTALL="$HOME/.bun"
+    export PATH="$BUN_INSTALL/bin:$PATH"
+
+    # autocompletion from thefuck
+    eval $(thefuck --alias)
+    export PATH="$HOME/.deno/bin:$PATH"
+
+    # Generated for envman. Do not edit.
+    [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+
+    # The next line updates PATH for the Google Cloud SDK.
+    if [ -f '/Users/monir/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/monir/google-cloud-sdk/path.zsh.inc'; fi
+
+    # The next line enables shell command completion for gcloud.
+    if [ -f '/Users/monir/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/monir/google-cloud-sdk/completion.zsh.inc'; fi
+    if test -f "/Users/monir/work/sj/Medvind-Tools/gustav.sh"; then; alias gustav="/Users/monir/work/sj/Medvind-Tools/gustav.sh"; fi
+    export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
+    if test -f "/Users/monir/work/sj/Medvind-Tools/.env.secrets"; then; export $(cat "/Users/monir/work/sj/Medvind-Tools/.env.secrets" | xargs); fi
 
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/Users/moniruzzamanmonir/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
 else
-    if [ -f "/Users/moniruzzamanmonir/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "/Users/moniruzzamanmonir/anaconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/Users/moniruzzamanmonir/anaconda3/bin:$PATH"
-    fi
+    echo 'Unknown OS!'
 fi
-unset __conda_setup
-# <<< conda initialize <<<
-
-export PATH="$HOME/.deno/bin:$PATH"
-
-# bun completions
-[ -s "/Users/moniruzzamanmonir/.bun/_bun" ] && source "/Users/moniruzzamanmonir/.bun/_bun"
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
-# autocompletion from thefuck
-eval $(thefuck --alias)
-export PATH="$HOME/.deno/bin:$PATH"
