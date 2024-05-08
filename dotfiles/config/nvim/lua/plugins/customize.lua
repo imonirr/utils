@@ -9,10 +9,10 @@ return {
       return math.floor(vim.o.columns * 0.50)
     end,
   },
-  -- {
-  --   "neovim/nvim-lspconfig",
-  --   opts = {
-  --     autoformat = false,
-  --   },
-  -- },
+  {
+    "neovim/nvim-lspconfig",
+    opts = {
+      autoformat = true,
+    },
+  },
 }
