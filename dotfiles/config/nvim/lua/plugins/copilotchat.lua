@@ -17,18 +17,18 @@ return {
     end,
     event = "VeryLazy",
     keys = {
-      { "<leader>che", "<cmd>CopilotChatExplain<cr>", desc = "CopilotChat - Explain code" },
-      { "<leader>cht", "<cmd>CopilotChatTests<cr>", desc = "CopilotChat - Generate tests" },
+      { "<leader>cce", "<cmd>CopilotChatExplain<cr>", desc = "CopilotChat - Explain code" },
+      { "<leader>cct", "<cmd>CopilotChatTests<cr>", desc = "CopilotChat - Generate tests" },
       { "<leader>ccr", "<cmd>CopilotChatReview<cr>", desc = "CopilotChat - Review code" },
       { "<leader>ccR", "<cmd>CopilotChatRefactor<cr>", desc = "CopilotChat - Refactor code" },
       {
-        "<leader>chv",
+        "<leader>ccv",
         ":CopilotChatVisual",
         mode = "x",
         desc = "CopilotChat - Open in vertical split",
       },
       {
-        "<leader>chx",
+        "<leader>ccx",
         ":CopilotChatInPlace<cr>",
         mode = "x",
         desc = "CopilotChat - Run in-place code",

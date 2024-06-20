@@ -79,15 +79,22 @@ source $ZSH/oh-my-zsh.sh
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 # export LANG_ALL=en_US.UTF-8
-# export LC_CTYPE=en_US.UTF-8
-# export LC_ALL=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export LC_CTYPE=en_US.UTF-8
 
 # export LANG=en_US.iso88591
 # export LC_MESSAGES="C"
 
 
 # Preferred editor for local and remote sessions
-export EDITOR='vim'
+if [ -n "$NVIM_LISTEN_ADDRESS" ]; then
+    export VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+    export EDITOR="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+else
+    export VISUAL="nvim"
+    export EDITOR="nvim"
+fi
+
 
 # Compilation flags
 export ARCHFLAGS="-arch x86_64"
@@ -179,20 +186,8 @@ complete -o nospace -C /usr/bin/terraform terraform
 # alias python=python3
 # export PATH="${PATH}:$HOME/Library/Python/3.9/bin"
 
-# For compilers to find sqlite you may need to set:
-export LDFLAGS="-L/opt/homebrew/opt/sqlite/lib"
-export CPPFLAGS="-I/opt/homebrew/opt/sqlite/include"
-# For pkg-config to find sqlite you may need to set:
-export PKG_CONFIG_PATH="/opt/homebrew/opt/sqlite/lib/pkgconfig"
-
-# For compilers to find zlib you may need to set:
-export LDFLAGS="-L/opt/homebrew/opt/zlib/lib"
-export CPPFLAGS="-I/opt/homebrew/opt/zlib/include"
-# For pkg-config to find zlib you may need to set:
-export PKG_CONFIG_PATH="/opt/homebrew/opt/zlib/lib/pkgconfig"
 
 
-alias peanut='nmcli d wifi connect "Mr. Peanutbutter"'
 
 # https://apple.stackexchange.com/questions/20547/how-do-i-find-my-ip-address-from-the-command-line
 alias localip='dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com'
@@ -200,38 +195,30 @@ alias localip='dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com'
 
 
 # What OS are we running?
-if command apt > /dev/null; then
-    echo 'Debian!'
-
-    # change brightness
-    alias lowlight="echo 30000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
-    alias midlight="echo 70000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
-    alias highlight="echo 120000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
-    # alias lowlight="echo 40 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
-    # alias midlight="echo 100 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
-    # alias highlight="echo 200 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
-
-    # check battery percentage LINUX
-    alias battery="upower -i `upower -e | grep 'BAT'` | grep percentage"
-
-    # rsync copy with progress
-    alias copy="rsync -ah --progress"
 
 
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-elif [[ `uname` == "Darwin" ]]; then
+if [[ `uname` == "Darwin" ]]; then
     echo 'OSX!'
+
+    export JAVA_HOME="/Users/monir/.sdkman/candidates/java/current/bin/java"
+
+    # # For compilers to find sqlite you may need to set:
+    # export LDFLAGS="-L/opt/homebrew/opt/sqlite/lib"
+    # export CPPFLAGS="-I/opt/homebrew/opt/sqlite/include"
+    # # For pkg-config to find sqlite you may need to set:
+    # export PKG_CONFIG_PATH="/opt/homebrew/opt/sqlite/lib/pkgconfig"
+    #
+    # # For compilers to find zlib you may need to set:
+    # export LDFLAGS="-L/opt/homebrew/opt/zlib/lib"
+    # export CPPFLAGS="-I/opt/homebrew/opt/zlib/include"
+    # # For pkg-config to find zlib you may need to set:
+    # export PKG_CONFIG_PATH="/opt/homebrew/opt/zlib/lib/pkgconfig"
+
+
 
     export NVM_DIR="$HOME/.nvm"
     [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
     [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
-
-    #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-    export SDKMAN_DIR="$HOME/.sdkman"
-    [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
     export PATH="$HOME/.deno/bin:$PATH"
 
@@ -257,6 +244,46 @@ elif [[ `uname` == "Darwin" ]]; then
     if test -f "/Users/monir/work/sj/Medvind-Tools/gustav.sh"; then; alias gustav="/Users/monir/work/sj/Medvind-Tools/gustav.sh"; fi
     export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
     if test -f "/Users/monir/work/sj/Medvind-Tools/.env.secrets"; then; export $(cat "/Users/monir/work/sj/Medvind-Tools/.env.secrets" | xargs); fi
+
+    #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+    export SDKMAN_DIR="$HOME/.sdkman"
+    [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+    export PATH=$(npm bin -g):$PATH
+    # case ":$PATH:" in
+    #   *":/Users/monir/bin:"*) ;;
+    #   *) export PATH="$PATH:/Users/monir/bin" ;;
+    # esac
+    export PATH=$HOME/bin:$PATH
+    # bit end
+    #
+    # rust compiler from https://rustup.rs/
+    export PATH=$HOME/.cargo/bin:$PATH
+
+
+elif command apt > /dev/null; then
+    echo 'Debian!'
+
+    alias peanut='nmcli d wifi connect "Mr. Peanutbutter"'
+
+    # change brightness
+    alias lowlight="echo 30000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
+    alias midlight="echo 70000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
+    alias highlight="echo 120000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
+    # alias lowlight="echo 40 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
+    # alias midlight="echo 100 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
+    # alias highlight="echo 200 | sudo tee /sys/class/backlight/amdgpu_bl0/brightness"
+
+    # check battery percentage LINUX
+    alias battery="upower -i `upower -e | grep 'BAT'` | grep percentage"
+
+    # rsync copy with progress
+    alias copy="rsync -ah --progress"
+
+
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 
 else

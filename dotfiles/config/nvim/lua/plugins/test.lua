@@ -1,8 +1,9 @@
 return {
   "nvim-neotest/neotest",
+  -- enabled = false,
   -- tag = "v3.4.7",
+  -- "nvim-treesitter/nvim-treesitter",
   dependencies = {
-    -- "nvim-treesitter/nvim-treesitter",
     -- "haydenmeade/neotest-jest",
     "marilari88/neotest-vitest",
     "thenbe/neotest-playwright",
