@@ -193,6 +193,10 @@ complete -o nospace -C /usr/bin/terraform terraform
 alias localip='dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com'
 
 
+# go package installation
+export GOPATH=$HOME/go
+export GOBIN=$GOPATH/bin
+export PATH=$PATH:$GOBIN
 
 # What OS are we running?
 
@@ -289,3 +293,14 @@ elif command apt > /dev/null; then
 else
     echo 'Unknown OS!'
 fi
+
+
+function az_login_work {
+    export AZURE_CONFIG_DIR=~/.Azure-SJ
+    az login --use-device-code
+}
+ 
+function az_login_personal {
+    export AZURE_CONFIG_DIR=~/.Azure-Personal
+    az login --use-device-code
+}
