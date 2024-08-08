@@ -13,5 +13,29 @@ return {
         },
       }
     end,
+    keys = {
+      {
+        "<leader>dO",
+        function()
+          require("dap").step_out()
+        end,
+        desc = "Step Out",
+      },
+      {
+        "<leader>do",
+        function()
+          require("dap").step_over()
+        end,
+        desc = "Step Over",
+      },
+      -- { "<leader>da", function() require("dap").continue({ before = get_args }) end, desc = "Run with Args" },
+      {
+        "<leader>da",
+        function()
+          require("dap").continue()
+        end,
+        desc = "Run Debugger",
+      },
+    },
   },
 }

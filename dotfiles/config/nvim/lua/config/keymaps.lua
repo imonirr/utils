@@ -36,9 +36,10 @@ function run_spring_boot(debug)
   vim.cmd("term " .. get_spring_boot_runner("local", debug))
 end
 
-vim.keymap.set("n", "<F9>", function()
+vim.keymap.set("n", "<leader>dD", function()
   run_spring_boot()
-end)
-vim.keymap.set("n", "<F10>", function()
+end, { desc = "Run:SpringBoot" })
+
+vim.keymap.set("n", "<leader>dd", function()
   run_spring_boot(true)
-end)
+end, { desc = "DEBUG:SpringBoot" })
