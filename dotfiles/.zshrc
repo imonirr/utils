@@ -127,6 +127,10 @@ alias glg="git log --color --all --date-order --decorate --dirstat=lines,cumulat
 alias dup='docker-compose up'
 alias ddown='docker-compose down'
 alias dbuild='docker-compose build'
+
+
+alias spring='mvn clean compile && mvn spring-boot:run'
+
 # Set up Node Version Manager
 
 
@@ -248,6 +252,7 @@ if [[ `uname` == "Darwin" ]]; then
     if test -f "/Users/monir/work/sj/Medvind-Tools/gustav.sh"; then; alias gustav="/Users/monir/work/sj/Medvind-Tools/gustav.sh"; fi
     export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
     if test -f "/Users/monir/work/sj/Medvind-Tools/.env.secrets"; then; export $(cat "/Users/monir/work/sj/Medvind-Tools/.env.secrets" | xargs); fi
+    if test -f "/Users/monir/work/sj/.env.secrets"; then; export $(cat "/Users/monir/work/sj/.env.secrets" | xargs); fi
 
     #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
     export SDKMAN_DIR="$HOME/.sdkman"

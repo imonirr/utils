@@ -6,6 +6,7 @@ local opt = vim.opt
 
 opt.swapfile = false
 opt.relativenumber = false
+opt.fixeol = false
 
 vim.g.maplocalleader = ","
 
