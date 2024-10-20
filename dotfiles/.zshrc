@@ -254,9 +254,6 @@ if [[ `uname` == "Darwin" ]]; then
     if test -f "/Users/monir/work/sj/Medvind-Tools/.env.secrets"; then; export $(cat "/Users/monir/work/sj/Medvind-Tools/.env.secrets" | xargs); fi
     if test -f "/Users/monir/work/sj/.env.secrets"; then; export $(cat "/Users/monir/work/sj/.env.secrets" | xargs); fi
 
-    #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-    export SDKMAN_DIR="$HOME/.sdkman"
-    [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
     export PATH=$(npm bin -g):$PATH
     # case ":$PATH:" in
@@ -270,8 +267,13 @@ if [[ `uname` == "Darwin" ]]; then
     export PATH=$HOME/.cargo/bin:$PATH
 
 
-elif command apt > /dev/null; then
-    echo 'Debian!'
+# elif command apt > /dev/null; then
+    # echo 'Debian!'
+
+
+
+else
+    echo 'Unknown OS!'
 
     alias peanut='nmcli d wifi connect "Mr. Peanutbutter"'
 
@@ -294,9 +296,11 @@ elif command apt > /dev/null; then
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
+    export PATH="$PATH:/opt/nvim-linux64/bin"
 
-else
-    echo 'Unknown OS!'
+    M2_HOME='/opt/apache-maven-3.9.9'
+    PATH="$M2_HOME/bin:$PATH"
+    export PATH
 fi
 
 
@@ -309,3 +313,8 @@ function az_login_personal {
     export AZURE_CONFIG_DIR=~/.Azure-Personal
     az login --use-device-code
 }
+
+
+    #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+    export SDKMAN_DIR="$HOME/.sdkman"
+    [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
