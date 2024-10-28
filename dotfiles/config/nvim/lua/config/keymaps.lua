@@ -19,7 +19,7 @@ vim.keymap.set("n", "<C-l", ":wincmd l<CR>")
 vim.keymap.set("n", "<C-k", ":wincmd k<CR>")
 
 -- java spring boot run stuff
-function get_spring_boot_runner(profile, debug)
+local function get_spring_boot_runner(profile, debug)
   local debug_param = ""
   if debug then
     debug_param =
@@ -31,10 +31,10 @@ function get_spring_boot_runner(profile, debug)
     profile_param = " -Dspring-boot.run.profiles=" .. profile .. " "
   end
 
-  return "mvn spring-boot:run " .. profile_param .. debug_param
+  return "mvn clean compile && mvn spring-boot:run " .. profile_param .. debug_param
 end
 
-function run_spring_boot(debug)
+local function run_spring_boot(debug)
   vim.cmd("term " .. get_spring_boot_runner("local", debug))
 end
 
@@ -49,7 +49,7 @@ end, { desc = "DEBUG:SpringBoot" })
 -- JAVA springboot TEST stuff
 
 -- Find nodes by type
-function find_node_by_type(expr, type_name)
+local function find_node_by_type(expr, type_name)
   while expr do
     if expr:type() == type_name then
       break
@@ -60,7 +60,7 @@ function find_node_by_type(expr, type_name)
 end
 
 -- Find child nodes by type
-function find_child_by_type(expr, type_name)
+local function find_child_by_type(expr, type_name)
   local id = 0
   local expr_child = expr:child(id)
   while expr_child do
@@ -75,7 +75,7 @@ function find_child_by_type(expr, type_name)
 end
 
 -- Get Current Method Name
-function get_current_method_name()
+local function get_current_method_name()
   local current_node = ts_utils.get_node_at_cursor()
   if not current_node then
     return nil
@@ -94,7 +94,7 @@ function get_current_method_name()
 end
 
 -- Get Current Class Name
-function get_current_class_name()
+local function get_current_class_name()
   local current_node = ts_utils.get_node_at_cursor()
   if not current_node then
     return nil
@@ -113,7 +113,7 @@ function get_current_class_name()
 end
 
 -- Get Current Package Name
-function get_current_package_name()
+local function get_current_package_name()
   local current_node = ts_utils.get_node_at_cursor()
   if not current_node then
     return nil
@@ -136,14 +136,14 @@ function get_current_package_name()
 end
 
 -- Get Current Full Class Name
-function get_current_full_class_name()
+local function get_current_full_class_name()
   local package = get_current_package_name()
   local class = get_current_class_name()
   return package .. "." .. class
 end
 
 -- Get Current Full Method Name with delimiter or default '.'
-function get_current_full_method_name(delimiter)
+local function get_current_full_method_name(delimiter)
   delimiter = delimiter or "."
   local full_class_name = get_current_full_class_name()
   local method_name = get_current_method_name()
@@ -151,19 +151,19 @@ function get_current_full_method_name(delimiter)
 end
 
 -- run debug
-function get_test_runner(test_name, debug)
+local function get_test_runner(test_name, debug)
   if debug then
     return 'mvn test -Dmaven.surefire.debug -Dtest="' .. test_name .. '"'
   end
   return 'mvn test -Dtest="' .. test_name .. '"'
 end
 
-function run_java_test_method(debug)
+local function run_java_test_method(debug)
   local method_name = get_current_full_method_name("\\#")
   vim.cmd("term " .. get_test_runner(method_name, debug))
 end
 
-function run_java_test_class(debug)
+local function run_java_test_class(debug)
   local class_name = get_current_full_class_name()
   vim.cmd("term " .. get_test_runner(class_name, debug))
 end

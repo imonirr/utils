@@ -34,6 +34,8 @@ require("lazy").setup({
 
     -- { import = "lazyvim.plugins.extras.util.gitui" },
 
+    { import = "lazyvim.plugins.extras.util.rest" },
+
     { import = "plugins" },
   },
   defaults = {

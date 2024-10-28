@@ -129,7 +129,8 @@ alias ddown='docker-compose down'
 alias dbuild='docker-compose build'
 
 
-alias spring='mvn clean compile && mvn spring-boot:run'
+alias sboot='mvn spring-boot:run'
+alias sbootc='mvn clean compile && mvn spring-boot:run'
 
 # Set up Node Version Manager
 
@@ -304,12 +305,12 @@ else
 fi
 
 
-function az_login_work {
+function az_work {
     export AZURE_CONFIG_DIR=~/.Azure-SJ
     az login --use-device-code
 }
  
-function az_login_personal {
+function az_personal {
     export AZURE_CONFIG_DIR=~/.Azure-Personal
     az login --use-device-code
 }
