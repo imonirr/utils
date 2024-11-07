@@ -15,6 +15,7 @@ end
 
 M.get_spring_boot_runner = function(profile, debug)
   local debug_param = ""
+  local restart_param = ""
   if debug then
     debug_param =
       ' -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005" '
@@ -25,14 +26,13 @@ M.get_spring_boot_runner = function(profile, debug)
     profile_param = " -Dspring-boot.run.profiles=" .. profile .. " "
   end
 
-  return "mvn clean compile && watchexec -w ./src --restart -e java -v 'mvn spring-boot:run'  "
-    .. profile_param
-    .. debug_param
+  -- return "mvn clean compile && watchexec -w ./src -d 5000 --restart -e java -v 'mvn spring-boot:run'  "
+  return "mvn clean compile && mvn spring-boot:run  " .. profile_param .. debug_param
 end
 
 M.run_spring_boot = function(debug)
   M.go_to_project_root()
-  vim.cmd("term " .. M.get_spring_boot_runner("local", debug))
+  vim.cmd(":tabnew | term " .. M.get_spring_boot_runner("local", debug))
 end
 
 -- JAVA springboot TEST stuff

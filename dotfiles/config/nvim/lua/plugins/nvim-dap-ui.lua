@@ -25,4 +25,14 @@ return {
       -- },
     },
   },
+  keys = {
+    {
+      "<leader>dw",
+      function()
+        local widgets = require("dap.ui.widgets")
+        widgets.centered_float(widgets.scopes)
+      end,
+      desc = "Widgets",
+    },
+  },
 }
