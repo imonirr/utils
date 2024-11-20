@@ -32,7 +32,7 @@ end
 
 M.run_spring_boot = function(debug)
   M.go_to_project_root()
-  vim.cmd(":tabnew | term " .. M.get_spring_boot_runner("local", debug))
+  vim.cmd("term " .. M.get_spring_boot_runner("local", debug))
 end
 
 -- JAVA springboot TEST stuff

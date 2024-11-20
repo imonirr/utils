@@ -1,3 +1,4 @@
+-- local config_file = vim.fn.expand("~/Work/eclipse-java-google-style.xml")
 return {
   "stevearc/conform.nvim",
   opts = function(_, opts)
@@ -11,6 +12,7 @@ return {
     -- }
     opts.formatters_by_ft["java"] = { "google-java-format" }
     opts.formatters["google-java-format"] = {
+      -- prepend_args = { "--aosp", "`@{config_file}`" },
       prepend_args = { "--aosp" },
     }
 

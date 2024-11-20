@@ -165,7 +165,8 @@ portcheck() {
 }
 
 autoload -U +X bashcompinit && bashcompinit
-complete -o nospace -C /usr/bin/terraform terraform
+# complete -o nospace -C /usr/bin/terraform terraform
+source ~/work/utils/az.completion
 
 # autocompletion for kubectl
 # source <(kubectl completion zsh)
