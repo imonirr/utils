@@ -210,6 +210,15 @@ export PATH=$PATH:$GOBIN
 if [[ `uname` == "Darwin" ]]; then
     echo 'OSX!'
 
+    # for multipass app. not sure if i need it
+    # If you need to have icu4c@76 first in your PATH, run:
+    export PATH="/opt/homebrew/opt/icu4c@76/bin:$PATH"
+    export PATH="/opt/homebrew/opt/icu4c@76/sbin:$PATH"
+    # For compilers to find icu4c@76 you may need to set:
+    export LDFLAGS="-L/opt/homebrew/opt/icu4c@76/lib"
+    export CPPFLAGS="-I/opt/homebrew/opt/icu4c@76/include"
+
+  
     export JAVA_HOME="/Users/monir/.sdkman/candidates/java/current/bin/java"
 
     # # For compilers to find sqlite you may need to set:
