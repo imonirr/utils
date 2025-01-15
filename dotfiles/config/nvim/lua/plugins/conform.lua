@@ -1,22 +1,3 @@
--- local config_file = vim.fn.expand("~/Work/eclipse-java-google-style.xml")
--- return {
---   {
---     "stevearc/conform.nvim",
---     optional = true,
---     opts = {
---       formatters_by_ft = {
---         php = { { "pint", "php_cs_fixer" } },
---         java = { "google-java-format" },
---       },
---       formatters = {
---         "google-java-format" = {
---           prepend_args = { "--aosp" },
---         },
---       },
---     },
---   },
--- }
-
 return {
   {
     "stevearc/conform.nvim",
@@ -35,6 +16,7 @@ return {
         prepend_args = { "--aosp" },
       }
       opts.formatters_by_ft["php"] = { "pint" }
+      -- opts.formatters_by_ft["typescript"] = { "eslint" }
 
       return opts
     end,
