@@ -10,6 +10,7 @@ opt.fixeol = false
 
 vim.g.maplocalleader = ","
 
+vim.g.snacks_animate = false
 -- g.autoformat = true
 -- disable lsp log file
 vim.lsp.set_log_level("off")
@@ -27,3 +28,5 @@ vim.lsp.set_log_level("off")
 --   -- disable progress updates.
 --   return false
 -- end
+--
+vim.g.lazyvim_php_lsp = "intelephense"
