@@ -218,7 +218,7 @@ if [[ `uname` == "Darwin" ]]; then
     export LDFLAGS="-L/opt/homebrew/opt/icu4c@76/lib"
     export CPPFLAGS="-I/opt/homebrew/opt/icu4c@76/include"
 
-  
+
     export JAVA_HOME="/Users/monir/.sdkman/candidates/java/current/bin/java"
 
     # # For compilers to find sqlite you may need to set:
@@ -319,7 +319,7 @@ function az_work {
     export AZURE_CONFIG_DIR=~/.Azure-SJ
     az login --use-device-code
 }
- 
+
 function az_personal {
     export AZURE_CONFIG_DIR=~/.Azure-Personal
     az login --use-device-code
