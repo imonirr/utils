@@ -131,6 +131,8 @@ alias dbuild='docker-compose build'
 
 alias sboot='mvn spring-boot:run'
 alias sbootc='mvn clean compile && mvn spring-boot:run'
+# run debug mode spring boot
+alias sbootd='mvn clean compile && mvn spring-boot:run -Dspring-boot.run.profiles=local -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005" '
 
 # Set up Node Version Manager
 
@@ -206,9 +208,14 @@ export PATH=$PATH:$GOBIN
 
 # What OS are we running?
 
+# export secret varrs
+source $HOME/.secrets.sh
 
 if [[ `uname` == "Darwin" ]]; then
     echo 'OSX!'
+
+    # using homebrew ruby
+    echo 'export PATH="/opt/homebrew/opt/ruby/bin:$PATH"' >> ~/.zshrc
 
     # for multipass app. not sure if i need it
     # If you need to have icu4c@76 first in your PATH, run:
@@ -282,6 +289,8 @@ if [[ `uname` == "Darwin" ]]; then
     # echo 'Debian!'
 
 
+alias vim='nvim'
+
 
 else
     echo 'Unknown OS!'
@@ -326,6 +335,6 @@ function az_personal {
 }
 
 
-    #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-    export SDKMAN_DIR="$HOME/.sdkman"
-    [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"

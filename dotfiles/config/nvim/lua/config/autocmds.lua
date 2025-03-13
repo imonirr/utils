@@ -8,7 +8,7 @@
 -- e.g. vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
 
 vim.api.nvim_create_autocmd({ "FileType" }, {
-  pattern = { "json", "yaml" },
+  pattern = { "java", "json", "yaml" },
   callback = function()
     vim.b.autoformat = false
   end,
