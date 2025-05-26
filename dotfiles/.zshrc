@@ -129,8 +129,8 @@ alias ddown='docker-compose down'
 alias dbuild='docker-compose build'
 
 
-alias sboot='mvn spring-boot:run'
-alias sbootc='mvn clean compile && mvn spring-boot:run'
+alias sboot='mvn spring-boot:run -Dspring-boot.run.profiles=local'
+alias sbootc='mvn clean compile && mvn spring-boot:run -Dspring-boot.run.profiles=local'
 # run debug mode spring boot
 alias sbootd='mvn clean compile && mvn spring-boot:run -Dspring-boot.run.profiles=local -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005" '
 
@@ -211,6 +211,8 @@ export PATH=$PATH:$GOBIN
 # export secret varrs
 source $HOME/.secrets.sh
 
+alias vim='nvim'
+
 if [[ `uname` == "Darwin" ]]; then
     echo 'OSX!'
 
@@ -284,12 +286,14 @@ if [[ `uname` == "Darwin" ]]; then
     # rust compiler from https://rustup.rs/
     export PATH=$HOME/.cargo/bin:$PATH
 
+    # expose android sdk path
+    export ANDROID_HOME=$HOME/Library/Android/sdk
+    export PATH=$HOME/Library/Android/sdk/platform-tools:$PATH
 
 # elif command apt > /dev/null; then
     # echo 'Debian!'
 
 
-alias vim='nvim'
 
 
 else
@@ -338,3 +342,6 @@ function az_personal {
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+
+export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
