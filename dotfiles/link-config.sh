@@ -1,17 +1,12 @@
 #!/bin/bash
 
-echo 'Deleting old files'
-rm $HOME/.zshrc $HOME/.zprofile $HOME/.vimrc.local $HOME/.vimrc.before.local $HOME/.vimrc.bundles.local $HOME/.editorconfig $HOME/.eslintrc $HOME/.tmux.conf
+echo 'Deleting old files(zshrc, zprofile. config/nvim, .tmux.conf'
+rm $HOME/.zshrc $HOME/.zprofile $HOME/.tmux.conf
 rm -r $HOME/.config/nvim
 
 echo 'Zshrc Config'
 ln -s $HOME/work/utils/dotfiles/.zshrc $HOME/.zshrc
 ln -s $HOME/work/utils/dotfiles/.zprofile $HOME/.zprofile
-
-echo 'vim Configs'
-ln -s $HOME/work/utils/dotfiles/.vimrc.local $HOME/.vimrc.local
-ln -s $HOME/work/utils/dotfiles/.vimrc.before.local $HOME/.vimrc.before.local
-ln -s $HOME/work/utils/dotfiles/.vimrc.bundles.local $HOME/.vimrc.bundles.local
 
 echo 'Tmux Config'
 ln -s $HOME/work/utils/dotfiles/.tmux.conf $HOME/.tmux.conf
