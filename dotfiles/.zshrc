@@ -132,7 +132,7 @@ alias dbuild='docker-compose build'
 alias sboot='mvn spring-boot:run -Dspring-boot.run.profiles=local'
 alias sbootc='mvn clean compile && mvn spring-boot:run -Dspring-boot.run.profiles=local'
 # run debug mode spring boot
-alias sbootd='mvn clean compile && mvn spring-boot:run -Dspring-boot.run.profiles=local -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005" '
+alias sbootd='mvn spring-boot:run -Dspring-boot.run.profiles=local -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005" '
 
 # Set up Node Version Manager
 
@@ -216,6 +216,8 @@ alias vim='nvim'
 if [[ `uname` == "Darwin" ]]; then
     echo 'OSX!'
 
+    export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+
     # using homebrew ruby
     echo 'export PATH="/opt/homebrew/opt/ruby/bin:$PATH"' >> ~/.zshrc
 
@@ -228,7 +230,7 @@ if [[ `uname` == "Darwin" ]]; then
     export CPPFLAGS="-I/opt/homebrew/opt/icu4c@76/include"
 
 
-    export JAVA_HOME="/Users/monir/.sdkman/candidates/java/current/bin/java"
+    # export JAVA_HOME="/Users/monir/.sdkman/candidates/java/current/bin/java"
 
     # # For compilers to find sqlite you may need to set:
     # export LDFLAGS="-L/opt/homebrew/opt/sqlite/lib"
@@ -328,6 +330,11 @@ else
 fi
 
 
+function az_softcode {
+    export AZURE_CONFIG_DIR=~/.Azure-Softcode
+    az login --use-device-code
+}
+
 function az_work {
     export AZURE_CONFIG_DIR=~/.Azure-SJ
     az login --use-device-code
@@ -344,4 +351,3 @@ export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 
-export PATH="/opt/homebrew/opt/ruby/bin:$PATH"

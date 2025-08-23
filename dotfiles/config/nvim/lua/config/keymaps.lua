@@ -42,3 +42,12 @@ end, { desc = "TestClass:SpringBoot" })
 vim.keymap.set("n", "<leader>jtC", function()
   java_utils.run_java_test_class(true)
 end, { desc = "DebugTestClass:SpringBoot" })
+
+-- custom intellij formatter for java
+vim.keymap.set("n", "<leader>fj", function()
+  require("conform").format({
+    async = true,
+    lsp_fallback = false,
+    formatters = { "intellij_java_formatter" },
+  })
+end, { desc = "Format Java with IntelliJ" })

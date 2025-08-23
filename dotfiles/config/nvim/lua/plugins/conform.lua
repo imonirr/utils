@@ -12,6 +12,20 @@ return {
 
       opts.formatters_by_ft["php"] = { "pint" }
 
+      opts.formatters_by_ft["java"] = { "lsp", "trim_whitespace" }
+
+      opts.formatters = vim.tbl_deep_extend("force", opts.formatters or {}, {
+        intellij_java_formatter = {
+          command = vim.fn.expand("~/Applications/IntelliJ\\ IDEA\\ Ultimate.app/Contents/bin/format.sh"),
+          args = {
+            -- "-s",
+            -- vim.fn.expand("~/work/utils/dotfiles/intellij_codeStyleSettings.xml"),
+            "-allowDefaults",
+            "$FILENAME",
+          },
+        },
+      })
+
       -- START java formatter google-java-format --
       -- opts.formatters_by_ft["java"] = { "google-java-format" }
       -- opts.formatters["google-java-format"] = {
