@@ -49,5 +49,6 @@ vim.keymap.set("n", "<leader>fj", function()
     async = true,
     lsp_fallback = false,
     formatters = { "intellij_java_formatter" },
+    -- formatters = { "spotless" },
   })
 end, { desc = "Format Java with IntelliJ" })

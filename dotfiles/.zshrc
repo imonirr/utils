@@ -218,9 +218,6 @@ if [[ `uname` == "Darwin" ]]; then
 
     export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
 
-    # using homebrew ruby
-    echo 'export PATH="/opt/homebrew/opt/ruby/bin:$PATH"' >> ~/.zshrc
-
     # for multipass app. not sure if i need it
     # If you need to have icu4c@76 first in your PATH, run:
     export PATH="/opt/homebrew/opt/icu4c@76/bin:$PATH"
@@ -349,5 +346,4 @@ function az_personal {
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-
 
