@@ -210,6 +210,8 @@ export PATH=$PATH:$GOBIN
 
 # export secret varrs
 source $HOME/.secrets.sh
+# for pass with gpg keys
+export PASSWORD_STORE_DIR=$HOME/Dropbox/Credentials/.password-store
 
 alias vim='nvim'
 
@@ -324,6 +326,11 @@ else
     M2_HOME='/opt/apache-maven-3.9.9'
     PATH="$M2_HOME/bin:$PATH"
     export PATH
+
+
+    # needed to setup neomutt
+    export GPG_TTY=$(tty)
+    export PINENTRY_USER_DATA="USE_CURSES=1"
 fi
 
 
