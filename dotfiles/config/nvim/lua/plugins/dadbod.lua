@@ -15,8 +15,9 @@ return {
 
     vim.g.db_ui_table_helpers = {
       postgres = {
-        Count = 'select count(*) from "{schema}"."{table}"',
+        Count = 'SELECT count(*) FROM "{schema}"."{table}"',
         DeleteTable = 'DROP TABLE "{schema}"."{table}" CASCADE',
+        List = 'SELECT * from "{schema}"."{table}" LIMIT 10',
       },
     }
   end,

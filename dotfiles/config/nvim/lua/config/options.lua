@@ -30,3 +30,9 @@ vim.g.snacks_animate = false
 -- end
 --
 vim.g.lazyvim_php_lsp = "intelephense"
+
+opt.relativenumber = false
+
+-- from avante plugin recommendation
+-- views can only be fully collapsed with the global statusline
+vim.opt.laststatus = 3
