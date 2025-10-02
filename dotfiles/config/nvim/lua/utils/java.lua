@@ -1,9 +1,6 @@
-local ts_utils = require("nvim-treesitter.ts_utils")
-
 local M = {}
 
 -- java spring boot run stuff
-
 M.go_to_project_root = function()
   local pom_dir = vim.fn.fnamemodify(vim.fn.findfile("pom.xml", ".;"), ":h")
   if pom_dir ~= "" then
@@ -20,13 +17,10 @@ M.get_spring_boot_runner = function(profile, debug)
     debug_param =
       ' -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005" '
   end
-
   local profile_param = ""
   if profile then
     profile_param = " -Dspring-boot.run.profiles=" .. profile .. " "
   end
-
-  -- return "mvn clean compile && watchexec -w ./src -d 5000 --restart -e java -v 'mvn spring-boot:run'  "
   return "mvn clean compile && mvn spring-boot:run  " .. profile_param .. debug_param
 end
 
@@ -59,55 +53,121 @@ M.find_child_by_type = function(expr, type_name)
     id = id + 1
     expr_child = expr:child(id)
   end
-
   return expr_child
 end
 
 -- Get Current Method Name
 M.get_current_method_name = function()
-  local current_node = ts_utils.get_node_at_cursor()
+  local pos = vim.api.nvim_win_get_cursor(0)
+  local bufnr = vim.api.nvim_get_current_buf()
+  local parser = vim.treesitter.get_parser(bufnr, "java")
+  local tree = parser:parse()[1]
+  local root = tree:root()
+  local cursor_row = pos[1] - 1
+  local cursor_col = pos[2]
+  local function node_at_cursor(node)
+    for child in node:iter_children() do
+      local range = { child:range() }
+      if cursor_row >= range[1] and cursor_row <= range[3] then
+        if child:child_count() > 0 then
+          local found = node_at_cursor(child)
+          if found then
+            return found
+          end
+        end
+        if cursor_row >= range[1] and cursor_row <= range[3] and cursor_col >= range[2] and cursor_col <= range[4] then
+          return child
+        end
+      end
+    end
+    return node
+  end
+  local current_node = node_at_cursor(root)
   if not current_node then
     return nil
   end
-
   local expr = M.find_node_by_type(current_node, "method_declaration")
   if not expr then
     return nil
   end
-
   local child = M.find_child_by_type(expr, "identifier")
   if not child then
     return nil
   end
-  return vim.treesitter.get_node_text(child, 0)
+  return vim.treesitter.get_node_text(child, bufnr)
 end
 
 -- Get Current Class Name
 M.get_current_class_name = function()
-  local current_node = ts_utils.get_node_at_cursor()
+  local pos = vim.api.nvim_win_get_cursor(0)
+  local bufnr = vim.api.nvim_get_current_buf()
+  local parser = vim.treesitter.get_parser(bufnr, "java")
+  local tree = parser:parse()[1]
+  local root = tree:root()
+  local cursor_row = pos[1] - 1
+  local cursor_col = pos[2]
+  local function node_at_cursor(node)
+    for child in node:iter_children() do
+      local range = { child:range() }
+      if cursor_row >= range[1] and cursor_row <= range[3] then
+        if child:child_count() > 0 then
+          local found = node_at_cursor(child)
+          if found then
+            return found
+          end
+        end
+        if cursor_row >= range[1] and cursor_row <= range[3] and cursor_col >= range[2] and cursor_col <= range[4] then
+          return child
+        end
+      end
+    end
+    return node
+  end
+  local current_node = node_at_cursor(root)
   if not current_node then
     return nil
   end
-
   local class_declaration = M.find_node_by_type(current_node, "class_declaration")
   if not class_declaration then
     return nil
   end
-
   local child = M.find_child_by_type(class_declaration, "identifier")
   if not child then
     return nil
   end
-  return vim.treesitter.get_node_text(child, 0)
+  return vim.treesitter.get_node_text(child, bufnr)
 end
 
 -- Get Current Package Name
 M.get_current_package_name = function()
-  local current_node = ts_utils.get_node_at_cursor()
+  local pos = vim.api.nvim_win_get_cursor(0)
+  local bufnr = vim.api.nvim_get_current_buf()
+  local parser = vim.treesitter.get_parser(bufnr, "java")
+  local tree = parser:parse()[1]
+  local root = tree:root()
+  local cursor_row = pos[1] - 1
+  local cursor_col = pos[2]
+  local function node_at_cursor(node)
+    for child in node:iter_children() do
+      local range = { child:range() }
+      if cursor_row >= range[1] and cursor_row <= range[3] then
+        if child:child_count() > 0 then
+          local found = node_at_cursor(child)
+          if found then
+            return found
+          end
+        end
+        if cursor_row >= range[1] and cursor_row <= range[3] and cursor_col >= range[2] and cursor_col <= range[4] then
+          return child
+        end
+      end
+    end
+    return node
+  end
+  local current_node = node_at_cursor(root)
   if not current_node then
     return nil
   end
-
   local program_expr = M.find_node_by_type(current_node, "program")
   if not program_expr then
     return nil
@@ -116,12 +176,11 @@ M.get_current_package_name = function()
   if not package_expr then
     return nil
   end
-
   local child = M.find_child_by_type(package_expr, "scoped_identifier")
   if not child then
     return nil
   end
-  return vim.treesitter.get_node_text(child, 0)
+  return vim.treesitter.get_node_text(child, bufnr)
 end
 
 -- Get Current Full Class Name
