@@ -1,9 +1,10 @@
-return {
-  "CopilotC-Nvim/CopilotChat.nvim",
-  opts = {
-    model = "gpt-4.1", -- Set your default model here (options: "gpt-4", "gpt-3.5-turbo", etc.)
-  },
-}
+return {}
+-- return {
+--   "CopilotC-Nvim/CopilotChat.nvim",
+--   opts = {
+--     model = "gpt-4.1", -- Set your default model here (options: "gpt-4", "gpt-3.5-turbo", etc.)
+--   },
+-- }
 
 -- Claude models (Anthropic):
 -- - "claude-3-opus" (most powerful)
