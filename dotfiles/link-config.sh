@@ -11,6 +11,9 @@ ln -s $HOME/work/utils/dotfiles/.zprofile $HOME/.zprofile
 echo 'Tmux Config'
 ln -s $HOME/work/utils/dotfiles/.tmux.conf $HOME/.tmux.conf
 
+echo 'Bin Scripts'
+ln -s $HOME/work/utils/dotfiles/bin/pr-create.sh $HOME/.local/bin/pr-create
+
 # echo 'Editorconfig
 # ln -s $HOME/work/utils/dotfiles/.editorconfig $HOME/.editorconfig
 

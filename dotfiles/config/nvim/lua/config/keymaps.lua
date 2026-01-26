@@ -1,8 +1,10 @@
 -- Keymaps are automatically loaded on the VeryLazy event
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
+local Util = require("lazyvim.util")
 
 local java_utils = require("utils.java")
+local kuala_utils = require("utils.kuala")
 
 -- map semicolon to command prompt with colon
 vim.keymap.set("n", ";", ":", { desc = "semicolon opens command prompt" })
@@ -44,7 +46,7 @@ vim.keymap.set("n", "<leader>jtC", function()
 end, { desc = "DebugTestClass:SpringBoot" })
 
 -- custom intellij formatter for java
-vim.keymap.set("n", "<leader>fj", function()
+vim.keymap.set("n", "<leader>cj", function()
   require("conform").format({
     async = true,
     lsp_fallback = false,
@@ -52,3 +54,24 @@ vim.keymap.set("n", "<leader>fj", function()
     -- formatters = { "spotless" },
   })
 end, { desc = "Format Java with IntelliJ" })
+
+-- preview kuala response
+vim.keymap.set("n", "<leader>kr", function()
+  kuala_utils.open_kulala_response()
+end, { desc = "Kulala: Preview large response" })
+
+-- Create pull request on azure devops
+vim.keymap.set("n", "<leader>pc", function()
+  Util.terminal({ "pr-create" }, {
+    cwd = Util.root(),
+    direction = "horizontal",
+  })
+end, { desc = "Create Azure DevOps PR" })
+
+-- Create pr description with github copilot
+-- vim.keymap.set("n", "<leader>gd", function()
+--   require("utils.copilot_pr").generate_pr_description()
+-- end, { desc = "Generate PR description with Copilot" })
+vim.keymap.set("n", "<leader>pd", function()
+  require("utils.pr_description").generate()
+end, { desc = "Generate PR description (Copilot)" })

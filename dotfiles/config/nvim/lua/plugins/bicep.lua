@@ -1,0 +1,3 @@
+return {
+  { "tvaintrob/bicep.vim" },
+}

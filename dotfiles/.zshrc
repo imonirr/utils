@@ -68,7 +68,7 @@ setopt HIST_IGNORE_ALL_DUPS
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git node terraform)
+plugins=(git node terraform tmux kubectl)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -164,6 +164,15 @@ alias sc="source $HOME/.zshrc"
 # functions
 portcheck() {
     sudo nc localhost $1 < /dev/null; echo $?
+}
+
+ggupdate() {
+  local branch=$(git rev-parse --abbrev-ref HEAD)
+  git stash &&
+  git checkout master &&
+  git pull &&
+  git checkout "$branch" &&
+  git stash pop
 }
 
 autoload -U +X bashcompinit && bashcompinit
@@ -334,21 +343,136 @@ else
 fi
 
 
-function az_softcode {
+# AKS metadata
+export AKS_SJ_NAME="aks-qa-trafik-weu"
+export AKS_SJ_RG="aks-qa-trafik-weu-rg"
+
+export AKS_SOFTCODE_NAME="personal-aks"
+export AKS_SOFTCODE_RG="personal-aks-rg"
+
+aks-refresh-creds() {
+  az aks get-credentials \
+    --name "$1" \
+    --resource-group "$2" \
+    --overwrite-existing
+}
+
+aks-ensure-creds() {
+  local cluster_name="$1"
+  local resource_group="$2"
+
+  if kubectl config get-contexts "$cluster_name" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  echo "🔐 Fetching AKS credentials for $cluster_name..."
+  az aks get-credentials \
+    --name "$cluster_name" \
+    --resource-group "$resource_group" \
+    --overwrite-existing
+
+  kubectl config use-context "$cluster_name" >/dev/null 2>&1
+}
+
+function azure-softcode {
     export AZURE_CONFIG_DIR=~/.Azure-Softcode
-    az login --use-device-code
+    export AZURE_ENV="Softcode"
+    export KUBECONFIG="$HOME/.kube/config-softcode"
+    echo "🟢 Azure context: Softcode | kubeconfig: softcode"
 }
 
-function az_work {
+function azure-sj {
     export AZURE_CONFIG_DIR=~/.Azure-SJ
-    az login --use-device-code
+    export AZURE_ENV="SJ"
+    export KUBECONFIG="$HOME/.kube/config-sj"
+
+    aks-ensure-creds "$AKS_SJ_NAME" "$AKS_SJ_RG"
+
+    echo "🟢 Azure context: SJ  | kubeconfig: sj"
 }
 
-function az_personal {
+function azure-personal {
     export AZURE_CONFIG_DIR=~/.Azure-Personal
-    az login --use-device-code
+    export AZURE_ENV="Personal"
+    echo "🟢 Azure context: Personal"
 }
 
+function github-sj {
+    export GH_CONFIG_DIR="$HOME/.config/gh-sj"
+    export GH_ENV="SJ"
+    export GH_HOST="sj.ghe.com"
+    export GITHUB_ENTERPRISE_URL="https://sj.ghe.com"
+    export COPILOT_ENTERPRISE_URI="sj.ghe.com"
+    echo "🐙 GitHub context: SJ (Copilot: work)"
+}
+
+function github-softcode {
+    export GH_CONFIG_DIR="$HOME/.config/gh-softcode"
+    export GH_ENV="Softcode"
+    export COPILOT_CONFIG_DIR="$HOME/.config/github-copilot-softcode"
+    echo "🐙 GitHub context: Softcode (Copilot: work)"
+}
+
+function github-personal {
+    export GH_CONFIG_DIR="$HOME/.config/gh-personal"
+    export GH_ENV="Personal"
+    export COPILOT_CONFIG_DIR="$HOME/.config/github-copilot-personal"
+    echo "🐙 GitHub context: Personal (Copilot: personal)"
+}
+
+
+# switch to correct az + github account based on tmux session name
+if [[ -n "$TMUX" ]]; then
+  case "$(tmux display-message -p '#S')" in
+    sj)
+      azure-sj
+      github-sj
+      ;;
+    softcode)
+      azure-softcode
+      github-softcode
+      ;;
+    personal)
+      azure-personal
+      github-personal
+      ;;
+  esac
+fi
+
+# Prevent running az command without any context
+az() {
+  if [[ -z "$AZURE_CONFIG_DIR" ]]; then
+    echo "❌ AZURE_CONFIG_DIR not set"
+    return 1
+  fi
+  command az "$@"
+}
+# Prevent running kubectl command without any context
+kubectl() {
+  if [[ -z "$KUBECONFIG" ]]; then
+    echo "❌ KUBECONFIG not set"
+    return 1
+  fi
+  command kubectl "$@"
+}
+
+# Prevent running gh command without any context
+gh() {
+  if [[ -z "$GH_CONFIG_DIR" ]]; then
+    echo "❌ GH_CONFIG_DIR not set"
+    return 1
+  fi
+  command gh "$@"
+}
+
+# tmux-resurrect safe restore
+if [[ -n "$TMUX" && -n "$AZURE_ENV" ]]; then
+  echo "Restored Azure env: $AZURE_ENV"
+fi
+
+if [[ -n "$TMUX" && -n "$GH_ENV" ]]; then
+  echo "Restored GitHub env: $GH_ENV"
+fi
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"

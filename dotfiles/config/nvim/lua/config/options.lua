@@ -36,3 +36,5 @@ opt.relativenumber = false
 -- from avante plugin recommendation
 -- views can only be fully collapsed with the global statusline
 vim.opt.laststatus = 3
+
+vim.g.lazyvim_eslint_auto_format = true
