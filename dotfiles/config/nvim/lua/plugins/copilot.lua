@@ -52,11 +52,19 @@ return {
     opts = function()
       local enterprise_url = os.getenv("GITHUB_ENTERPRISE_URL")
 
+      -- Common configuration
+      local common_opts = {
+        model = "claude-sonnet-4.5",
+        mappings = {
+          complete = {
+            insert = "<Tab>",
+          },
+        },
+      }
+
       -- If no enterprise URL, just use the built-in copilot provider
       if not enterprise_url then
-        return {
-          model = "claude-sonnet-4.5",
-        }
+        return common_opts
       end
 
       -- Enterprise configuration
@@ -94,8 +102,7 @@ return {
         error("No GitHub Copilot token found for " .. target_host)
       end
 
-      return {
-        model = "claude-sonnet-4.5",
+      return vim.tbl_deep_extend("force", common_opts, {
         provider = "enterprise_copilot",
         providers = {
           copilot = { disabled = true },
@@ -175,7 +182,7 @@ return {
             end,
           },
         },
-      }
+      })
     end,
   },
 }

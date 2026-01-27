@@ -35,17 +35,23 @@ EOF
 fi
 
 # Create draft PR in Azure DevOps
-
-PR_URL=$(
+PR_RESPONSE=$(
     az repos pr create \
         --draft \
         --source-branch "$BRANCH" \
         --target-branch "$BASE_BRANCH" \
         --title "$(git log -1 --pretty=%s)" \
         --description "$DESCRIPTION" \
-        --query "webUrl" \
-        --output tsv
+        --output json
 )
+
+# Extract the web URL from the response
+PR_URL=$(echo "$PR_RESPONSE" | jq -r '.repository.webUrl + "/pullrequest/" + (.pullRequestId | tostring)')
+
+# Fallback to webUrl if it exists directly
+if [ -z "$PR_URL" ] || [ "$PR_URL" = "null/pullrequest/null" ]; then
+    PR_URL=$(echo "$PR_RESPONSE" | jq -r '.webUrl // empty')
+fi
 
 echo "✅ PR created:"
 echo "$PR_URL"

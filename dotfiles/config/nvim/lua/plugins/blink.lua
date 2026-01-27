@@ -1,10 +1,22 @@
+-- return {
+--   "saghen/blink.cmp",
+--   ---@class PluginLspOpts
+--   opts = {
+--     signature = { enabled = true },
+--     keymap = {
+--       preset = "enter",
+--     },
+--   },
+-- }
+
 return {
   "saghen/blink.cmp",
-  ---@class PluginLspOpts
   opts = {
-    signature = { enabled = true },
     keymap = {
-      preset = "enter",
+      preset = "default",
+      ["<Tab>"] = { "select_next", "fallback" },
+      ["<S-Tab>"] = { "select_prev", "fallback" },
+      ["<CR>"] = { "select_and_accept", "fallback" },
     },
   },
 }

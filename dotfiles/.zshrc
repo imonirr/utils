@@ -343,12 +343,6 @@ else
 fi
 
 
-# AKS metadata
-export AKS_SJ_NAME="aks-qa-trafik-weu"
-export AKS_SJ_RG="aks-qa-trafik-weu-rg"
-
-export AKS_SOFTCODE_NAME="personal-aks"
-export AKS_SOFTCODE_RG="personal-aks-rg"
 
 aks-refresh-creds() {
   az aks get-credentials \
@@ -377,7 +371,6 @@ aks-ensure-creds() {
 function azure-softcode {
     export AZURE_CONFIG_DIR=~/.Azure-Softcode
     export AZURE_ENV="Softcode"
-    export KUBECONFIG="$HOME/.kube/config-softcode"
     echo "🟢 Azure context: Softcode | kubeconfig: softcode"
 }
 
@@ -386,6 +379,9 @@ function azure-sj {
     export AZURE_ENV="SJ"
     export KUBECONFIG="$HOME/.kube/config-sj"
 
+    # AKS metadata
+    AKS_SJ_NAME="aks-qa-trafik-weu"
+    AKS_SJ_RG="aks-qa-trafik-weu-rg"
     aks-ensure-creds "$AKS_SJ_NAME" "$AKS_SJ_RG"
 
     echo "🟢 Azure context: SJ  | kubeconfig: sj"
@@ -394,7 +390,13 @@ function azure-sj {
 function azure-personal {
     export AZURE_CONFIG_DIR=~/.Azure-Personal
     export AZURE_ENV="Personal"
-    echo "🟢 Azure context: Personal"
+
+    # export AKS_SOFTCODE_NAME="personal-aks"
+    # export AKS_SOFTCODE_RG="personal-aks-rg"
+    # export KUBECONFIG="$HOME/.kube/config-softcode"
+    # aks-ensure-creds "$AKS_SOFTCODE_NAME" "$AKS_SOFTCODE_RG"
+
+    echo "🟢 Azure context: Softcode | kubeconfig: softcode"
 }
 
 function github-sj {
@@ -403,21 +405,54 @@ function github-sj {
     export GH_HOST="sj.ghe.com"
     export GITHUB_ENTERPRISE_URL="https://sj.ghe.com"
     export COPILOT_ENTERPRISE_URI="sj.ghe.com"
-    echo "🐙 GitHub context: SJ (Copilot: work)"
+
+
+    # Switch Copilot config via symlink
+    rm -f "$HOME/.config/github-copilot"
+    ln -s "$HOME/.config/github-copilot-sj" "$HOME/.config/github-copilot"
+
+    echo "🐙 GitHub context: SJ (Copilot: SJ)"
 }
 
 function github-softcode {
     export GH_CONFIG_DIR="$HOME/.config/gh-softcode"
     export GH_ENV="Softcode"
-    export COPILOT_CONFIG_DIR="$HOME/.config/github-copilot-softcode"
-    echo "🐙 GitHub context: Softcode (Copilot: work)"
+
+    # Switch Copilot config via symlink - use personal Copilot
+    rm -f "$HOME/.config/github-copilot"
+    ln -s "$HOME/.config/github-copilot-personal" "$HOME/.config/github-copilot"
+
+    echo "🐙 GitHub context: Softcode (Copilot: Personal)"
 }
 
 function github-personal {
     export GH_CONFIG_DIR="$HOME/.config/gh-personal"
     export GH_ENV="Personal"
-    export COPILOT_CONFIG_DIR="$HOME/.config/github-copilot-personal"
-    echo "🐙 GitHub context: Personal (Copilot: personal)"
+
+    # Switch Copilot config via symlink
+    rm -f "$HOME/.config/github-copilot"
+    ln -s "$HOME/.config/github-copilot-personal" "$HOME/.config/github-copilot"
+
+    echo "🐙 GitHub context: Personal (Copilot: Personal)"
+}
+
+
+function session-sj {
+    azure-sj
+    github-sj
+    echo "✨ Session: SJ (Azure: SJ, AKS: SJ, GitHub: SJ, Copilot: SJ)"
+}
+
+function session-softcode {
+    azure-softcode
+    github-softcode
+    echo "✨ Session: Softcode (Azure: Softcode, AKS: Softcode, GitHub: Softcode, Copilot: Personal)"
+}
+
+function session-personal {
+    azure-softcode  # Use Softcode Azure/AKS
+    github-personal
+    echo "✨ Session: Personal (Azure: Softcode, AKS: Softcode, GitHub: Personal, Copilot: Personal)"
 }
 
 
@@ -425,16 +460,13 @@ function github-personal {
 if [[ -n "$TMUX" ]]; then
   case "$(tmux display-message -p '#S')" in
     sj)
-      azure-sj
-      github-sj
+      session-sj
       ;;
     softcode)
-      azure-softcode
-      github-softcode
+      session-softcode
       ;;
     personal)
-      azure-personal
-      github-personal
+      session-personal
       ;;
   esac
 fi
