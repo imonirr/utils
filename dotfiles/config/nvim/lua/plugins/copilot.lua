@@ -14,6 +14,22 @@ return {
   {
     "CopilotC-Nvim/CopilotChat.nvim",
     keys = {
+
+      {
+        "<leader>ay",
+        function()
+          require("utils.copilot_apply").apply_block_under_cursor()
+        end,
+        desc = "Apply Changes (CopilotChat)",
+        mode = "n",
+      },
+      {
+        "<leader>aj",
+        function()
+          require("utils.jira_agent").start_with_ticket()
+        end,
+        desc = "CopilotChat: Jira Agent",
+      },
       {
         "<leader>am",
         function()

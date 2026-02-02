@@ -38,3 +38,6 @@ opt.relativenumber = false
 vim.opt.laststatus = 3
 
 vim.g.lazyvim_eslint_auto_format = true
+
+-- debug
+-- vim.lsp.set_log_level("debug")

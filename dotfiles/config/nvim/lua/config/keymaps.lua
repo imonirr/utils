@@ -75,3 +75,14 @@ end, { desc = "Create Azure DevOps PR" })
 vim.keymap.set("n", "<leader>pd", function()
   require("utils.pr_description").generate()
 end, { desc = "Generate PR description (Copilot)" })
+
+-- Load the worktree helper
+-- Worktree management
+local gitWorktree = require("utils.git-worktree")
+vim.keymap.set("n", "<leader>gw", function()
+  gitWorktree.create_worktree()
+end, { desc = "Create worktree" })
+
+vim.keymap.set("n", "<leader>gW", function()
+  gitWorktree.list_worktrees()
+end, { desc = "Remove worktree" })
