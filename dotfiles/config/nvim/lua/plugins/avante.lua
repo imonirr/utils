@@ -35,13 +35,13 @@ return {
       hints = {
         enabled = false,
       },
-      -- Change the width of the sidebar (default is usually around 30 or 40)
-      width = 50, -- Percentage based on available width
 
       windows = {
+        -- Change the width of the sidebar (default is usually around 30 or 40)
+        width = 60, -- Percentage based on available width
         -- Adjust the specific height of the input area
         input = {
-          height = 12, -- Increase this from the default (8) for a larger input box
+          height = 16, -- Increase this from the default (8) for a larger input box
         },
         sidebar_header = {
           align = "center",

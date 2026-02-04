@@ -208,12 +208,47 @@ end
 
 M.run_java_test_method = function(debug)
   local method_name = M.get_current_full_method_name("\\#")
-  vim.cmd("term " .. M.get_test_runner(method_name, debug))
+  if debug then
+    local dap = require("dap")
+
+    -- Enable debug logging
+    dap.set_log_level("DEBUG")
+
+    -- First, start the Maven test
+    vim.cmd("term " .. M.get_test_runner(method_name, true))
+
+    -- Wait for Maven to start listening
+    vim.defer_fn(function()
+      -- Log all breakpoints with conditions
+      local breakpoints = require("dap.breakpoints").get()
+      for buf, buf_bps in pairs(breakpoints) do
+        for _, bp in ipairs(buf_bps) do
+          if bp.condition then
+            print(string.format("BP at line %d: condition='%s'", bp.line, bp.condition))
+          end
+        end
+      end
+
+      -- Attach to debug server
+      dap.continue()
+    end, 2000)
+  else
+    vim.cmd("term " .. M.get_test_runner(method_name, false))
+  end
 end
 
 M.run_java_test_class = function(debug)
   local class_name = M.get_current_full_class_name()
-  vim.cmd("term " .. M.get_test_runner(class_name, debug))
+  if debug then
+    local dap = require("dap")
+    dap.set_log_level("DEBUG")
+    vim.cmd("term " .. M.get_test_runner(class_name, true))
+    vim.defer_fn(function()
+      dap.continue()
+    end, 2000)
+  else
+    vim.cmd("term " .. M.get_test_runner(class_name, false))
+  end
 end
 
 return M
