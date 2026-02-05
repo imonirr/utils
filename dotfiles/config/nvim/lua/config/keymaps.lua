@@ -73,8 +73,14 @@ end, { desc = "Create Azure DevOps PR" })
 --   require("utils.copilot_pr").generate_pr_description()
 -- end, { desc = "Generate PR description with Copilot" })
 vim.keymap.set("n", "<leader>pd", function()
-  require("utils.pr_description").generate()
+  require("utils.pr_description").generate_v2()
 end, { desc = "Generate PR description (Copilot)" })
+
+-- GIT COMMIT MESSAGE
+
+vim.keymap.set("n", "<leader>gc", function()
+  require("utils.commit_message").generate()
+end, { desc = "Generate Commit message (Copilot)" })
 
 -- Load the worktree helper
 -- Worktree management

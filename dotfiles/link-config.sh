@@ -23,6 +23,9 @@ ln -s $HOME/work/utils/dotfiles/bin/pr-create.sh $HOME/.local/bin/pr-create
 echo 'neovim'
 ln -s $HOME/work/utils/dotfiles/config/nvim $HOME/.config/nvim
 
+echo 'AI'
+ln -s $HOME/work/utils/dotfiles/config/ai $HOME/.config/ai
+
 if command apt >/dev/null; then
     echo 'Debian! configs'
 

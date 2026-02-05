@@ -12,7 +12,7 @@ return {
     opts = {
       -- add any opts here
       -- this file can contain specific instructions for your project
-      instructions_file = "avante.md",
+      instructions_file = vim.fn.expand("~/.config/ai/avante.md"),
       -- for example
       provider = "copilot",
       providers = {
