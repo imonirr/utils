@@ -70,7 +70,7 @@ return {
 
       -- Common configuration
       local common_opts = {
-        model = "claude-sonnet-4.5",
+        -- model = "claude-sonnet-4.5",
         mappings = {
           complete = {
             insert = "<Tab>",

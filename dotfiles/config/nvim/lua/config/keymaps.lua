@@ -60,24 +60,22 @@ vim.keymap.set("n", "<leader>kr", function()
   kuala_utils.open_kulala_response()
 end, { desc = "Kulala: Preview large response" })
 
--- Create pull request on azure devops
+-- Create pull request workflow (push + generate description + create PR)
+vim.keymap.set("n", "<leader>pC", function()
+  require("utils.pr_workflow").run()
+end, { desc = "Push + Generate PR desc + Create PR" })
+
+-- Create pull request on azure devops (manual)
 vim.keymap.set("n", "<leader>pc", function()
-  Util.terminal({ "pr-create" }, {
-    cwd = Util.root(),
-    direction = "horizontal",
-  })
+  require("utils.pr_create").create_pr()
 end, { desc = "Create Azure DevOps PR" })
 
--- Create pr description with github copilot
--- vim.keymap.set("n", "<leader>gd", function()
---   require("utils.copilot_pr").generate_pr_description()
--- end, { desc = "Generate PR description with Copilot" })
+-- Generate pr description with github copilot (manual)
 vim.keymap.set("n", "<leader>pd", function()
   require("utils.pr_description").generate_v2()
 end, { desc = "Generate PR description (Copilot)" })
 
 -- GIT COMMIT MESSAGE
-
 vim.keymap.set("n", "<leader>gc", function()
   require("utils.commit_message").generate()
 end, { desc = "Generate Commit message (Copilot)" })

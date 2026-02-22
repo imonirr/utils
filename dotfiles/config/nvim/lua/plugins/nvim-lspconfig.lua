@@ -3,8 +3,34 @@ return {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
+        harper_ls = {
+          filetypes = { "markdown", "typescript", "javascript", "java", "lua" },
+          settings = {
+            ["harper-ls"] = {
+              diagnosticSeverity = "warning",
+              linters = {
+                SpelledDirectly = true,
+                AnA = true,
+                SentenceCapitalization = false,
+                UnclosedQuotes = true,
+              },
+            },
+          },
+        },
+
+        eslint = {
+
+          on_attach = function(client, _bufnr)
+            client.server_capabilities.documentFormattingProvider = true
+          end,
+        },
+        tsserver = {
+          on_attach = function(client, _bufnr)
+            client.server_capabilities.documentFormattingProvider = false
+          end,
+        },
         vtsls = {
-          on_attach = function(client, bufnr)
+          on_attach = function(client, _bufnr)
             client.server_capabilities.documentFormattingProvider = false
             client.server_capabilities.documentRangeFormattingProvider = false
           end,
@@ -34,6 +60,17 @@ return {
           },
         },
       },
+      -- setup = {
+      --   eslint = function()
+      --     require("lazyvim.util").lsp.on_attach(function(client)
+      --       if client.name == "eslint" then
+      --         client.server_capabilities.documentFormattingProvider = true
+      --       elseif client.name == "tsserver" then
+      --         client.server_capabilities.documentFormattingProvider = false
+      --       end
+      --     end)
+      --   end,
+      -- },
     },
   },
 }

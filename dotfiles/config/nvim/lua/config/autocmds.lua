@@ -21,3 +21,12 @@ vim.api.nvim_create_autocmd({ "FileType" }, {
     vim.opt_local.tabstop = 4
   end,
 })
+
+-- restore tab scoped buffers from scope.nvim with persistent sessions
+vim.api.nvim_create_autocmd("SessionLoadPost", {
+  callback = function()
+    vim.schedule(function()
+      require("scope").setup()
+    end)
+  end,
+})

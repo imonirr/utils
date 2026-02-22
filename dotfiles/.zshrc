@@ -408,6 +408,11 @@ function github-sj {
     # Switch Copilot config via symlink
     rm -f "$HOME/.config/github-copilot"
     ln -s "$HOME/.config/github-copilot-sj" "$HOME/.config/github-copilot"
+
+
+    # switch opencode auth config directory
+    ln -sfn "$HOME/.local/share/opencode-sj" "$HOME/.local/share/opencode"
+    export OPENCODE_CONFIG_DIR="$HOME/.config/opencode-sj"
 }
 
 function github-softcode {
@@ -426,6 +431,10 @@ function github-imonir {
     # Switch Copilot config via symlink
     rm -f "$HOME/.config/github-copilot"
     ln -s "$HOME/.config/github-copilot-imonir" "$HOME/.config/github-copilot"
+
+    # switch opencode auth config directory
+    ln -sfn "$HOME/.local/share/opencode-imonir" "$HOME/.local/share/opencode"
+    export OPENCODE_CONFIG_DIR="$HOME/.config/opencode-imonir"
 }
 
 
@@ -510,3 +519,6 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
+# opencode
+export PATH=/Users/monir/.opencode/bin:$PATH

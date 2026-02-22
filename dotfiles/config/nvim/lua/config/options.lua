@@ -41,3 +41,12 @@ vim.g.lazyvim_eslint_auto_format = true
 
 -- debug
 -- vim.lsp.set_log_level("debug")
+--
+vim.opt.spelllang = "en_us" -- or "en_gb", "sv", etc.
+vim.opt.spell = true -- Enable by default
+
+-- to group buffers in tab scope with bufferline plugin,
+-- following is required as well as scope.nvim plugin
+vim.opt.showtabline = 2
+vim.opt.hidden = true
+vim.opt.shortmess:append("F")
