@@ -1,0 +1,47 @@
+# Main .zshrc - Modular Configuration Loader
+# Location: ~/work/utils/dotfiles/.zshrc (symlinked to ~/.zshrc)
+# Repository: https://github.com/[your-username]/utils
+#
+# This file sources all modular configuration files from ~/.zsh/
+# Each file handles a specific aspect of the shell configuration.
+
+# Detect OS for platform-specific configurations
+export DOTFILES_OS="$(uname -s)"
+
+# Set common path variables to avoid hardcoded paths
+case "$DOTFILES_OS" in
+  Darwin)
+    export DOTFILES_BREW_PREFIX="${HOMEBREW_PREFIX:-/opt/homebrew}"
+    ;;
+  Linux)
+    export DOTFILES_BREW_PREFIX="${HOMEBREW_PREFIX:-/home/linuxbrew/.linuxbrew}"
+    ;;
+esac
+
+export DOTFILES_HOME="$HOME"
+
+# Configuration directory
+ZSH_CONFIG_DIR="${ZDOTDIR:-$HOME}/.zsh"
+
+# Source all configuration files in order
+# Files are numbered to control load order:
+#   00-* = Environment setup (must load first)
+#   10-* = History configuration
+#   20-* = Oh-My-Zsh setup
+#   30-* = Editor configuration
+#   40-* = Language environments
+#   50-* = Development tools
+#   60-* = Aliases
+#   70-* = Functions
+#   80-* = Session management (tmux, azure, github)
+#   90-* = Archived/commented code
+if [[ -d "$ZSH_CONFIG_DIR" ]]; then
+  for config_file in "$ZSH_CONFIG_DIR"/*.zsh(N); do
+    [[ -r "$config_file" ]] && source "$config_file"
+  done
+  unset config_file
+fi
+
+# Optional: machine-specific overrides (not tracked in git)
+# Create ~/.zshrc.local for machine-specific settings
+[[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"

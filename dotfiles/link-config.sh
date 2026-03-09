@@ -5,11 +5,12 @@ rm $HOME/.zshrc $HOME/.zprofile $HOME/.tmux.conf
 rm -r $HOME/.config/nvim
 
 echo 'Zshrc Config'
-ln -s $HOME/work/utils/dotfiles/.zshrc $HOME/.zshrc
-ln -s $HOME/work/utils/dotfiles/.zprofile $HOME/.zprofile
+ln -s $HOME/work/utils/dotfiles/zshrc $HOME/.zshrc
+ln -s $HOME/work/utils/dotfiles/zprofile $HOME/.zprofile
+ln -s $HOME/work/utils/dotfiles/zsh $HOME/.zsh
 
 echo 'Tmux Config'
-ln -s $HOME/work/utils/dotfiles/.tmux.conf $HOME/.tmux.conf
+ln -s $HOME/work/utils/dotfiles/tmux.conf $HOME/.tmux.conf
 
 echo 'Bin Scripts'
 ln -s $HOME/work/utils/dotfiles/bin/pr-create.sh $HOME/.local/bin/pr-create
