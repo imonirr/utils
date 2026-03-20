@@ -34,7 +34,7 @@ alias avante='nvim -c "lua vim.defer_fn(function()require(\"avante.api\").zen_mo
 autoload -U +X bashcompinit && bashcompinit
 
 # Azure CLI completion
-source ${DOTFILES_HOME}/work/utils/az.completion
+source $HOME/work/utils/az.completion
 
 # Kubectl completion (optional - uncomment if needed)
 # source <(kubectl completion zsh)
@@ -54,17 +54,17 @@ export OPENCODE_EXPERIMENTAL_LSP_TOOL=true
 export OPENCODE_ENABLE_EXA=1
 
 # Add OpenCode to PATH
-export PATH="${DOTFILES_HOME}/.opencode/bin:$PATH"
+export PATH="$HOME/.opencode/bin:$PATH"
 
 # =============================================================================
 # Antigravity
 # =============================================================================
 
-export PATH="${DOTFILES_HOME}/.antigravity/antigravity/bin:$PATH"
+export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
 
 # =============================================================================
 # envman
 # =============================================================================
 
 # Load envman if available
-[ -s "${DOTFILES_HOME}/.config/envman/load.sh" ] && source "${DOTFILES_HOME}/.config/envman/load.sh"
+[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"

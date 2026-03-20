@@ -7,8 +7,8 @@
 # =============================================================================
 
 # Local bin directories
-export PATH="${PATH}:${DOTFILES_HOME}/.local/bin"
-export PATH="${DOTFILES_HOME}/bin:$PATH"
+export PATH="${PATH}:${HOME}/.local/bin"
+# export PATH="${HOME}/bin:$PATH"
 
 # System binaries
 export PATH="/usr/local/bin:${DOTFILES_BREW_PREFIX}/bin:$PATH"
@@ -31,8 +31,8 @@ export QT_IM_MODULE=ibus
 # Ruby Gems
 # =============================================================================
 
-export GEM_HOME="${DOTFILES_HOME}/gems"
-export PATH="${DOTFILES_HOME}/gems/bin:$PATH"
+export GEM_HOME="$HOME/gems"
+export PATH="$HOME/gems/bin:$PATH"
 
 # Ruby from Homebrew (macOS)
 if [[ "$DOTFILES_OS" == "Darwin" ]]; then
@@ -43,7 +43,7 @@ fi
 # Go
 # =============================================================================
 
-export GOPATH=${DOTFILES_HOME}/go
+export GOPATH=$HOME/go
 export GOBIN=$GOPATH/bin
 export PATH=$PATH:$GOBIN
 
@@ -51,19 +51,19 @@ export PATH=$PATH:$GOBIN
 # Rust/Cargo
 # =============================================================================
 
-export PATH=${DOTFILES_HOME}/.cargo/bin:$PATH
+export PATH=$HOME/.cargo/bin:$PATH
 
 # =============================================================================
 # Deno
 # =============================================================================
 
-export PATH="${DOTFILES_HOME}/.deno/bin:$PATH"
+# export PATH="$HOME/.deno/bin:$PATH"
 
-# =============================================================================
-# Global NPM packages
-# =============================================================================
-
-export PATH=$(npm bin -g):$PATH
+# # =============================================================================
+# # Global NPM packages
+# # =============================================================================
+#
+# export PATH=$(npm bin -g):$PATH
 
 # =============================================================================
 # Dropbox
@@ -81,7 +81,7 @@ export PATH="${PATH}:/opt"
 # Password Store (pass with gpg)
 # =============================================================================
 
-export PASSWORD_STORE_DIR=${DOTFILES_HOME}/Dropbox/Credentials/.password-store
+export PASSWORD_STORE_DIR=$HOME/Dropbox/Credentials/.password-store
 
 # =============================================================================
 # icu4c (for multipass app - macOS only)

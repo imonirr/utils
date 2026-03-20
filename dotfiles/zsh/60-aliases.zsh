@@ -37,10 +37,10 @@ alias -s {mp4}=vlc
 # =============================================================================
 
 # Edit .zshrc in the default editor
-alias ec="$EDITOR ${DOTFILES_HOME}/.zshrc"
+alias ec="$EDITOR $HOME/.zshrc"
 
 # Source .zshrc to reload configuration
-alias sc="source ${DOTFILES_HOME}/.zshrc"
+alias sc="source $HOME/.zshrc"
 
 # =============================================================================
 # Network Utilities

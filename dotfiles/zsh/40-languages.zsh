@@ -6,19 +6,19 @@
 # =============================================================================
 
 # React Native Android development
-export ANDROID_SDK=${DOTFILES_HOME}/Android/Sdk
+export ANDROID_SDK=$HOME/Android/Sdk
 
 # Android SDK and tools (macOS)
 if [[ "$DOTFILES_OS" == "Darwin" ]]; then
-  export ANDROID_HOME=${DOTFILES_HOME}/Library/Android/sdk
-  export PATH=${DOTFILES_HOME}/Library/Android/sdk/platform-tools:$PATH
+  export ANDROID_HOME=$HOME/Library/Android/sdk
+  export PATH=$HOME/Library/Android/sdk/platform-tools:$PATH
 fi
 
 # =============================================================================
 # Node.js - NVM (Node Version Manager)
 # =============================================================================
 
-export NVM_DIR="${DOTFILES_HOME}/.nvm"
+export NVM_DIR="$HOME/.nvm"
 
 if [[ "$DOTFILES_OS" == "Darwin" ]]; then
   # Load NVM from Homebrew
@@ -34,7 +34,7 @@ fi
 # pnpm
 # =============================================================================
 
-export PNPM_HOME="${DOTFILES_HOME}/Library/pnpm"
+export PNPM_HOME="$HOME/Library/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
@@ -44,19 +44,19 @@ esac
 # Bun
 # =============================================================================
 
-export BUN_INSTALL="${DOTFILES_HOME}/.bun"
+export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 # =============================================================================
 # Deno
 # =============================================================================
 
-export PATH="${DOTFILES_HOME}/.deno/bin:$PATH"
+export PATH="$HOME/.deno/bin:$PATH"
 
 # =============================================================================
 # Java - SDKMAN
 # =============================================================================
 
 # THIS MUST BE AT THE END OF LANGUAGE CONFIGS FOR SDKMAN TO WORK
-export SDKMAN_DIR="${DOTFILES_HOME}/.sdkman"
-[[ -s "${DOTFILES_HOME}/.sdkman/bin/sdkman-init.sh" ]] && source "${DOTFILES_HOME}/.sdkman/bin/sdkman-init.sh"
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"

@@ -18,7 +18,6 @@ case "$DOTFILES_OS" in
     ;;
 esac
 
-export DOTFILES_HOME="$HOME"
 
 # Configuration directory
 ZSH_CONFIG_DIR="${ZDOTDIR:-$HOME}/.zsh"
