@@ -65,10 +65,10 @@ vim.keymap.set("n", "<leader>pC", function()
   require("utils.pr_workflow").run()
 end, { desc = "Push + Generate PR desc + Create PR" })
 
--- Create pull request on azure devops (manual)
+-- Create pull request on  github (manual)
 vim.keymap.set("n", "<leader>pc", function()
   require("utils.pr_create").create_pr()
-end, { desc = "Create Azure DevOps PR" })
+end, { desc = "Create github PR" })
 
 -- Generate pr description with github copilot (manual)
 vim.keymap.set("n", "<leader>pd", function()

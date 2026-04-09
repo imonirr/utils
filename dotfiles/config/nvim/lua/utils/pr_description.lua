@@ -4,7 +4,7 @@ local ai = require("utils.ai")
 local M = {}
 
 function M.generate_v2()
-  local base = "origin/master"
+  local base = "origin/main"
 
   -- First, find the merge-base
   Job:new({

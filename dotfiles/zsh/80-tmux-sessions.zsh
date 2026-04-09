@@ -55,9 +55,15 @@ function github-sj {
     rm -f "$HOME/.config/github-copilot"
     ln -s "$HOME/.config/github-copilot-sj" "$HOME/.config/github-copilot"
 
+    # export OPENCODE_CONFIG=/path/to/my/custom-config.json
     # Switch OpenCode auth config directory
-    ln -sfn "$HOME/.local/share/opencode-sj" "$HOME/.local/share/opencode"
-    export OPENCODE_CONFIG_DIR="$HOME/.config/opencode-sj"
+    rm -f "$HOME/.local/share/opencode"
+    ln -s "$HOME/.local/share/opencode-sj" "$HOME/.local/share/opencode"
+
+    # switch opencode config
+    rm "$HOME/.config/opencode/opencode.json"
+    ln -s "$HOME/.config/opencode-sj.json" "$HOME/.config/opencode/opencode.json"
+    # export OPENCODE_CONFIG_DIR="$HOME/.config/opencode-sj"
 }
 
 function github-softcode {
@@ -80,8 +86,9 @@ function github-imonir {
     ln -s "$HOME/.config/github-copilot-imonir" "$HOME/.config/github-copilot"
 
     # Switch OpenCode auth config directory
-    ln -sfn "$HOME/.local/share/opencode-imonir" "$HOME/.local/share/opencode"
-    export OPENCODE_CONFIG_DIR="$HOME/.config/opencode-imonir"
+    # ln -s "$HOME/.local/share/opencode-imonir" "$HOME/.local/share/opencode"
+    # ln -s "$HOME/.config/opencode-imonir" "$HOME/.config/opencode"
+    # export OPENCODE_CONFIG_DIR="$HOME/.config/opencode-imonir"
 }
 
 # =============================================================================

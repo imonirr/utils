@@ -1,7 +1,7 @@
 ---
 description: Reviews code for best practices and potential issues.
 mode: subagent
-model: github-copilot-enterprise/claude-opus-4.6
+model: github-copilot/gpt-5.3-codex
 temperature: 0.1
 tools:
   write: false

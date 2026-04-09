@@ -70,7 +70,7 @@ return {
 
       -- Common configuration
       local common_opts = {
-        -- model = "claude-sonnet-4.5",
+        model = "claude-sonnet-4.5",
         mappings = {
           complete = {
             insert = "<Tab>",
@@ -139,6 +139,7 @@ return {
               end
 
               local endpoints_api = response.body.endpoints and response.body.endpoints.api
+              vim.notify("Endpoints_api: " .. endpoints_api, vim.log.levels.INFO)
               if not endpoints_api then
                 error("Missing endpoints.api in response")
               end
@@ -170,7 +171,7 @@ return {
                 error(err)
               end
 
-              return vim
+              local models = vim
                 .iter(response.body.data)
                 :filter(function(model)
                   return model.capabilities.type == "chat" and model.model_picker_enabled
@@ -188,6 +189,24 @@ return {
                   }
                 end)
                 :totable()
+              --
+              -- -- Write models to file in table format
+              -- local file = io.open("/tmp/copilot_models.txt", "w")
+              -- if file then
+              --   file:write("Available Copilot Models\n")
+              --   file:write(string.rep("=", 80) .. "\n\n")
+              --   for _, model in ipairs(models) do
+              --     file:write(string.format("ID:              %s\n", model.id))
+              --     file:write(string.format("Name:            %s\n", model.name))
+              --     file:write(string.format("Max Input:       %s\n", model.max_input_tokens))
+              --     file:write(string.format("Tools:           %s\n", tostring(model.tools)))
+              --     file:write(string.rep("-", 80) .. "\n")
+              --   end
+              --   file:close()
+              --   vim.notify("Models written to /tmp/copilot_models.txt", vim.log.levels.INFO)
+              -- end
+
+              return models
             end,
 
             prepare_input = require("CopilotChat.config.providers").copilot.prepare_input,
