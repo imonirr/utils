@@ -61,8 +61,8 @@ function github-sj {
     ln -s "$HOME/.local/share/opencode-sj" "$HOME/.local/share/opencode"
 
     # switch opencode config
-    rm "$HOME/.config/opencode/opencode.json"
-    ln -s "$HOME/.config/opencode-sj.json" "$HOME/.config/opencode/opencode.json"
+    # rm "$HOME/.config/opencode/opencode.json"
+    # ln -s "$HOME/.config/opencode-sj.json" "$HOME/.config/opencode/opencode.json"
     # export OPENCODE_CONFIG_DIR="$HOME/.config/opencode-sj"
 }
 

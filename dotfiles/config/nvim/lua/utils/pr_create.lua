@@ -29,22 +29,21 @@ local function get_default_branch()
   return "main" -- fallback
 end
 
--- Get repository origin URL
-local function get_repository_url()
+-- Get repository in owner/repo format for gh CLI
+local function get_repository()
   local remote_url = vim.trim(vim.fn.system("git config --get remote.origin.url"))
   if vim.v.shell_error ~= 0 then
     return nil
   end
 
-  -- Convert SSH to HTTPS format if needed
-  -- git@github.company.com:owner/repo.git -> https://github.company.com/owner/repo
-  local https_url = remote_url:gsub("^git@([^:]+):(.+)%.git$", "https://%1/%2")
-  if https_url == remote_url then
-    -- Already HTTPS, just remove .git suffix if present
-    https_url = remote_url:gsub("%.git$", "")
+  -- Extract owner/repo from HTTPS URL
+  -- https://sj.ghe.com/owner/repo.git -> owner/repo
+  local owner, repo = remote_url:match("%.com/([^/]+)/([^/%.]+)")
+  if owner and repo then
+    return owner .. "/" .. repo
   end
 
-  return https_url
+  return nil
 end
 
 -- Get list of commits for PR description
@@ -64,6 +63,50 @@ local function get_pr_description(base_branch)
   end
 end
 
+-- Open PR title in floating window for editing
+local function edit_pr_title(initial_title, callback)
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, { initial_title })
+  vim.bo[buf].buftype = "nofile"
+  vim.bo[buf].bufhidden = "wipe"
+
+  local width = math.min(80, vim.o.columns - 4)
+  local height = 3
+  local row = math.floor((vim.o.lines - height) / 2)
+  local col = math.floor((vim.o.columns - width) / 2)
+
+  local opts = {
+    relative = "editor",
+    width = width,
+    height = height,
+    row = row,
+    col = col,
+    style = "minimal",
+    border = "rounded",
+    title = " PR Title (press <CR> to confirm, <Esc> to cancel) ",
+    title_pos = "center",
+  }
+
+  local win = vim.api.nvim_open_win(buf, true, opts)
+  vim.wo[win].wrap = true
+
+  -- Set keymaps
+  vim.keymap.set("n", "<CR>", function()
+    local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+    local title = table.concat(lines, " ")
+    vim.api.nvim_win_close(win, true)
+    callback(vim.trim(title))
+  end, { buffer = buf, noremap = true })
+
+  vim.keymap.set("n", "<Esc>", function()
+    vim.api.nvim_win_close(win, true)
+    vim.notify("PR creation cancelled", vim.log.levels.WARN)
+  end, { buffer = buf, noremap = true })
+
+  -- Start in insert mode at end of line
+  vim.cmd("startinsert!")
+end
+
 -- Create GitHub PR
 function M.create_pr()
   get_current_branch(function(source_branch)
@@ -71,9 +114,9 @@ function M.create_pr()
       return
     end
 
-    local repo_url = get_repository_url()
-    if not repo_url then
-      vim.notify("Failed to detect repository URL from git remote", vim.log.levels.ERROR)
+    local repo = get_repository()
+    if not repo then
+      vim.notify("Failed to detect repository from git remote", vim.log.levels.ERROR)
       return
     end
 
@@ -85,60 +128,109 @@ function M.create_pr()
 
     local base_branch = get_default_branch()
     vim.notify("📌 Branch: " .. source_branch, vim.log.levels.INFO)
+    vim.notify("📌 Repository: " .. repo, vim.log.levels.INFO)
 
     -- Get PR title from last commit
-    local title = vim.trim(vim.fn.system("git log -1 --pretty=%s"))
+    local initial_title = vim.trim(vim.fn.system("git log -1 --pretty=%s"))
 
-    -- Get description
-    local description = get_pr_description(base_branch)
+    -- Let user edit the title
+    edit_pr_title(initial_title, function(title)
+      if not title or title == "" then
+        vim.notify("PR title cannot be empty", vim.log.levels.ERROR)
+        return
+      end
 
-    vim.notify("Creating draft PR: " .. title, vim.log.levels.INFO)
+      -- Get description
+      local description = get_pr_description(base_branch)
 
-    -- Push branch first
-    Job:new({
-      command = "git",
-      args = { "push", "-u", "origin", source_branch },
-      on_exit = function(push_job, push_code)
-        vim.schedule(function()
-          if push_code ~= 0 then
-            local error_msg = table.concat(push_job:stderr_result(), "\n")
-            vim.notify("Failed to push branch:\n" .. error_msg, vim.log.levels.ERROR)
-            return
-          end
+      vim.notify("Creating draft PR: " .. title, vim.log.levels.INFO)
 
-          -- Create PR using GitHub CLI with repo URL
-          Job:new({
-            command = "gh",
-            args = {
-              "pr",
-              "create",
-              "--draft",
-              "--repo",
-              repo_url,
-              "--base",
-              base_branch,
-              "--head",
-              source_branch,
-              "--title",
-              title,
-              "--body",
-              description,
-            },
-            on_exit = function(pr_job, pr_code)
-              vim.schedule(function()
-                if pr_code == 0 then
-                  local pr_url = vim.trim(table.concat(pr_job:result(), "\n"))
-                  vim.notify("✅ PR created: " .. pr_url, vim.log.levels.INFO)
-                else
-                  local error_msg = table.concat(pr_job:stderr_result(), "\n")
-                  vim.notify("Failed to create PR:\n" .. error_msg, vim.log.levels.ERROR)
-                end
-              end)
-            end,
-          }):start()
-        end)
-      end,
-    }):start()
+      -- Escape strings for shell
+      local escaped_title = title:gsub("'", "'\\''")
+      local escaped_description = description:gsub("'", "'\\''")
+
+      -- Build command
+      local gh_command = string.format(
+        "git push -u origin '%s' && gh pr create --draft --repo '%s' --base '%s' --head '%s' --title '%s' --body '%s'",
+        source_branch,
+        repo,
+        base_branch,
+        source_branch,
+        escaped_title,
+        escaped_description
+      )
+
+      -- Run in login shell to load zshrc automatically
+      Job:new({
+        command = "zsh",
+        args = { "-lc", gh_command },
+        on_exit = function(job, code)
+          vim.schedule(function()
+            if code == 0 then
+              local output = table.concat(job:result(), "\n")
+              local pr_url = output:match("https://[^\n]+")
+              if pr_url then
+                vim.notify("✅ PR created: " .. pr_url, vim.log.levels.INFO)
+                -- Open PR in browser
+                vim.fn.system("open " .. vim.fn.shellescape(pr_url))
+              else
+                vim.notify("✅ PR created successfully", vim.log.levels.INFO)
+              end
+            else
+              local error_msg = table.concat(job:stderr_result(), "\n")
+              vim.notify("Failed to create PR:\n" .. error_msg, vim.log.levels.ERROR)
+            end
+          end)
+        end,
+      }):start()
+
+      -- Build command
+      -- local gh_command = string.format(
+      --   "git push -u origin '%s' && gh pr create --draft --repo '%s' --base '%s' --head '%s' --title '%s' --body '%s'; echo '\nPress ENTER to close'; read",
+      --   source_branch,
+      --   repo,
+      --   base_branch,
+      --   source_branch,
+      --   escaped_title,
+      --   escaped_description
+      -- )
+      --
+      -- -- Create a floating terminal
+      -- local buf = vim.api.nvim_create_buf(false, true)
+      -- local width = math.floor(vim.o.columns * 0.8)
+      -- local height = math.floor(vim.o.lines * 0.8)
+      -- local row = math.floor((vim.o.lines - height) / 2)
+      -- local col = math.floor((vim.o.columns - width) / 2)
+      --
+      -- local win = vim.api.nvim_open_win(buf, true, {
+      --   relative = "editor",
+      --   width = width,
+      --   height = height,
+      --   row = row,
+      --   col = col,
+      --   style = "minimal",
+      --   border = "rounded",
+      --   title = " Creating PR ",
+      --   title_pos = "center",
+      -- })
+      --
+      -- -- Run command in terminal
+      -- vim.fn.termopen("zsh -lc " .. vim.fn.shellescape(gh_command), {
+      --   on_exit = function(_, exit_code)
+      --     vim.schedule(function()
+      --       if exit_code == 0 then
+      --         vim.notify("✅ PR created successfully", vim.log.levels.INFO)
+      --       else
+      --         vim.notify("❌ Failed to create PR (exit code: " .. exit_code .. ")", vim.log.levels.ERROR)
+      --       end
+      --     end)
+      --   end,
+      -- })
+      --
+      -- -- Set up keybinding to close the terminal
+      -- vim.api.nvim_buf_set_keymap(buf, "n", "q", ":close<CR>", { noremap = true, silent = true })
+      -- vim.api.nvim_buf_set_keymap(buf, "n", "<Esc>", ":close<CR>", { noremap = true, silent = true })
+    end)
   end)
 end
 

@@ -3,20 +3,20 @@ return {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
-        harper_ls = {
-          filetypes = { "markdown", "typescript", "javascript", "java", "lua" },
-          settings = {
-            ["harper-ls"] = {
-              diagnosticSeverity = "warning",
-              linters = {
-                SpelledDirectly = true,
-                AnA = true,
-                SentenceCapitalization = false,
-                UnclosedQuotes = true,
-              },
-            },
-          },
-        },
+        -- harper_ls = {
+        --   filetypes = { "markdown", "typescript", "javascript", "java", "lua" },
+        --   settings = {
+        --     ["harper-ls"] = {
+        --       diagnosticSeverity = "warning",
+        --       linters = {
+        --         SpelledDirectly = true,
+        --         AnA = true,
+        --         SentenceCapitalization = false,
+        --         UnclosedQuotes = true,
+        --       },
+        --     },
+        --   },
+        -- },
 
         eslint = {
 

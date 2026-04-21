@@ -51,9 +51,9 @@ local function generate_pr_description(callback)
       local base
       if head_code == 0 then
         local remote_head = vim.trim(table.concat(head_job:result(), ""))
-        base = remote_head:match("refs/remotes/(.+)") or "origin/master"
+        base = remote_head:match("refs/remotes/(.+)") or "origin/main"
       else
-        base = "origin/master"
+        base = "origin/main"
       end
 
       Job:new({
