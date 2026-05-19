@@ -1,7 +1,7 @@
 ---
 description: Handles git commit and PR creation. Two modes: commit-only (local) and ship (push + PR). Always threads the Jira ticket ID through branch name, commit message, and PR description.
 mode: subagent
-model: github-copilot/claude-opus-4-5
+model: github-copilot/gpt-5.3-codex
 temperature: 0.1
 tools:
   read: true

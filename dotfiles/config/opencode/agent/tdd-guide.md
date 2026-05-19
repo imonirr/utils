@@ -1,7 +1,7 @@
 ---
 description: Implements tasks following a strict test-first workflow. Receives a scoped slice of the plan, writes tests, implements until tests pass, and reports back.
 mode: subagent
-model: github-copilot/claude-sonnet-4.6
+model: github-copilot/gpt-5.3-codex
 temperature: 0.2
 tools:
   read: true

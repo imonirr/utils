@@ -1,7 +1,7 @@
 ---
 description: Fetches a Jira ticket, confirms or improves its description through questions and codebase exploration, and writes back to Jira only when improvements are needed.
 mode: subagent
-model: github-copilot/claude-sonnet-4.6
+model: github-copilot/gpt-5.3-codex
 temperature: 0.2
 tools:
   write: false

@@ -1,7 +1,7 @@
 ---
 description: Planning agent.
 mode: primary
-model: github-copilot/claude-sonnet-4.6
+model: github-copilot/gpt-5.3-codex
 temperature: 0.3
 tools:
   write: true
