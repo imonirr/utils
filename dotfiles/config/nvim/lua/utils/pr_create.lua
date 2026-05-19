@@ -22,10 +22,6 @@ end
 
 -- Get default branch (main or master)
 local function get_default_branch()
-  local result = vim.fn.system("git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null")
-  if vim.v.shell_error == 0 then
-    return vim.trim(result):match("refs/remotes/origin/(.+)")
-  end
   return "main" -- fallback
 end
 

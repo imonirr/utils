@@ -40,6 +40,32 @@ return {
             java = {
               project = {},
               excludePaths = { "target" },
+              -- saveActions = {
+              --   organizeImports = true,
+              -- },
+              -- autobuild = { enabled = true }, -- Ensure this is true
+              -- import = {
+              --   gradle = { enabled = true },
+              --   maven = { enabled = true },
+              -- },
+              -- format = { enabled = true },
+              -- -- This is the section you need:
+              -- configuration = {
+              --   updateBuildConfiguration = "interactive",
+              --   runtimes = { ... }, -- your runtimes here
+              -- },
+              -- errors = {
+              --   incompleteClasspath = { severity = "warning" },
+              -- },
+              -- REQUIRED FOR DEPRECATION WARNINGS:
+              compiler = {
+                problem = {
+                  deprecation = "warning", -- Standard deprecation
+                  forbiddenReference = "warning", -- Accessing restricted internal APIs
+                  unusedImport = "warning", -- Clean up imports
+                  discouragedReference = "warning", -- Discouraged but not forbidden
+                },
+              },
             },
           },
         },

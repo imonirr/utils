@@ -44,3 +44,12 @@ fi
 # Optional: machine-specific overrides (not tracked in git)
 # Create ~/.zshrc.local for machine-specific settings
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
+if test -f "/Users/monir/work/sj/traffic-control-tools/scripts/gustav/gustav.sh"; then; alias gustav="/Users/monir/work/sj/traffic-control-tools/scripts/gustav/gustav.sh"; fi
+export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
+export PATH="$HOME/.deno/bin:$PATH"
+
+alias k9s:tca-prod="k9s -n tca --context aks-prod-trafik-weu"
+alias k9s:tca-qa="k9s -n tca --context aks-qa-trafik-weu"
+alias k9s:tca-test="k9s -n tca --context aks-test-trafik-weu"
+alias k9s:tca-dev="k9s -n tca --context aks-dev-trafik-weu"
+if test -f "/Users/monir/work/sj/traffic-control-tools/scripts/gustav/.env.secrets"; then; export $(cat "/Users/monir/work/sj/traffic-control-tools/scripts/gustav/.env.secrets" | xargs); fi

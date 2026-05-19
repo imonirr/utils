@@ -70,7 +70,7 @@ return {
 
       -- Common configuration
       local common_opts = {
-        model = "claude-sonnet-4.5",
+        model = "claude-haiku-4.5",
         mappings = {
           complete = {
             insert = "<Tab>",
@@ -189,22 +189,22 @@ return {
                   }
                 end)
                 :totable()
-              --
-              -- -- Write models to file in table format
-              -- local file = io.open("/tmp/copilot_models.txt", "w")
-              -- if file then
-              --   file:write("Available Copilot Models\n")
-              --   file:write(string.rep("=", 80) .. "\n\n")
-              --   for _, model in ipairs(models) do
-              --     file:write(string.format("ID:              %s\n", model.id))
-              --     file:write(string.format("Name:            %s\n", model.name))
-              --     file:write(string.format("Max Input:       %s\n", model.max_input_tokens))
-              --     file:write(string.format("Tools:           %s\n", tostring(model.tools)))
-              --     file:write(string.rep("-", 80) .. "\n")
-              --   end
-              --   file:close()
-              --   vim.notify("Models written to /tmp/copilot_models.txt", vim.log.levels.INFO)
-              -- end
+
+              -- Write models to file in table format
+              local file = io.open("/tmp/copilot_models.txt", "w")
+              if file then
+                file:write("Available Copilot Models\n")
+                file:write(string.rep("=", 80) .. "\n\n")
+                for _, model in ipairs(models) do
+                  file:write(string.format("ID:              %s\n", model.id))
+                  file:write(string.format("Name:            %s\n", model.name))
+                  file:write(string.format("Max Input:       %s\n", model.max_input_tokens))
+                  file:write(string.format("Tools:           %s\n", tostring(model.tools)))
+                  file:write(string.rep("-", 80) .. "\n")
+                end
+                file:close()
+                vim.notify("Models written to /tmp/copilot_models.txt", vim.log.levels.INFO)
+              end
 
               return models
             end,

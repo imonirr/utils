@@ -176,7 +176,7 @@ function M.create_worktree()
 
   -- Skip if on main or master
   if branch == "main" or branch == "master" then
-    vim.notify("Cannot create worktree from main/master branch", vim.log.levels.WARN, { title = "Worktree" })
+    vim.notify("Cannot create worktree from main/main branch", vim.log.levels.WARN, { title = "Worktree" })
     return
   end
 
@@ -217,7 +217,7 @@ function M.create_worktree()
     local worktree_name = string.format("%s-%s", repo_name, issue_number)
     local worktree_path = string.format("%s/../%s/%s", repo_root, choice, worktree_name)
 
-    -- Step 1: Checkout to main/master
+    -- Step 1: Checkout to mainmain/
     progress:add_line("Switching to main branch...", "🔄")
 
     local checkout_stderr = {}
