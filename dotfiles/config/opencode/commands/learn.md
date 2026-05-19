@@ -1,6 +1,6 @@
 ---
 description: Extract patterns and learnings from current session
-agent: everything-claude-code:build
+agent: plan
 ---
 
 # Learn Command
@@ -21,6 +21,7 @@ Analyze the conversation and code changes to extract:
 ### Patterns Discovered
 
 **Pattern: [Name]**
+
 - Context: When to use this pattern
 - Implementation: How to apply it
 - Example: Code snippet
@@ -40,6 +41,7 @@ Analyze the conversation and code changes to extract:
 ### Suggested Skill Updates
 
 If patterns are significant, suggest updates to:
+
 - `skills/coding-standards/SKILL.md`
 - `skills/[domain]/SKILL.md`
 - `rules/[category].md`
