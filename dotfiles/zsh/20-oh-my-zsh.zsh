@@ -21,7 +21,16 @@ ZSH_THEME="bira"
 # Plugins can be found in ~/.oh-my-zsh/plugins/*
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Add wisely, as too many plugins slow down shell startup
-plugins=(git node terraform tmux kubectl)
+plugins=(
+    git
+    node
+    terraform
+    tmux
+    kubectl
+    vi-mode
+    zsh-syntax-highlighting
+    zsh-autosuggestions
+)
 
 # =============================================================================
 # Initialize Oh-My-Zsh

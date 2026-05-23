@@ -74,6 +74,9 @@ function github-softcode {
     # Switch Copilot config via symlink - use imonir Copilot
     rm -f "$HOME/.config/github-copilot"
     ln -s "$HOME/.config/github-copilot-imonir" "$HOME/.config/github-copilot"
+
+    rm -f "$HOME/.local/share/opencode"
+    ln -s "$HOME/.local/share/opencode-imonir" "$HOME/.local/share/opencode"
 }
 
 function github-imonir {

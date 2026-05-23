@@ -138,18 +138,74 @@ local function create_worktree_step(progress, repo_root, worktree_path, branch, 
 
       progress:update_last_line("Worktree created successfully!", "✅")
       progress:add_line("")
-      progress:add_line("Path: " .. worktree_path, "📍")
+
+      -- Resolve absolute worktree path
+      local abs_worktree_path = vim.fn.fnamemodify(worktree_path, ":p"):gsub("/$", "")
+
+      progress:add_line("Path: " .. abs_worktree_path, "📍")
       progress:add_line("")
-      progress:add_line("Press any key to close and copy path...", "⌨️")
+
+      -- Copy AGENTS.md if it exists in the main repo
+      local agents_src = repo_root .. "/AGENTS.md"
+      if vim.fn.filereadable(agents_src) == 1 then
+        progress:add_line("Copying AGENTS.md...", "📄")
+        vim.fn.jobstart({ "cp", agents_src, abs_worktree_path .. "/AGENTS.md" }, {
+          on_exit = function(_, cp_code)
+            if cp_code == 0 then
+              progress:update_last_line("AGENTS.md copied", "✅")
+            else
+              progress:update_last_line("Failed to copy AGENTS.md", "❌")
+            end
+          end,
+        })
+      end
+
+      -- Run install command based on project type
+      local pkg_json = abs_worktree_path .. "/package.json"
+      local pom_xml = abs_worktree_path .. "/pom.xml"
+
+      if vim.fn.filereadable(pkg_json) == 1 then
+        progress:add_line("Running npm install...", "📦")
+        vim.fn.jobstart({ "npm", "install" }, {
+          cwd = abs_worktree_path,
+          on_exit = function(_, code)
+            if code == 0 then
+              progress:update_last_line("npm install completed", "✅")
+            else
+              progress:update_last_line("npm install failed", "❌")
+            end
+          end,
+        })
+      elseif vim.fn.filereadable(pom_xml) == 1 then
+        progress:add_line("Running mvn install...", "📦")
+        vim.fn.jobstart({ "mvn", "install" }, {
+          cwd = abs_worktree_path,
+          on_exit = function(_, code)
+            if code == 0 then
+              progress:update_last_line("mvn install completed", "✅")
+            else
+              progress:update_last_line("mvn install failed", "❌")
+            end
+          end,
+        })
+      end
+
+      -- Change Neovim's cwd to the new worktree
+      vim.schedule(function()
+        vim.cmd("cd " .. vim.fn.fnameescape(abs_worktree_path))
+        progress:add_line("Changed directory to worktree", "📂")
+      end)
+
+      progress:add_line("")
+      progress:add_line("Press <CR> to copy path or q to close...", "⌨️")
 
       vim.notify("✓ Worktree created successfully", vim.log.levels.INFO, { title = "Worktree" })
 
-      -- Wait for keypress then close and copy
       vim.defer_fn(function()
         if vim.api.nvim_win_is_valid(progress.win) then
           vim.api.nvim_buf_set_keymap(progress.buf, "n", "<CR>", "", {
             callback = function()
-              vim.fn.setreg("+", worktree_path)
+              vim.fn.setreg("+", abs_worktree_path)
               vim.notify("Path copied to clipboard", vim.log.levels.INFO, { title = "Worktree" })
               progress:close()
             end,
@@ -194,76 +250,64 @@ function M.create_worktree()
     return
   end
 
-  -- Use vim.ui.select for better UX
-  vim.ui.select({ "agent", "notagent" }, {
-    prompt = "Select worktree type:",
-    format_item = function(item)
-      return item == "agent" and "🤖 Agent (AI-assisted work)" or "👨‍💻 Manual (Regular work)"
+  -- Create progress window
+  local progress = ProgressWindow.new()
+
+  progress:add_line("Repository: " .. repo_name, "📦")
+  progress:add_line("Branch: " .. branch, "🌿")
+  progress:add_line("Issue: #" .. issue_number, "🎫")
+  progress:add_line("")
+
+  local worktree_folder = "worktree"
+  local worktree_name = string.format("%s-%s", repo_name, issue_number)
+  local worktree_path = string.format("%s/../%s/%s", repo_root, worktree_folder, worktree_name)
+
+  -- Step 1: Checkout to mainmain/
+  progress:add_line("Switching to main branch...", "🔄")
+
+  local checkout_stderr = {}
+  vim.fn.jobstart({ "git", "checkout", "main" }, {
+    cwd = repo_root,
+    stderr_buffered = true,
+    on_stderr = function(_, data)
+      if data then
+        vim.list_extend(checkout_stderr, data)
+      end
     end,
-  }, function(choice)
-    if not choice then
-      return
-    end
+    on_exit = function(_, checkout_code)
+      -- Try master if main doesn't exist
+      if checkout_code ~= 0 then
+        progress:update_last_line("main not found, trying master...", "🔄")
 
-    -- Create progress window
-    local progress = ProgressWindow.new()
+        local master_stderr = {}
+        vim.fn.jobstart({ "git", "checkout", "master" }, {
+          cwd = repo_root,
+          stderr_buffered = true,
+          on_stderr = function(_, data)
+            if data then
+              vim.list_extend(master_stderr, data)
+            end
+          end,
+          on_exit = function(_, master_code)
+            if master_code ~= 0 then
+              progress:update_last_line("Failed to checkout main/master", "❌")
+              vim.notify("Failed to checkout main or master branch", vim.log.levels.ERROR, { title = "Worktree" })
+              vim.defer_fn(function()
+                progress:close()
+              end, 2000)
+              return
+            end
+            progress:update_last_line("Switched to master branch", "✅")
+            create_worktree_step(progress, repo_root, worktree_path, branch, worktree_name)
+          end,
+        })
+        return
+      end
 
-    progress:add_line("Repository: " .. repo_name, "📦")
-    progress:add_line("Branch: " .. branch, "🌿")
-    progress:add_line("Issue: #" .. issue_number, "🎫")
-    progress:add_line("Type: " .. (choice == "agent" and "Agent" or "Manual"), "⚙️")
-    progress:add_line("")
-
-    local worktree_name = string.format("%s-%s", repo_name, issue_number)
-    local worktree_path = string.format("%s/../%s/%s", repo_root, choice, worktree_name)
-
-    -- Step 1: Checkout to mainmain/
-    progress:add_line("Switching to main branch...", "🔄")
-
-    local checkout_stderr = {}
-    vim.fn.jobstart({ "git", "checkout", "main" }, {
-      cwd = repo_root,
-      stderr_buffered = true,
-      on_stderr = function(_, data)
-        if data then
-          vim.list_extend(checkout_stderr, data)
-        end
-      end,
-      on_exit = function(_, checkout_code)
-        -- Try master if main doesn't exist
-        if checkout_code ~= 0 then
-          progress:update_last_line("main not found, trying master...", "🔄")
-
-          local master_stderr = {}
-          vim.fn.jobstart({ "git", "checkout", "master" }, {
-            cwd = repo_root,
-            stderr_buffered = true,
-            on_stderr = function(_, data)
-              if data then
-                vim.list_extend(master_stderr, data)
-              end
-            end,
-            on_exit = function(_, master_code)
-              if master_code ~= 0 then
-                progress:update_last_line("Failed to checkout main/master", "❌")
-                vim.notify("Failed to checkout main or master branch", vim.log.levels.ERROR, { title = "Worktree" })
-                vim.defer_fn(function()
-                  progress:close()
-                end, 2000)
-                return
-              end
-              progress:update_last_line("Switched to master branch", "✅")
-              create_worktree_step(progress, repo_root, worktree_path, branch, worktree_name)
-            end,
-          })
-          return
-        end
-
-        progress:update_last_line("Switched to main branch", "✅")
-        create_worktree_step(progress, repo_root, worktree_path, branch, worktree_name)
-      end,
-    })
-  end)
+      progress:update_last_line("Switched to main branch", "✅")
+      create_worktree_step(progress, repo_root, worktree_path, branch, worktree_name)
+    end,
+  })
 end
 
 -- List and remove worktrees
