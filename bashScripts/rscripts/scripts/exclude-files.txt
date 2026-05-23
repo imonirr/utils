@@ -1,7 +1,0 @@
-.gitignore
-.git
-
-browser-cache.xml
-gzip.xml
-request.xml
-vhost-config.xml
