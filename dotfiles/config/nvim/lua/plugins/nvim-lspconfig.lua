@@ -77,7 +77,12 @@ return {
               schemas = {
                 ["https://json.schemastore.org/kustomization.json"] = "kustomization.{yml,yaml}",
                 ["https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.30.0/all.json"] = "/*.k8s.{yml,yaml}",
-                kubernetes = "/*.{yml,yaml}",
+                -- Remove the blanket kubernetes rule and exclude application files
+                kubernetes = {
+                  "/*.{yml,yaml}",
+                  "!application*.{yml,yaml}", -- Exclude Spring Boot config files
+                  "!src/main/resources/*.{yml,yaml}", -- Exclude all Spring resources
+                },
               },
               validate = true,
               completion = true,

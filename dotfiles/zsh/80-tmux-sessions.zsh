@@ -23,6 +23,7 @@ function azure-sj {
     export AZURE_ENV="SJ"
     export KUBECONFIG="$HOME/.kube/config-sj"
 
+
     # AKS metadata
     AKS_SJ_NAME="aks-qa-trafik-weu"
     AKS_SJ_RG="aks-qa-trafik-weu-rg"
@@ -44,7 +45,7 @@ function azure-imonir {
 # =============================================================================
 
 function github-sj {
-    export GH_CONFIG_DIR="$HOME/.config/gh-sj"
+    # export GH_CONFIG_DIR="$HOME/.config/gh-sj"
     export GH_ENV="SJ"
     export GH_HOST="sj.ghe.com"
     export GITHUB_ENTERPRISE_URL="https://sj.ghe.com"
@@ -52,13 +53,13 @@ function github-sj {
     export COPILOT_ENV="SJ"
 
     # Switch Copilot config via symlink
-    rm -f "$HOME/.config/github-copilot"
-    ln -s "$HOME/.config/github-copilot-sj" "$HOME/.config/github-copilot"
+    # rm -f "$HOME/.config/github-copilot"
+    # ln -s "$HOME/.config/github-copilot-sj" "$HOME/.config/github-copilot"
 
     # export OPENCODE_CONFIG=/path/to/my/custom-config.json
     # Switch OpenCode auth config directory
-    rm -f "$HOME/.local/share/opencode"
-    ln -s "$HOME/.local/share/opencode-sj" "$HOME/.local/share/opencode"
+    # rm -f "$HOME/.local/share/opencode"
+    # ln -s "$HOME/.local/share/opencode-sj" "$HOME/.local/share/opencode"
 
     # switch opencode config
     # rm "$HOME/.config/opencode/opencode.json"
@@ -67,16 +68,16 @@ function github-sj {
 }
 
 function github-softcode {
-    export GH_CONFIG_DIR="$HOME/.config/gh-softcode"
+    # export GH_CONFIG_DIR="$HOME/.config/gh-softcode"
     export GH_ENV="Softcode"
     export COPILOT_ENV="Imonir"
 
     # Switch Copilot config via symlink - use imonir Copilot
-    rm -f "$HOME/.config/github-copilot"
-    ln -s "$HOME/.config/github-copilot-imonir" "$HOME/.config/github-copilot"
+    # rm -f "$HOME/.config/github-copilot"
+    # ln -s "$HOME/.config/github-copilot-imonir" "$HOME/.config/github-copilot"
 
-    rm -f "$HOME/.local/share/opencode"
-    ln -s "$HOME/.local/share/opencode-imonir" "$HOME/.local/share/opencode"
+    # rm -f "$HOME/.local/share/opencode"
+    # ln -s "$HOME/.local/share/opencode-imonir" "$HOME/.local/share/opencode"
 }
 
 function github-imonir {
@@ -85,8 +86,8 @@ function github-imonir {
     export COPILOT_ENV="Imonir"
 
     # Switch Copilot config via symlink
-    rm -f "$HOME/.config/github-copilot"
-    ln -s "$HOME/.config/github-copilot-imonir" "$HOME/.config/github-copilot"
+    # rm -f "$HOME/.config/github-copilot"
+    # ln -s "$HOME/.config/github-copilot-imonir" "$HOME/.config/github-copilot"
 
     # Switch OpenCode auth config directory
     # ln -s "$HOME/.local/share/opencode-imonir" "$HOME/.local/share/opencode"
@@ -101,6 +102,11 @@ function github-imonir {
 function session-sj {
     azure-sj
     github-sj
+
+    # 1. Isolate the config directories for Work
+    export XDG_CONFIG_HOME="$HOME/.config-sj"
+    export XDG_DATA_HOME="$HOME/.local-sj"
+    export XDG_CACHE_HOME="$HOME/.cache-sj"
 
     # Source SJ-specific aliases
     if [ -f "$HOME/.zsh_aliases_sj" ]; then
@@ -133,6 +139,11 @@ function session-imonir {
     azure-imonir  # Use Softcode Azure/AKS
     github-imonir
 
+    # 1. Isolate the config directories for Work
+    export XDG_CONFIG_HOME="$HOME/.config-imonir"
+    export XDG_DATA_HOME="$HOME/.local-imonir"
+    export XDG_CACHE_HOME="$HOME/.cache-imonir"
+
     # Run setup only once per session
     if [[ -n "$TMUX" ]] && [[ -z "$TMUX_SESSION_SETUP_DONE" ]]; then
         tmux set-environment TMUX_SESSION_SETUP_DONE 1
@@ -151,7 +162,7 @@ function session-imonir {
 if [[ -n $TMUX ]]; then
 # if [[ -n $TMUX ]] && [[ -z "$TMUX_SESSION_SETUP_DONE" ]]; then
   case "$(tmux display-message -p '#S')" in
-    sj)
+    sj|sj-*)
       session-sj
       echo "✨ Session: SJ (Azure: $AZURE_ENV, AKS: SJ, GitHub: $GH_ENV, Copilot: $COPILOT_ENV)"
       ;;
@@ -189,16 +200,31 @@ kubectl() {
 }
 
 # Prevent running gh command without any context
-gh() {
-  if [[ -z "$GH_CONFIG_DIR" ]]; then
-    echo "❌ GH_CONFIG_DIR not set"
-    return 1
+# gh() {
+#   if [[ -z "$GH_CONFIG_DIR" ]]; then
+#     echo "❌ GH_CONFIG_DIR not set"
+#     return 1
+#   fi
+#   command gh "$@"
+# }
+
+
+
+work() {
+  local issue_number="$1"
+  local session_name="sj"
+
+  if [[ -n "$issue_number" ]]; then
+    if [[ ! "$issue_number" =~ ^[0-9]+$ ]]; then
+      echo "❌ Usage: work [jira-number]"
+      return 1
+    fi
+    session_name="sj-$issue_number"
   fi
-  command gh "$@"
+
+  cd "$HOME/work/sj" || return 1
+  tmux new-session -A -s "$session_name"
 }
 
-
-
-alias work="cd $HOME/work/sj && tmux new -s sj"
 alias softcode="cd $HOME/work/softcode && tmux new -s softcode"
 alias imonir="cd $HOME/work/imonir && tmux new -s imonir"

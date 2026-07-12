@@ -34,7 +34,7 @@ alias avante='nvim -c "lua vim.defer_fn(function()require(\"avante.api\").zen_mo
 autoload -U +X bashcompinit && bashcompinit
 
 # Azure CLI completion
-source $HOME/work/utils/az.completion
+# source $HOME/work/utils/az.completion
 
 # Kubectl completion (optional - uncomment if needed)
 # source <(kubectl completion zsh)

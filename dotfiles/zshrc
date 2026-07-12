@@ -53,3 +53,4 @@ alias k9s:tca-qa="k9s -n tca --context aks-qa-trafik-weu"
 alias k9s:tca-test="k9s -n tca --context aks-test-trafik-weu"
 alias k9s:tca-dev="k9s -n tca --context aks-dev-trafik-weu"
 if test -f "/Users/monir/work/sj/traffic-control-tools/scripts/gustav/.env.secrets"; then; export $(cat "/Users/monir/work/sj/traffic-control-tools/scripts/gustav/.env.secrets" | xargs); fi
+source "$HOME/.envrc"
