@@ -58,3 +58,25 @@ For multi-step tasks, state a brief plan:
 ```
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
+## Repository Layout
+
+Repositories use a Git worktree setup and follow this structure:
+
+```bash
+my-project/
+├── .git/                    (bare git metadata)
+├── main/                    (main branch worktree)
+└── <full-branch-name>/      (branch worktree when needed)
+```
+
+Operational notes:
+
+- Run day-to-day Git commands from a worktree folder (for example `main/` or `<branch-name>/`), not from the repository root.
+- Use repository root only for bare-repo commands such as `git --git-dir <repo>/.git worktree list`.
+- For any file/code change, first create a branch and check it out as its own worktree folder inside the repository, then do the work there.
+- Worktree folder names must match the full branch name (for example branch `add-password-rememberme-feature` uses folder `ASK-2422-create-reusable-redis-cache-package-in-tca-common`).
+
+## Principles
+
+1. always do proper error handling. good to add try cache pattern where we know known exceptions can happen. i.e file, network io etc. so a clear exception message instead of long stack trace makes debuggin easier and keeps logs clean
