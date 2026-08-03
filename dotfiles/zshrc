@@ -19,6 +19,14 @@ case "$DOTFILES_OS" in
 esac
 
 
+# infinite cmd history
+HISTSIZE=999999999
+SAVEHIST=$HISTSIZE
+setopt EXTENDED_HISTORY
+setopt INC_APPEND_HISTORY
+setopt HIST_IGNORE_ALL_DUPS
+setopt SHARE_HISTORY
+
 # Configuration directory
 ZSH_CONFIG_DIR="${ZDOTDIR:-$HOME}/.zsh"
 
