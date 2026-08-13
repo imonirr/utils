@@ -59,53 +59,46 @@ aks-ensure-creds() {
 
 
 create_worktree() {
-  local branch
-  branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-  [[ -z "$branch" ]] && echo "❌ Not in a git repository" && return 1
+  local issue_key="$1"
+  local base_branch="$2"
 
-  if [[ "$branch" == "main" || "$branch" == "master" ]]; then
-    echo "⚠️  Cannot create worktree from main/master branch"
+  if [[ -z "$issue_key" || -z "$base_branch" ]]; then
+    echo "❌ Usage: create_worktree <ISSUE-KEY> <base-branch>"
     return 1
   fi
 
-  local repo_root
-  repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
-  [[ -z "$repo_root" ]] && echo "❌ Could not find git repository root" && return 1
+  # git-common-dir resolves to the bare repo's .git dir, regardless of which
+  # worktree (main, dev, other-issue, ...) you're currently in.
+  local git_common_dir
+  git_common_dir=$(git rev-parse --git-common-dir 2>/dev/null)
+  [[ -z "$git_common_dir" ]] && echo "❌ Not in a git repository" && return 1
+
+  local container
+  container=$(cd "$(dirname "$git_common_dir")" && pwd)
 
   local repo_name
-  repo_name=$(basename "$repo_root")
+  repo_name=$(basename "$container")
 
-  local issue_number
-  issue_number=$(echo "$branch" | grep -oE '/[A-Z]+-[0-9]+' | grep -oE '[0-9]+$')
-  if [[ -z "$issue_number" ]]; then
-    echo "❌ Could not extract issue number from branch: $branch"
+  local worktree_path="${container}/${issue_key}"
+  if [[ -e "$worktree_path" ]]; then
+    echo "❌ Worktree path already exists: $worktree_path"
     return 1
   fi
-
-  local worktree_name="${repo_name}-${issue_number}"
-  local worktree_path="${repo_root}/../worktree/${worktree_name}"
 
   echo "📦 Repository: $repo_name"
-  echo "🌿 Branch:     $branch"
-  echo "🎫 Issuke:      #$issue_number"
+  echo "🎫 Issue:      $issue_key"
+  echo "🌿 Base:       $base_branch"
   echo ""
 
-  mkdir -p "$(dirname "$worktree_path")"
-  echo "📁 Directory ready: $(dirname "$worktree_path")"
-
-  echo "🔄 Switching to main branch..."
-  if git -C "$repo_root" checkout main 2>/dev/null; then
-    echo "✅ Switched to main"
-  elif git -C "$repo_root" checkout master 2>/dev/null; then
-    echo "✅ Switched to master"
-  else
-    echo "❌ Failed to checkout main or master"
+  echo "🔄 Fetching latest ${base_branch}..."
+  if ! git --git-dir="$git_common_dir" fetch origin "+refs/heads/${base_branch}:refs/remotes/origin/${base_branch}"; then
+    echo "❌ Failed to fetch ${base_branch} from origin"
     return 1
   fi
 
   echo ""
-  echo "🔨 Creating worktree for branch: $branch"
-  if ! git -C "$repo_root" worktree add "$worktree_path" "$branch"; then
+  echo "🔨 Creating worktree: $issue_key"
+  if ! git --git-dir="$git_common_dir" worktree add -b "$issue_key" "$worktree_path" "origin/${base_branch}"; then
     echo "❌ Failed to create worktree"
     return 1
   fi
@@ -115,13 +108,6 @@ create_worktree() {
   echo "✅ Worktree created!"
   echo "📍 Path: $abs_worktree_path"
   echo ""
-
-  # Copy AGENTS.md if it exists
-  if [[ -f "${repo_root}/AGENTS.md" ]]; then
-    echo "📄 Copying AGENTS.md..."
-    cp "${repo_root}/AGENTS.md" "${abs_worktree_path}/AGENTS.md" \
-      && echo "✅ AGENTS.md copied" || echo "❌ Failed to copy AGENTS.md"
-  fi
 
   # Run install based on project type
   if [[ -f "${abs_worktree_path}/package.json" ]]; then
@@ -140,4 +126,87 @@ create_worktree() {
   echo "✅ Done! Now in: $(pwd)"
 }
 
+
+checkout_worktree() {
+  local branch="$1"
+
+  if [[ -z "$branch" ]]; then
+    echo "❌ Usage: checkout_worktree <branch-name>"
+    return 1
+  fi
+
+  # git-common-dir resolves to the bare repo's .git dir, regardless of which
+  # worktree (main, dev, other-issue, ...) you're currently in.
+  local git_common_dir
+  git_common_dir=$(git rev-parse --git-common-dir 2>/dev/null)
+  [[ -z "$git_common_dir" ]] && echo "❌ Not in a git repository" && return 1
+
+  local container
+  container=$(cd "$(dirname "$git_common_dir")" && pwd)
+
+  local repo_name
+  repo_name=$(basename "$container")
+
+  # Use only the last path component of the branch name as folder name
+  local folder_name="${branch##*/}"
+  local worktree_path="${container}/${folder_name}"
+  if [[ -e "$worktree_path" ]]; then
+    echo "❌ Worktree path already exists: $worktree_path"
+    return 1
+  fi
+
+  echo "📦 Repository: $repo_name"
+  echo "🌿 Branch:     $branch"
+  echo "📍 Folder:     $folder_name"
+  echo ""
+
+  echo "🔄 Fetching latest ${branch}..."
+  if ! git --git-dir="$git_common_dir" fetch origin "+refs/heads/${branch}:refs/remotes/origin/${branch}"; then
+    echo "❌ Failed to fetch ${branch} from origin"
+    return 1
+  fi
+
+  echo ""
+  echo "🔨 Creating worktree: $folder_name"
+  # If a local branch with this name already exists, just check it out;
+  # otherwise create a local tracking branch from origin/<branch>.
+  if git --git-dir="$git_common_dir" show-ref --verify --quiet "refs/heads/${branch}"; then
+    if ! git --git-dir="$git_common_dir" worktree add "$worktree_path" "$branch"; then
+      echo "❌ Failed to create worktree"
+      return 1
+    fi
+  else
+    if ! git --git-dir="$git_common_dir" worktree add -b "$branch" "$worktree_path" "origin/${branch}"; then
+      echo "❌ Failed to create worktree"
+      return 1
+    fi
+  fi
+
+  local abs_worktree_path
+  abs_worktree_path=$(cd "$worktree_path" && pwd)
+  echo "✅ Worktree created!"
+  echo "📍 Path: $abs_worktree_path"
+  echo ""
+
+  # Run install based on project type
+  if [[ -f "${abs_worktree_path}/package.json" ]]; then
+    echo "📦 Running npm install..."
+    npm install --prefix "$abs_worktree_path" \
+      && echo "✅ npm install completed" || echo "❌ npm install failed"
+  elif [[ -f "${abs_worktree_path}/pom.xml" ]]; then
+    echo "📦 Running mvn install..."
+    (cd "$abs_worktree_path" && mvn install) \
+      && echo "✅ mvn install completed" || echo "❌ mvn install failed"
+  fi
+
+  echo ""
+  echo "📂 Switching to worktree..."
+  cd "$abs_worktree_path" || return 1
+  echo "✅ Done! Now in: $(pwd)"
+}
+
+
 alias gwt='create_worktree'
+alias gcwt='checkout_worktree'
+
+alias tmux-save='tmux list-sessions -F "#{session_name}" > ~/.tmux_sessions_last.txt'
