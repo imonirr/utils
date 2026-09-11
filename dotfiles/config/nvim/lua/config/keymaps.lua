@@ -90,3 +90,11 @@ end, { desc = "Create worktree" })
 vim.keymap.set("n", "<leader>gW", function()
   gitWorktree.list_worktrees()
 end, { desc = "Remove worktree" })
+
+-- Increase/decrease vertical window width by 5 columns instead of 1
+vim.keymap.set("n", "<leader>w>", "<cmd>vertical resize +10<cr>", { desc = "Increase width" })
+vim.keymap.set("n", "<leader>w<", "<cmd>vertical resize -10<cr>", { desc = "Decrease width" })
+
+-- You can also do the same for window height if needed
+vim.keymap.set("n", "<leader>w+", "<cmd>resize +10<cr>", { desc = "Increase height" })
+vim.keymap.set("n", "<leader>w-", "<cmd>resize -10<cr>", { desc = "Decrease height" })

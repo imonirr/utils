@@ -62,6 +62,9 @@ create_worktree() {
   local issue_key="$1"
   local base_branch="$2"
 
+  # Allow either "dev" or "origin/dev"
+  base_branch="${base_branch#origin/}"
+
   if [[ -z "$issue_key" || -z "$base_branch" ]]; then
     echo "❌ Usage: create_worktree <ISSUE-KEY> <base-branch>"
     return 1
@@ -90,15 +93,29 @@ create_worktree() {
   echo "🌿 Base:       $base_branch"
   echo ""
 
-  echo "🔄 Fetching latest ${base_branch}..."
-  if ! git --git-dir="$git_common_dir" fetch origin "+refs/heads/${base_branch}:refs/remotes/origin/${base_branch}"; then
-    echo "❌ Failed to fetch ${base_branch} from origin"
+  echo "🔄 Fetching latest refs from origin..."
+  if ! git --git-dir="$git_common_dir" fetch --prune origin; then
+    echo "❌ Failed to fetch refs from origin"
+    return 1
+  fi
+
+  local start_point=""
+
+  if git --git-dir="$git_common_dir" show-ref --verify --quiet "refs/remotes/origin/${base_branch}"; then
+    start_point="origin/${base_branch}"
+    echo "✅ Using latest remote base: ${start_point}"
+  elif git --git-dir="$git_common_dir" show-ref --verify --quiet "refs/heads/${base_branch}"; then
+    start_point="${base_branch}"
+    echo "⚠️  Remote base not found; falling back to local branch: ${start_point}"
+  else
+    echo "❌ Base branch '${base_branch}' not found locally or on origin"
+    echo "💡 Check available branches with: git branch -a"
     return 1
   fi
 
   echo ""
   echo "🔨 Creating worktree: $issue_key"
-  if ! git --git-dir="$git_common_dir" worktree add -b "$issue_key" "$worktree_path" "origin/${base_branch}"; then
+  if ! git --git-dir="$git_common_dir" worktree add -b "$issue_key" "$worktree_path" "$start_point"; then
     echo "❌ Failed to create worktree"
     return 1
   fi
@@ -130,6 +147,9 @@ create_worktree() {
 checkout_worktree() {
   local branch="$1"
 
+  # Allow either "dev" or "origin/dev"
+  branch="${branch#origin/}"
+
   if [[ -z "$branch" ]]; then
     echo "❌ Usage: checkout_worktree <branch-name>"
     return 1
@@ -160,9 +180,26 @@ checkout_worktree() {
   echo "📍 Folder:     $folder_name"
   echo ""
 
-  echo "🔄 Fetching latest ${branch}..."
-  if ! git --git-dir="$git_common_dir" fetch origin "+refs/heads/${branch}:refs/remotes/origin/${branch}"; then
-    echo "❌ Failed to fetch ${branch} from origin"
+  echo "🔄 Fetching latest refs from origin..."
+  if ! git --git-dir="$git_common_dir" fetch --prune origin; then
+    echo "❌ Failed to fetch refs from origin"
+    return 1
+  fi
+
+  local has_local_branch=0
+  local has_remote_branch=0
+
+  if git --git-dir="$git_common_dir" show-ref --verify --quiet "refs/heads/${branch}"; then
+    has_local_branch=1
+  fi
+
+  if git --git-dir="$git_common_dir" show-ref --verify --quiet "refs/remotes/origin/${branch}"; then
+    has_remote_branch=1
+  fi
+
+  if [[ "$has_local_branch" -eq 0 && "$has_remote_branch" -eq 0 ]]; then
+    echo "❌ Branch '${branch}' not found locally or on origin"
+    echo "💡 Check available remote branches with: git branch -r"
     return 1
   fi
 
@@ -170,7 +207,7 @@ checkout_worktree() {
   echo "🔨 Creating worktree: $folder_name"
   # If a local branch with this name already exists, just check it out;
   # otherwise create a local tracking branch from origin/<branch>.
-  if git --git-dir="$git_common_dir" show-ref --verify --quiet "refs/heads/${branch}"; then
+  if [[ "$has_local_branch" -eq 1 ]]; then
     if ! git --git-dir="$git_common_dir" worktree add "$worktree_path" "$branch"; then
       echo "❌ Failed to create worktree"
       return 1
@@ -206,7 +243,58 @@ checkout_worktree() {
 }
 
 
-alias gwt='create_worktree'
-alias gcwt='checkout_worktree'
+close_worktree() {
+  local branch="$1"
+
+  if [[ -z "$branch" ]]; then
+    echo "❌ Usage: close_worktree <branch-name>"
+    return 1
+  fi
+
+  # git-common-dir resolves to the bare repo's .git dir, regardless of which
+  # worktree (main, dev, other-issue, ...) you're currently in.
+  local git_common_dir
+  git_common_dir=$(git rev-parse --git-common-dir 2>/dev/null)
+  [[ -z "$git_common_dir" ]] && echo "❌ Not in a git repository" && return 1
+
+  local container
+  container=$(cd "$(dirname "$git_common_dir")" && pwd)
+
+  local folder_name="${branch##*/}"
+  local worktree_path="${container}/${folder_name}"
+
+  if [[ ! -d "$worktree_path" ]]; then
+    echo "❌ Worktree path does not exist: $worktree_path"
+    return 1
+  fi
+
+  # If we're currently inside the worktree being removed, step out first
+  local current_dir
+  current_dir=$(pwd)
+  if [[ "$current_dir" == "$worktree_path"* ]]; then
+    cd "$container" || return 1
+  fi
+
+  echo "🗑️  Removing worktree: $worktree_path"
+  if ! git --git-dir="$git_common_dir" worktree remove --force "$worktree_path"; then
+    echo "❌ Failed to remove worktree"
+    return 1
+  fi
+
+  echo "🗑️  Deleting local branch: $branch"
+  if ! git --git-dir="$git_common_dir" branch -D "$branch" 2>/dev/null; then
+    echo "⚠️  Local branch not found or already deleted: $branch"
+  fi
+
+  echo "🧹 Pruning stale worktree metadata..."
+  git --git-dir="$git_common_dir" worktree prune
+
+  echo "✅ Done!"
+}
+
+
+alias gwtc='create_worktree'
+alias gwtck='checkout_worktree'
+alias gwtcl='close_worktree'
 
 alias tmux-save='tmux list-sessions -F "#{session_name}" > ~/.tmux_sessions_last.txt'
