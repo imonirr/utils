@@ -4,11 +4,10 @@ return {
     init = function()
       vim.g.dbs = {
         ["tca-LOCAL"] = os.getenv("TCA_LOCAL_DB_URL"),
-        ["tca-QA"] = os.getenv("TCA_QA_DB_URL"),
-        ["tca-DEV"] = os.getenv("TCA_DEV_DB_URL"),
-        ["tca-TEST"] = os.getenv("TCA_TEST_DB_URL"),
+        ["tca-NON-PROD"] = os.getenv("TCA_NON_PROD"),
         ["tca-PROD"] = os.getenv("TCA_PROD_DB_URL"),
         ["TTBS-PROD"] = os.getenv("TTBS_PROD_DB_URL"),
+        ["TCA-QA-OLD"] = os.getenv("TCA_QA_OLD"),
       }
 
       vim.g.db_ui_save_location = "~/work/dadbod_queries"
