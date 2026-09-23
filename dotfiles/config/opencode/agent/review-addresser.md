@@ -1,7 +1,7 @@
 ---
 description: Fetches unresolved PR review comments, triages each with the user (fix / push back / skip), applies accepted fixes, commits as a batch, and replies on GitHub threads.
-mode: subagent
-model: github-copilot/gpt-5.3-codex
+mode: primary
+model: github-copilot/gpt-5.6-terra
 temperature: 0.2
 tools:
   read: true

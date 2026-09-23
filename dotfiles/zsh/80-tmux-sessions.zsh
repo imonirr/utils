@@ -81,7 +81,7 @@ function github-softcode {
 }
 
 function github-imonir {
-    export GH_CONFIG_DIR="$HOME/.config/gh-imonir"
+    # export GH_CONFIG_DIR="$HOME/.config/gh-imonir"
     export GH_ENV="Imonir"
     export COPILOT_ENV="Imonir"
 

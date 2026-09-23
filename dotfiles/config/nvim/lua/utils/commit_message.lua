@@ -4,35 +4,60 @@ local ai = require("utils.ai")
 local M = {}
 
 function M.generate()
-  -- Get current branch name
+  local cwd = vim.fn.getcwd()
+
+  -- Resolve this worktree's Git directory before asynchronous work begins.
   Job:new({
     command = "git",
-    args = { "branch", "--show-current" },
-    on_exit = function(branch_job, branch_code)
-      local branch_name = table.concat(branch_job:result(), "")
+    args = { "rev-parse", "--path-format=absolute", "--git-path", "COMMIT_EDITMSG" },
+    cwd = cwd,
+    on_exit = function(path_job, path_code)
+      local path = table.concat(path_job:result(), "")
 
-      -- Extract ticket ID (e.g., ASK-2312, JIRA-123, etc.)
-      local ticket_id = branch_name:match("([A-Z]+%-[0-9]+)")
+      if path_code ~= 0 or path == "" then
+        vim.schedule(function()
+          vim.notify("Unable to resolve the Git commit message path", vim.log.levels.ERROR)
+        end)
+        return
+      end
 
-      -- Get staged changes
-      Job
-        :new({
-          command = "git",
-          args = { "diff", "--staged" },
-          on_exit = function(job, code)
-            local diff = table.concat(job:result(), "\n")
-
+      Job:new({
+        command = "git",
+        args = { "branch", "--show-current" },
+        cwd = cwd,
+        on_exit = function(branch_job, branch_code)
+          if branch_code ~= 0 then
             vim.schedule(function()
-              if code ~= 0 or diff == "" then
-                vim.notify("No staged changes found", vim.log.levels.WARN)
-                return
-              end
+              vim.notify("Unable to determine the current Git branch", vim.log.levels.ERROR)
+            end)
+            return
+          end
 
-              local format_line = ticket_id and string.format("%s: <subject>", ticket_id)
-                or "<type>(<scope>): <subject>"
+          local branch_name = table.concat(branch_job:result(), "")
+          local ticket_id = branch_name:match("([A-Z]+%-[0-9]+)")
 
-              local prompt = string.format(
-                [[
+          Job:new({
+            command = "git",
+            args = { "diff", "--staged" },
+            cwd = cwd,
+            on_exit = function(diff_job, diff_code)
+              local diff = table.concat(diff_job:result(), "\n")
+
+              vim.schedule(function()
+                if diff_code ~= 0 then
+                  vim.notify("Unable to read staged changes", vim.log.levels.ERROR)
+                  return
+                end
+
+                if diff == "" then
+                  vim.notify("No staged changes found", vim.log.levels.WARN)
+                  return
+                end
+
+                local format_line = ticket_id and string.format("%s: <subject>", ticket_id)
+                  or "<type>(<scope>): <subject>"
+                local prompt = string.format(
+                  [[
 Generate a commit message following the Conventional Commits convention.
 
 Format:
@@ -56,76 +81,73 @@ IMPORTANT: Return ONLY the raw commit message text without any markdown formatti
 Diff:
 ```diff
 ]],
-                format_line
-              ) .. diff .. "\n```"
+                  format_line
+                ) .. diff .. "\n```"
 
-              ai.ask(prompt, function(text)
-                if text == "" then
-                  vim.notify("Copilot returned empty response", vim.log.levels.ERROR)
-                  return
-                end
+                ai.ask(prompt, function(text)
+                  if text == "" then
+                    vim.notify("Copilot returned empty response", vim.log.levels.ERROR)
+                    return
+                  end
 
-                -- Strip markdown code fences if present
-                -- text = text:gsub("^```%w*\n", ""):gsub("\n```$", "")
+                  local lines = vim.split(text, "\n", { plain = true })
+                  local buf = vim.api.nvim_create_buf(false, true)
+                  vim.bo[buf].filetype = "gitcommit"
+                  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
 
-                local path = ".git/COMMIT_EDITMSG"
-                local lines = vim.split(text, "\n", { plain = true })
+                  local wrote, write_error = pcall(vim.api.nvim_buf_call, buf, function()
+                    vim.cmd("write! " .. vim.fn.fnameescape(path))
+                  end)
+                  if not wrote then
+                    vim.notify("Failed to write commit message: " .. write_error, vim.log.levels.ERROR)
+                    return
+                  end
 
-                -- Create buffer with commit message
-                local buf = vim.api.nvim_create_buf(false, true)
-                vim.api.nvim_buf_set_option(buf, "filetype", "gitcommit")
-                vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+                  require("utils.window").open_modal(path)
 
-                -- Write to file
-                vim.api.nvim_buf_call(buf, function()
-                  vim.cmd("write! " .. path)
+                  vim.api.nvim_create_autocmd("BufUnload", {
+                    buffer = vim.fn.bufnr(path),
+                    once = true,
+                    callback = function()
+                      local file, read_error = io.open(path, "r")
+                      if not file then
+                        vim.notify(
+                          "Failed to read commit message: " .. (read_error or "unknown error"),
+                          vim.log.levels.ERROR
+                        )
+                        return
+                      end
+                      local content = file:read("*all")
+                      file:close()
+
+                      if content:match("^%s*$") then
+                        vim.notify("Commit message is empty, aborting", vim.log.levels.WARN)
+                        return
+                      end
+
+                      Job:new({
+                        command = "git",
+                        args = { "commit", "-F", path },
+                        cwd = cwd,
+                        on_exit = function(commit_job, commit_code)
+                          vim.schedule(function()
+                            if commit_code == 0 then
+                              vim.notify("Commit created successfully", vim.log.levels.INFO)
+                            else
+                              local error = table.concat(commit_job:stderr_result(), "\n")
+                              vim.notify("Commit failed: " .. error, vim.log.levels.ERROR)
+                            end
+                          end)
+                        end,
+                      }):start()
+                    end,
+                  })
                 end)
-
-                -- Open in modal for editing
-                require("utils.window").open_modal(path)
-
-                -- Set up autocommand to commit when window is closed
-                vim.api.nvim_create_autocmd("BufUnload", {
-                  buffer = vim.fn.bufnr(path),
-                  once = true,
-                  callback = function()
-                    -- Read the final commit message
-                    local file = io.open(path, "r")
-                    if not file then
-                      vim.notify("Failed to read commit message", vim.log.levels.ERROR)
-                      return
-                    end
-                    local content = file:read("*all")
-                    file:close()
-
-                    -- Check if message is not empty
-                    if content:match("^%s*$") then
-                      vim.notify("Commit message is empty, aborting", vim.log.levels.WARN)
-                      return
-                    end
-
-                    -- Perform the commit
-                    Job:new({
-                      command = "git",
-                      args = { "commit", "-F", path },
-                      on_exit = function(commit_job, commit_code)
-                        vim.schedule(function()
-                          if commit_code == 0 then
-                            vim.notify("Commit created successfully", vim.log.levels.INFO)
-                          else
-                            local error = table.concat(commit_job:stderr_result(), "\n")
-                            vim.notify("Commit failed: " .. error, vim.log.levels.ERROR)
-                          end
-                        end)
-                      end,
-                    }):start()
-                  end,
-                })
               end)
-            end)
-          end,
-        })
-        :start()
+            end,
+          }):start()
+        end,
+      }):start()
     end,
   }):start()
 end

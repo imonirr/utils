@@ -1,7 +1,7 @@
 ---
 description: Reviews implementation against the plan and the codebase. Read-only. Produces a structured review the user can act on before committing.
 mode: subagent
-model: github-copilot/gpt-5.3-codex
+model: github-copilot/gpt-5.6-terra
 temperature: 0.1
 tools:
   read: true

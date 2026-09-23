@@ -4,7 +4,9 @@ return {
     init = function()
       vim.g.dbs = {
         ["tca-LOCAL"] = os.getenv("TCA_LOCAL_DB_URL"),
-        ["tca-NON-PROD"] = os.getenv("TCA_NON_PROD"),
+        ["tca-QA"] = os.getenv("TCA_QA"),
+        ["tca-TEST"] = os.getenv("TCA_TEST"),
+        ["tca-DEV"] = os.getenv("TCA_DEV"),
         ["tca-PROD"] = os.getenv("TCA_PROD_DB_URL"),
         ["TTBS-PROD"] = os.getenv("TTBS_PROD_DB_URL"),
         ["TCA-QA-OLD"] = os.getenv("TCA_QA_OLD"),

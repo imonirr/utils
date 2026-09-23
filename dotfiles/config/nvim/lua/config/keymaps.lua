@@ -16,10 +16,30 @@ vim.keymap.del("n", "<c-s>")
 vim.keymap.del("s", "<c-s>")
 
 -- navigating panes
-vim.keymap.set("n", "<C-h", ":wincmd k<CR>")
-vim.keymap.set("n", "<C-j", ":wincmd j<CR>")
-vim.keymap.set("n", "<C-l", ":wincmd l<CR>")
-vim.keymap.set("n", "<C-k", ":wincmd k<CR>")
+-- vim.keymap.set("n", "<C-h", ":wincmd h<CR>")
+-- vim.keymap.set("n", "<C-j", ":wincmd j<CR>")
+-- vim.keymap.set("n", "<C-l", ":wincmd l<CR>")
+-- vim.keymap.set("n", "<C-k", ":wincmd k<CR>")
+-- local function move_to(direction)
+--   vim.cmd("wincmd " .. direction)
+--
+--   if vim.bo.buftype == "terminal" then
+--     vim.cmd("startinsert")
+--   end
+-- end
+--
+-- vim.keymap.set("n", "<C-h>", function()
+--   move_to("h")
+-- end)
+-- vim.keymap.set("n", "<C-j>", function()
+--   move_to("j")
+-- end)
+-- vim.keymap.set("n", "<C-k>", function()
+--   move_to("k")
+-- end)
+-- vim.keymap.set("n", "<C-l>", function()
+--   move_to("l")
+-- end)
 
 vim.keymap.set("n", "<leader>jr", function()
   java_utils.run_spring_boot()
