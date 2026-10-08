@@ -5,6 +5,7 @@ local Util = require("lazyvim.util")
 
 local java_utils = require("utils.java")
 local kuala_utils = require("utils.kuala")
+local git_changed_diagnostics = require("utils.git_changed_diagnostics")
 
 -- map semicolon to command prompt with colon
 vim.keymap.set("n", ";", ":", { desc = "semicolon opens command prompt" })
@@ -110,6 +111,9 @@ end, { desc = "Create worktree" })
 vim.keymap.set("n", "<leader>gW", function()
   gitWorktree.list_worktrees()
 end, { desc = "Remove worktree" })
+
+git_changed_diagnostics.setup()
+vim.keymap.set("n", "<leader>gD", git_changed_diagnostics.collect, { desc = "Copy changed diagnostics" })
 
 -- Increase/decrease vertical window width by 5 columns instead of 1
 vim.keymap.set("n", "<leader>w>", "<cmd>vertical resize +10<cr>", { desc = "Increase width" })
