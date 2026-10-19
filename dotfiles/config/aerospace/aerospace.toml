@@ -202,5 +202,10 @@ if.app-name-regex-substring = ''
 run = "move-node-to-workspace W"
 
 [workspace-to-monitor-force-assignment]
-N = '^built-in retina display$'  # Case insensitive regex match
-M = '^built-in retina display$'  # Case insensitive regex match
+N = '^Built-in Retina Display$'  # Case insensitive regex match
+M = '^Built-in Retina Display$'  # Case insensitive regex match
+
+1 = '^DELL U3415W$'  # Case insensitive regex match
+2 = '^DELL U3415W$'  # Case insensitive regex match
+W = '^DELL U3415W$'  # Case insensitive regex match
+E = '^DELL U3415W$'  # Case insensitive regex match
