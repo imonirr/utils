@@ -67,13 +67,12 @@ Diff:
                     vim.notify("Copilot returned empty response", vim.log.levels.ERROR)
                     return
                   end
-                  local path = ".git/PR_DESCRIPTION.md"
+                  local path = require("utils.pr_file").get_path()
                   local lines = vim.split(text, "\n", { plain = true })
-                  local buf = vim.api.nvim_create_buf(false, true)
-                  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-                  vim.api.nvim_buf_call(buf, function()
-                    vim.cmd("write! " .. path)
-                  end)
+                  if vim.fn.writefile(lines, path) ~= 0 then
+                    vim.notify("Failed to write " .. path, vim.log.levels.ERROR)
+                    return
+                  end
                   vim.notify("PR description written to " .. path)
                   require("utils.window").open_modal(path)
                 end)

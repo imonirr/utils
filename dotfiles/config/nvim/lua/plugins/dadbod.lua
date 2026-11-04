@@ -9,7 +9,8 @@ return {
         ["tca-DEV"] = os.getenv("TCA_DEV"),
         ["tca-PROD"] = os.getenv("TCA_PROD"),
         ["TTBS-PROD"] = os.getenv("TTBS_PROD_DB_URL"),
-        ["TCA-QA-OLD"] = os.getenv("TCA_QA_OLD"),
+        ["TCA-OLD-QA"] = os.getenv("TCA_OLD_QA"),
+        ["TCA-OLD-TEST"] = os.getenv("TCA_OLD_TEST"),
       }
 
       vim.g.db_ui_save_location = "~/work/dadbod_queries"

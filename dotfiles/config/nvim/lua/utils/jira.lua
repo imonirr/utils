@@ -5,7 +5,7 @@ local M = {}
 -- Configuration (you'll need to set these)
 M.config = {
   host = os.getenv("JIRA_BASE_URL") or "", -- e.g., "yourcompany.atlassian.net"
-  email = os.getenv("JIRA_EMAIL") or "",
+  email = os.getenv("JIRA_USER_EMAIL") or "",
   api_token = os.getenv("JIRA_API_TOKEN") or "",
 }
 

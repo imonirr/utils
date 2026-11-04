@@ -2,17 +2,165 @@
 description: Handles git commit and PR creation. Two modes: commit-only (local) and ship (push + PR). Always threads the Jira ticket ID through branch name, commit message, and PR description.
 mode: subagent
 model: github-copilot/gpt-5.3-codex
-temperature: 0.1
-tools:
-  read: true
-  grep: true
-  glob: true
-  bash: true
-  write: false
-  edit: false
-  atlassian_jira_get_issue: true
-permission:
-  bash: ask
+permissions:
+  - action: edit
+    resource: "*"
+    effect: deny
+  - action: webfetch
+    resource: "*"
+    effect: deny
+  # The Jira lookup the agent uses
+  - action: atlassian_jira_get_issue
+    resource: "*"
+    effect: allow
+  # Worktrees are sibling folders, outside the folder opencode was started in
+  - action: external_directory
+    resource: "*"
+    effect: ask
+  - action: external_directory
+    resource: "~/work/**"
+    effect: allow
+  # Anything not listed below still asks
+  - action: shell
+    resource: "*"
+    effect: ask
+
+  # Read-only inspection
+  - action: shell
+    resource: "pwd"
+    effect: allow
+  - action: shell
+    resource: "ls *"
+    effect: allow
+  - action: shell
+    resource: "git status*"
+    effect: allow
+  - action: shell
+    resource: "git diff*"
+    effect: allow
+  - action: shell
+    resource: "git log*"
+    effect: allow
+  - action: shell
+    resource: "git show*"
+    effect: allow
+  - action: shell
+    resource: "git branch*"
+    effect: allow
+  - action: shell
+    resource: "git rev-parse*"
+    effect: allow
+  - action: shell
+    resource: "git remote*"
+    effect: allow
+  - action: shell
+    resource: "git fetch*"
+    effect: allow
+  - action: shell
+    resource: "git config --get*"
+    effect: allow
+  - action: shell
+    resource: "git worktree list*"
+    effect: allow
+  - action: shell
+    resource: "git ls-files*"
+    effect: allow
+
+  # Branch, stage, commit, push
+  - action: shell
+    resource: "git checkout -b *"
+    effect: allow
+  - action: shell
+    resource: "git switch -c *"
+    effect: allow
+  - action: shell
+    resource: "git add *"
+    effect: allow
+  - action: shell
+    resource: "git commit *"
+    effect: allow
+  - action: shell
+    resource: "git push *"
+    effect: allow
+
+  # GitHub CLI
+  - action: shell
+    resource: "gh auth status*"
+    effect: allow
+  - action: shell
+    resource: "gh repo view*"
+    effect: allow
+  - action: shell
+    resource: "gh pr view*"
+    effect: allow
+  - action: shell
+    resource: "gh pr list*"
+    effect: allow
+  - action: shell
+    resource: "gh pr diff*"
+    effect: allow
+  - action: shell
+    resource: "gh pr checks*"
+    effect: allow
+  - action: shell
+    resource: "gh pr create *"
+    effect: allow
+
+  # Hard stops. These come last because the last matching rule wins.
+  - action: shell
+    resource: "git push *--force*"
+    effect: deny
+  - action: shell
+    resource: "git push *-f *"
+    effect: deny
+  - action: shell
+    resource: "git push *-f"
+    effect: deny
+  - action: shell
+    resource: "git push *--delete*"
+    effect: deny
+  - action: shell
+    resource: "git push * :*"
+    effect: deny
+  - action: shell
+    resource: "git commit *--amend*"
+    effect: deny
+  - action: shell
+    resource: "git commit *--no-verify*"
+    effect: deny
+  - action: shell
+    resource: "git commit *-n *"
+    effect: deny
+  - action: shell
+    resource: "git reset *"
+    effect: deny
+  - action: shell
+    resource: "git rebase*"
+    effect: deny
+  - action: shell
+    resource: "git clean*"
+    effect: deny
+  - action: shell
+    resource: "git branch -D*"
+    effect: deny
+  - action: shell
+    resource: "git branch *--delete*"
+    effect: deny
+  - action: shell
+    resource: "gh pr merge*"
+    effect: deny
+  - action: shell
+    resource: "gh pr close*"
+    effect: deny
+  - action: shell
+    resource: "gh repo delete*"
+    effect: deny
+  - action: shell
+    resource: "gh api *"
+    effect: deny
+  - action: shell
+    resource: "rm *"
+    effect: deny
 ---
 
 You handle git and PR operations. You never modify source files — only git state and remote PRs.

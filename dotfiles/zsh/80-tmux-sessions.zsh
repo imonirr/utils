@@ -107,6 +107,8 @@ function session-sj {
     export XDG_CONFIG_HOME="$HOME/.config-sj"
     export XDG_DATA_HOME="$HOME/.local-sj"
     export XDG_CACHE_HOME="$HOME/.cache-sj"
+    export NPM_CONFIG_USERCONFIG="$HOME/.config-sj/.npmrc"
+    # alias mvn="mvn -s $HOME/.config-sj/maven-settings.xml"
 
     # Source SJ-specific aliases
     if [ -f "$HOME/.zsh_aliases_sj" ]; then
@@ -166,11 +168,11 @@ if [[ -n $TMUX ]]; then
       session-sj
       echo "✨ Session: SJ (Azure: $AZURE_ENV, AKS: SJ, GitHub: $GH_ENV, Copilot: $COPILOT_ENV)"
       ;;
-    softcode)
+    softcode|softcode-*)
       session-softcode
       echo "✨ Session: Softcode (Azure: $AZURE_ENV, AKS: Softcode, GitHub: $GH_ENV, Copilot: $COPILOT_ENV)"
       ;;
-    imonir)
+    imonir|imonir-*)
       session-imonir
       echo "✨ Session: Imonir (Azure: $AZURE_ENV, AKS: Imonir, GitHub: $GH_ENV, Copilot: $COPILOT_ENV)"
       ;;
@@ -182,13 +184,13 @@ fi
 # =============================================================================
 
 # Prevent running az command without any context
-az() {
-  if [[ -z "$AZURE_CONFIG_DIR" ]]; then
-    echo "❌ AZURE_CONFIG_DIR not set"
-    return 1
-  fi
-  command az "$@"
-}
+# az() {
+#   if [[ -z "$AZURE_CONFIG_DIR" ]]; then
+#     echo "❌ AZURE_CONFIG_DIR not set"
+#     return 1
+#   fi
+#   command az "$@"
+# }
 
 # Prevent running kubectl command without any context
 kubectl() {

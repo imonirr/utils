@@ -67,3 +67,4 @@ export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
 . "$HOME/.local-sj/../bin/env"
+if test -f /Users/monir/work/sj/traffic-control-tools/main/scripts/gustav/shell-integration.sh; then; source /Users/monir/work/sj/traffic-control-tools/main/scripts/gustav/shell-integration.sh; fi

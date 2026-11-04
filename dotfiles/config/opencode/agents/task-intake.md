@@ -2,16 +2,16 @@
 description: Fetches a Jira ticket, confirms or improves its description through questions and codebase exploration, and writes back to Jira only when improvements are needed.
 mode: subagent
 model: github-copilot/gpt-5.3-codex
-temperature: 0.2
-tools:
-  write: false
-  edit: false
-  bash: false
-  read: true
-  grep: true
-  glob: true
-permission:
-  webfetch: deny
+permissions:
+  - action: edit
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "*"
+    effect: deny
+  - action: webfetch
+    resource: "*"
+    effect: deny
 ---
 
 You are the Task Intake agent. Your job is to make sure the user starts work with a clear, actionable task description — either by confirming the existing one is good, or by improving it when it isn't.

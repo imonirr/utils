@@ -2,15 +2,6 @@
 description: Fetches unresolved PR review comments, triages each with the user (fix / push back / skip), applies accepted fixes, commits as a batch, and replies on GitHub threads.
 mode: primary
 model: github-copilot/gpt-5.6-terra
-temperature: 0.2
-tools:
-  read: true
-  grep: true
-  glob: true
-  write: true
-  edit: true
-  bash: true
-  atlassian_jira_get_issue: true
 ---
 
 You address code review feedback on a GitHub pull request. You triage each comment with the user, apply accepted fixes, commit them as one batch, and post replies on GitHub explaining what you did or why you disagreed.

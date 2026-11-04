@@ -96,7 +96,8 @@ outer.right =      0
 [mode.main.binding]
 # See: https://nikitabobko.github.io/AeroSpace/goodness#open-a-new-window-with-applescript
 # alt-enter = 'exec-and-forget wezterm '
-alt-enter ='exec-and-forget open -a /Applications/WezTerm.app'
+# alt-enter ='exec-and-forget open -a /Applications/WezTerm.app'
+alt-enter ='exec-and-forget open -a /Applications/Ghostty.app'
 # alt-enter = '''exec-and-forget osascript -e '
 # tell application "wezterm"
 #     do script
@@ -160,9 +161,11 @@ esc = 'mode main'
 
 
 ## application in specific workspaces
-# iterm2 to 1
+# terminal to 1
 [[on-window-detected]]
-if.app-id = 'com.github.wez.wezterm'
+# if.app-id = 'com.github.wez.wezterm'
+# run = "move-node-to-workspace 1"
+if.app-id = 'com.mitchellh.ghostty'
 run = "move-node-to-workspace 1"
 
 

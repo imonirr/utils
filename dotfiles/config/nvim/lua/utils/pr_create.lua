@@ -50,13 +50,12 @@ end
 
 -- Get PR description from file or commits
 local function get_pr_description(base_branch)
-  local pr_file = vim.fn.getcwd() .. "/.git/PR_DESCRIPTION.md"
+  local pr_file = require("utils.pr_file").get_path()
   if vim.fn.filereadable(pr_file) == 1 then
-    vim.notify("🧠 Using PR description from .git/PR_DESCRIPTION.md", vim.log.levels.INFO)
-    return vim.fn.join(vim.fn.readfile(pr_file), "\n")
-  else
-    return get_commits_summary(base_branch)
+    vim.notify("🧠 Using PR description from " .. pr_file, vim.log.levels.INFO)
+    return table.concat(vim.fn.readfile(pr_file), "\n")
   end
+  return get_commits_summary(base_branch)
 end
 
 -- Open PR title in floating window for editing
