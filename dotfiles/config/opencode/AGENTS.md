@@ -31,5 +31,6 @@ Operational notes:
 
 ## Code quality check
 
+- run lint, test, typecheck etc available in the project. if they report issue, fix them
 - **Diagnostic Verification**: After editing or creating files, check active LSP diagnostics if any
 - **Auto-Triage**: Clear code smells, or security warnings before finishing the task.

@@ -1,9 +1,22 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "autoupdate": false,
-  "model": "github-copilot/gpt-5.3-codex",
-  "small_model": "github-copilot/gpt-4.1",
+  "update": "disable",
+  "model": "github-copilot/gpt-6.1-terra",
   "default_agent": "plan",
+  "permissions": [
+    { "action": "external_directory", "resource": "*", "effect": "ask" }
+  ],
+  "agents": {
+    "build": {
+      "model": "github-copilot/claude-sonnet-5.5",
+    },
+    "plan": {
+      "model": "github-copilot/claude-opus-5.5",
+    },
+    "title": {
+      "model": "github-copilot/claude-haiku-5.5",
+    },
+  },
   "lsp": {
     "jdtls": {
       "command": [
@@ -12,32 +25,6 @@
       "env": {
         "JAVA_TOOL_OPTIONS": "-javaagent:c:/Users/monir/.opencode_addon/lombok.jar"
       }
-    }
-  },
-  "plugin": ["@mohak34/opencode-notifier@latest"],
-  "mcp": {
-     "figma-mcp-dektop": {
-       "type": "remote",
-       "url": "http://127.0.0.1:3845/mcp",
-       "enabled": false
-     },
-    "atlassian": {
-      "type": "local",
-      "command": [
-        "docker", "run", "--rm", "-i",
-        "-e", "JIRA_URL",
-        "-e", "JIRA_USERNAME",
-        "-e", "JIRA_API_TOKEN",
-        "-e", "ENABLED_TOOLS",
-        "ghcr.io/sooperset/mcp-atlassian:latest"
-      ],
-      "environment": {
-        "JIRA_URL": "{env:JIRA_URL}",
-        "JIRA_USERNAME": "{env:JIRA_USERNAME}",
-        "JIRA_API_TOKEN": "{env:JIRA_API_TOKEN}",
-        "ENABLED_TOOLS": "jira_get_issue,jira_search"
-      },
-      "enabled": true
     }
   },
   "instructions": [

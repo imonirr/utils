@@ -24,11 +24,11 @@ return {
             client.server_capabilities.documentFormattingProvider = true
           end,
         },
-        tsserver = {
-          on_attach = function(client, _bufnr)
-            client.server_capabilities.documentFormattingProvider = false
-          end,
-        },
+        -- tsserver = {
+        --   on_attach = function(client, _bufnr)
+        --     client.server_capabilities.documentFormattingProvider = false
+        --   end,
+        -- },
         vtsls = {
           on_attach = function(client, _bufnr)
             client.server_capabilities.documentFormattingProvider = false
@@ -74,14 +74,13 @@ return {
         yamlls = {
           settings = {
             yaml = {
+              schemaStore = { enable = true, url = "https://www.schemastore.org/api/json/catalog.json" },
               schemas = {
                 ["https://json.schemastore.org/kustomization.json"] = "kustomization.{yml,yaml}",
-                ["https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.30.0/all.json"] = "/*.k8s.{yml,yaml}",
-                -- Remove the blanket kubernetes rule and exclude application files
-                kubernetes = {
-                  "/*.{yml,yaml}",
-                  "!application*.{yml,yaml}", -- Exclude Spring Boot config files
-                  "!src/main/resources/*.{yml,yaml}", -- Exclude all Spring resources
+                ["https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.30.0/all.json"] = {
+                  "*.k8s.{yml,yaml}",
+                  "**/k8s/**/*.{yml,yaml}",
+                  "**/manifests/**/*.{yml,yaml}",
                 },
               },
               validate = true,
