@@ -5,9 +5,26 @@
 # Secrets Management
 # =============================================================================
 
-# Export secret variables from home directory
-# This file should contain sensitive environment variables
-[[ -f "$HOME/.secrets.sh" ]] && source "$HOME/.secrets.sh"
+# Secrets are per-session: ~/.config/session-secrets/<session>.zsh (chmod 600)
+SESSION_SECRETS_DIR="$HOME/.config/session-secrets"
+
+# Unset every variable defined in any session secrets file so contexts don't leak
+function secrets-clear {
+    local f name
+    # ~/.envrc is sourced from profile.zsh, so include it when clearing
+    for f in "$SESSION_SECRETS_DIR"/*.zsh(N) "$HOME/.envrc"(N); do
+        for name in ${(f)"$(grep -oE '^(export )?[A-Za-z_][A-Za-z0-9_]*=' "$f" 2>/dev/null | sed -E 's/^export //; s/=$//')"}; do
+            unset "$name"
+        done
+    done
+}
+
+# Load secrets for one session (work, softcode, imonir)
+function secrets-load {
+    local file="$SESSION_SECRETS_DIR/$1.zsh"
+    [[ -r "$file" ]] || { echo "⚠️  No secrets file: $file" >&2; return 0; }
+    source "$file" || echo "❌ Failed to load $file" >&2
+}
 
 # =============================================================================
 # Azure Environment Switching Functions
@@ -115,11 +132,6 @@ function session-sj {
       source "$HOME/.zsh_aliases_sj"
     fi
 
-    # Source SJ work environment secrets
-    if test -f "$HOME/work/sj/.env.secrets"; then
-      export $(cat "$HOME/work/sj/.env.secrets" | xargs)
-    fi
-
     # Run setup only once per session
     if [[ -n "$TMUX" ]] && [[ -z "$TMUX_SESSION_SETUP_DONE" ]]; then
         tmux set-environment TMUX_SESSION_SETUP_DONE 1
@@ -130,6 +142,11 @@ function session-sj {
 function session-softcode {
     azure-softcode
     github-softcode
+
+    # 1. Isolate the config directories for Work
+    export XDG_CONFIG_HOME="$HOME/.config-softcode"
+    export XDG_DATA_HOME="$HOME/.local-softcode"
+    export XDG_CACHE_HOME="$HOME/.cache-softcode"
 
     # Run setup only once per session
     if [[ -n "$TMUX" ]] && [[ -z "$TMUX_SESSION_SETUP_DONE" ]]; then
@@ -163,17 +180,21 @@ function session-imonir {
 # Switch to correct az + github account based on tmux session name
 if [[ -n $TMUX ]]; then
 # if [[ -n $TMUX ]] && [[ -z "$TMUX_SESSION_SETUP_DONE" ]]; then
+  secrets-clear
   case "$(tmux display-message -p '#S')" in
     sj|sj-*)
       session-sj
+      secrets-load sj
       echo "✨ Session: SJ (Azure: $AZURE_ENV, AKS: SJ, GitHub: $GH_ENV, Copilot: $COPILOT_ENV)"
       ;;
     softcode|softcode-*)
       session-softcode
+      secrets-load softcode
       echo "✨ Session: Softcode (Azure: $AZURE_ENV, AKS: Softcode, GitHub: $GH_ENV, Copilot: $COPILOT_ENV)"
       ;;
     imonir|imonir-*)
       session-imonir
+      secrets-load imonir
       echo "✨ Session: Imonir (Azure: $AZURE_ENV, AKS: Imonir, GitHub: $GH_ENV, Copilot: $COPILOT_ENV)"
       ;;
   esac
@@ -211,22 +232,6 @@ kubectl() {
 # }
 
 
-
-work() {
-  local issue_number="$1"
-  local session_name="sj"
-
-  if [[ -n "$issue_number" ]]; then
-    if [[ ! "$issue_number" =~ ^[0-9]+$ ]]; then
-      echo "❌ Usage: work [jira-number]"
-      return 1
-    fi
-    session_name="sj-$issue_number"
-  fi
-
-  cd "$HOME/work/sj" || return 1
-  tmux new-session -A -s "$session_name"
-}
-
-alias softcode="cd $HOME/work/softcode && tmux new -s softcode"
-alias imonir="cd $HOME/work/imonir && tmux new -s imonir"
+alias work="cd $HOME/work/softcode && tmux new-session -A -s softcode"
+alias softcode="cd $HOME/work/softcode && tmux new-session -A -s softcode"
+alias imonir="cd $HOME/work/imonir && tmux new-session -A -s imonir"

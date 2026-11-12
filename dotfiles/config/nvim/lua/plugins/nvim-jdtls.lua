@@ -20,6 +20,21 @@ return {
         return parent .. "_" .. current
       end
 
+      -- Mirror `.mvn/maven.config` (--global-settings .mvn/settings.xml), which jdtls ignores
+      local orig_root_dir = opts.root_dir
+      opts.root_dir = function(path)
+        local root = orig_root_dir(path)
+        local global = root and (root .. "/.mvn/settings.xml")
+        opts.settings = opts.settings or {}
+        opts.settings.java = opts.settings.java or {}
+        opts.settings.java.configuration = opts.settings.java.configuration or {}
+        opts.settings.java.configuration.maven = {
+          userSettings = vim.fn.expand("~/.m2/settings.xml"),
+          globalSettings = (global and vim.uv.fs_stat(global)) and global or vim.NIL,
+        }
+        return root
+      end
+
       -- 2. Safely merge your custom compiler and plugin settings
       opts.jdtls = vim.tbl_deep_extend("force", opts.jdtls or {}, {
         settings = {
